@@ -1,5 +1,4 @@
 import 'package:autth_injustice_app/authentication/domain/models/auth_entities.dart';
-import 'package:flutter/material.dart';
 import '../failure/failure.dart';
 // import '../../domain/models/account_entity.dart';
 // import '../../domain/models/character_entity.dart';

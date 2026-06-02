@@ -6,7 +6,6 @@ import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../domain/models/auth_entities.dart';
 import '../controllers/auth_session_viewmodel.dart';
-import '../widgets/social_login_buttons.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title, required this.session});
@@ -38,37 +37,30 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             // User info section
-            if (widget.session != null) ...[
-              CircleAvatar(
-                radius: 36,
-                child: Text(
-                  (widget.session.user.name.isNotEmpty
-                          ? widget.session.user.name[0]
-                          : '?')
-                      .toUpperCase(),
-                ),
+            ...[
+            CircleAvatar(
+              radius: 36,
+              child: Text(
+                (widget.session.user.name.isNotEmpty
+                        ? widget.session.user.name[0]
+                        : '?')
+                    .toUpperCase(),
               ),
-              const SizedBox(height: 12),
-              Text(
-                widget.session.user.name,
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 6),
-              Text(
-                widget.session.user.email,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
-              ),
-              const SizedBox(height: 18),
-            ] else ...[
-              SocialLoginButtons(
-                onGoogle: () {},
-                onFacebook: () {},
-                onApple: () {},
-              ),
-              const SizedBox(height: 12),
-            ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              widget.session.user.name,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: 6),
+            Text(
+              widget.session.user.email,
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
+            ),
+            const SizedBox(height: 18),
+          ],
             Watch((context) {
               final isRunning =
                   authController.commands.signOutCommand.isExecuting.value;

@@ -102,8 +102,9 @@ class _SignupPageState extends State<SignupPage> {
                       keyboardType: TextInputType.emailAddress,
                       validator: (v) {
                         if (v == null || v.isEmpty) return 'Informe seu e-mail';
-                        if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(v))
+                        if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(v)) {
                           return 'E-mail inválido';
+                        }
                         return null;
                       },
                     ),
