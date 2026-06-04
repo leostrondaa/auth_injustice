@@ -1,5 +1,14 @@
 import 'package:autth_injustice_app/core/routes/auth_routes.dart';
 import 'package:autth_injustice_app/core/routes/injustice_routes.dart';
+import 'package:autth_injustice_app/domain/models/account_entity.dart';
+import 'package:autth_injustice_app/domain/models/character_entity.dart';
+import 'package:autth_injustice_app/presentation/views/about_view.dart';
+import 'package:autth_injustice_app/presentation/views/account_create_view.dart';
+import 'package:autth_injustice_app/presentation/views/characters/list_of/character_create_view.dart';
+import 'package:autth_injustice_app/presentation/views/characters/list_of/character_edit_view.dart';
+import 'package:autth_injustice_app/presentation/views/characters/list_of/characters_view.dart';
+import 'package:autth_injustice_app/presentation/views/home_view.dart';
+import 'package:autth_injustice_app/presentation/views/initial_view.dart';
 import 'package:autth_injustice_app/under_construction_view.dart';
 import 'package:go_router/go_router.dart';
 
@@ -7,34 +16,26 @@ import 'package:go_router/go_router.dart';
 class GlobalRouteNames {
   static const underConstruction = 'under_construction';
 
-  // static const home = 'home';
-  // static const about = 'about';
-  // static const accountCreate = 'account_create';
-  // static const characters = 'characters';
-
-  // // Authentication route names
-  // static const authSplash = 'splash';
-  // static const authLogin = 'login';
-  // static const authRegister = 'register';
-  // static const authForgot = 'forgot';
-  // static const authHome = 'home';
+  static const initial = 'initial';
+  static const home = 'home';
+  static const about = 'about';
+  static const accountCreate = 'account_create';
+  static const characters = 'characters';
+  static const charactersEdit = 'charactersEdit';
+  static const charactersCreate = 'charactersCreate';
 }
 
 /// Paths to keep URL structure consistent
 class GlobalPaths {
   static const underConstruction = '/under-construction';
 
-  // static const home = '/home';
-  // static const about = '/about';
-  // static const accountCreate = '/account-create';
-  // static const characters = '/characters';
-
-  // // Authentication paths
-  // static const authSplash = '/';
-  // static const authLogin = '/login';
-  // static const authRegister = '/register';
-  // static const authForgot = '/forgot';
-  // static const authHome = '/home';
+  static const initial = '/initial';
+  static const home = '/home';
+  static const about = '/about';
+  static const accountCreate = '/account-create';
+  static const characters = '/characters';
+  static const charactersEdit = '/charactersEdit';
+  static const charactersCreate = '/charactersCreate';
 }
 
 /// app routers using go_router
@@ -52,39 +53,63 @@ class AppRouter {
         pageBuilder: (context, state) =>
             const NoTransitionPage(child: UnderConstructionView()),
       ),
+      GoRoute(
+        path: GlobalPaths.initial,
+        name: GlobalRouteNames.initial,
+        pageBuilder: (context, state) =>
+            const NoTransitionPage(child: InitialView()),
+      ),
+      GoRoute(
+        path: GlobalPaths.home,
+        name: GlobalRouteNames.home,
+        pageBuilder: (context, state) =>
+            const NoTransitionPage(child: HomeView()),
+      ),
+      GoRoute(
+        path: GlobalPaths.accountCreate,
+        name: GlobalRouteNames.accountCreate,
+        pageBuilder: (context, state) =>
+            const NoTransitionPage(child: AccountCreateView()),
+      ),
+      GoRoute(
+        path: GlobalPaths.characters,
+        name: GlobalRouteNames.characters,
+        pageBuilder: (context, state) {
+          final account = state.extra as Account;
+          return NoTransitionPage(child: CharactersView(account: account));
+        },
+      ),
+      GoRoute(
+        name: GlobalRouteNames.charactersEdit,
+        path: GlobalPaths.charactersEdit,
+        builder: (context, state) {
+          final extra = state.extra as ({Character character, Account account});
 
-      // GoRoute(
-      //   path: AppPaths.underConstruction,
-      //   name: AppRouteNames.underConstruction,
-      //   pageBuilder:
-      //       (context, state) => const NoTransitionPage(child: UnderConstructionView()),
-      // ),
-      // GoRoute(
-      //   path: AppPaths.authSplash,
-      //   name: AppRouteNames.authSplash,
-      //   pageBuilder:
-      //       (context, state) => const NoTransitionPage(child: SplashPage()),
-      // ),
-      // GoRoute(
-      //   path: AppPaths.authLogin,
-      //   name: AppRouteNames.authLogin,
-      //   builder: (context, state) => const LoginPage(),
-      // ),
-      // GoRoute(
-      //   path: AppPaths.authRegister,
-      //   name: AppRouteNames.authRegister,
-      //   builder: (context, state) => const SignupPage(),
-      // ),
+          return CharacterEditView(
+            character: extra.character,
+            account: extra.account,
+          );
+        },
+      ),
+      GoRoute(
+        name: GlobalRouteNames.charactersCreate,
+        path: GlobalPaths.charactersCreate,
+        builder: (context, state) {
+          final extra =
+              state.extra as ({Account account, Character? character});
 
-      // GoRoute(
-      //   path: AppPaths.authHome,
-      //   name: AppRouteNames.authHome,
-      //   builder: (context, state) {
-      //     // Pega o argumento passado via extra
-      //     final session = state.extra as AuthSession;
-      //     return MyHomePage(title: 'Flutter Demo Home Page', session: session);
-      //   },
-      // ),
+          return CharacterCreateView(
+            account: extra.account,
+            character: extra.character,
+          );
+        },
+      ),
+      GoRoute(
+        path: GlobalPaths.about,
+        name: GlobalRouteNames.about,
+        pageBuilder: (context, state) =>
+            const NoTransitionPage(child: AboutView()),
+      ),
     ],
   );
 }

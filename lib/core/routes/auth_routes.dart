@@ -19,7 +19,8 @@ final List<RouteBase> authRoutes = [
   GoRoute(
     path: AuthPaths.splash,
     name: AuthRouteNames.splash,
-    pageBuilder: (context, state) => const NoTransitionPage(child: SplashPage()),
+    pageBuilder: (context, state) =>
+        const NoTransitionPage(child: SplashPage()),
   ),
   GoRoute(
     path: AuthPaths.login,
