@@ -71,8 +71,6 @@ void setupDependencyInjection() {
   // viewmodes
   // Account viewmodes
 
-  injector.addSingleton<ThemeController>(ThemeController.new);
-
   // Regristração de dependências para Account
   // Repositories e servicos
   injector

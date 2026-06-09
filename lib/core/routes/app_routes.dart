@@ -1,4 +1,4 @@
-import 'package:autth_injustice_app/core/routes/auth_routes.dart';
+import '../../core/routes/auth_routes.dart';
 import 'package:autth_injustice_app/core/routes/injustice_routes.dart';
 import 'package:autth_injustice_app/domain/models/account_entity.dart';
 import 'package:autth_injustice_app/domain/models/character_entity.dart';

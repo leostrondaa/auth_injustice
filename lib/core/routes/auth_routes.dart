@@ -13,9 +13,11 @@ class AuthPaths {
   static const splash = '/';
   static const login = '/login';
   static const register = '/register';
+  
 }
 
-final List<RouteBase> authRoutes = [
+final List<RouteBase> 
+authRoutes = [
   GoRoute(
     path: AuthPaths.splash,
     name: AuthRouteNames.splash,
