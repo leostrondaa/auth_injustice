@@ -1,4 +1,5 @@
 import 'package:autth_injustice_app/core/di/dependency_injection.dart';
+import 'package:autth_injustice_app/core/routes/app_routes.dart';
 import 'package:autth_injustice_app/core/routes/auth_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -64,18 +65,19 @@ class _LoginPageState extends State<LoginPage> {
                   children: [
                     Text(
                       'Bem-vindo de volta',
-                      style: Theme.of(context).textTheme.headlineMedium
-                          ?.copyWith(
-                            color: context.colors.onSurface,
-                            fontWeight: FontWeight.bold,
-                          ),
+                      style:
+                          Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                color: context.colors.onSurface,
+                                fontWeight: FontWeight.bold,
+                              ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       'Entre para continuar',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: context.colors.onPrimary.withValues(alpha: 0.8),
-                      ),
+                            color:
+                                context.colors.onPrimary.withValues(alpha: 0.8),
+                          ),
                     ),
                     const SizedBox(height: 28),
                     AuthTextFormField(
@@ -128,10 +130,7 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 8),
                     Watch((context) {
                       final isRunning = authController
-                          .commands
-                          .signInCommand
-                          .isExecuting
-                          .value;
+                          .commands.signInCommand.isExecuting.value;
 
                       return ElevatedButton(
                         onPressed: () async {
@@ -144,6 +143,7 @@ class _LoginPageState extends State<LoginPage> {
                               emailCtrl.text,
                               passCtrl.text,
                             );
+                            if (!mounted) return;
 
                             if (authController.session.message.value != null) {
                               _showSnack(authController.session.message.value!);
@@ -154,9 +154,10 @@ class _LoginPageState extends State<LoginPage> {
                             if (auth == null) {
                               _showSnack('Falha ao autenticar usuário.');
                             } else {
-                              // context.goNamed(AppRouteNames.adventureHome);
+                              context.goNamed(GlobalRouteNames.home);
                             }
                           } catch (e) {
+                            if (!mounted) return;
                             _showSnack('Erro ao fazer login: $e');
                           }
                         },
@@ -170,7 +171,6 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                       );
                     }),
-
                     const SizedBox(height: 20),
                     Row(
                       children: [
@@ -186,12 +186,12 @@ class _LoginPageState extends State<LoginPage> {
                         const SizedBox(width: 12),
                         Text(
                           'Ou continue com',
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(
-                                color: context.colors.onPrimary.withValues(
-                                  alpha: 0.8,
-                                ),
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: context.colors.onPrimary.withValues(
+                                      alpha: 0.8,
+                                    ),
+                                  ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(

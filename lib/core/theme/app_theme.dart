@@ -92,52 +92,27 @@ extension TextStyleExtensions on TextStyle {
 
 /// Color palette based on game theme
 class LightModeColors {
-  // ===========================================================================
-  // PRIMARY — Azul profundo (base do app)
-  // ===========================================================================
-  static const lightPrimary = Color(0xFF0A0E3D);
-  static const lightOnPrimary = Color(0xFFE6E8FF);
-
-  // Containers do primary (botões, chips)
-  static const lightPrimaryContainer = Color(0xFF1D2363);
-  static const lightOnPrimaryContainer = Color(0xFFD6D8F0);
-
-  // ===========================================================================
-  // SECONDARY — Vermelho (ações destrutivas / alerta)
-  // ===========================================================================
-  static const lightSecondary = Color(0xFFBA1A1A);
+  static const lightPrimary = Color(0xFFFFFF00);
+  static const lightOnPrimary = Color(0xFFFFFFFF);
+  static const lightPrimaryContainer = Color(0xFF000000);
+  static const lightOnPrimaryContainer = Color(0xFFFFFFFF);
+  static const lightSecondary = Color(0xFF181818);
   static const lightOnSecondary = Color(0xFFFFFFFF);
-
-  // Tertiary — variação mais suave do vermelho
-  static const lightTertiary = Color(0xFFD65C5C);
-  static const lightOnTertiary = Color(0xFF2B0B0C);
-
-  // ===========================================================================
-  // ERROR — separado semanticamente do secondary
-  // ===========================================================================
+  static const lightTertiary = Color(0xBFB8860B);
+  static const lightOnTertiary = Color(0xFFd1d1d1);
+  static const lightTertiary2 = Color(0xFF000000);
+  static const lightOnTertiary2 = Color(0xBFFFFFFF);
   static const lightError = Color(0xFFBA1A1A);
   static const lightOnError = Color(0xFFFFFFFF);
   static const lightErrorContainer = Color(0xFFFFDAD6);
   static const lightOnErrorContainer = Color(0xFF410002);
-
-  // ===========================================================================
-  // BACKGROUND & SURFACE — azul escuro dominante
-  // ===========================================================================
-  static const lightBackground = Color(0xFF0A0E3D); // fundo das telas
-  static const lightSurface = Color(0xFF12175A); // cards, sheets
-  static const lightSurfaceVariant = Color(0xFF1B217A); // containers elevados
-
+  static const lightBackground = Color(0xFF212121); 
+  static const lightSurface = Color.fromARGB(255, 46, 46, 46); 
+  static const lightSurfaceVariant = Color.fromARGB(255, 39, 39, 39); 
   static const lightOnSurface = Color(0xFFFFFFFF);
   static const lightOnSurfaceVariant = Color(0xFFE6E8FF);
-  // ===========================================================================
-  // OUTLINE / DIVIDER / SHADOW
-  // ===========================================================================
   static const lightOutline = Color(0xFF3C418A);
   static const lightShadow = Color(0xFF000000);
-
-  // ===========================================================================
-  // INVERSE (usado em contrastes)
-  // ===========================================================================
   static const lightInversePrimary = Color(0xFF8B90D8);
 }
 

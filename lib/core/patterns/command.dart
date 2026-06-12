@@ -28,12 +28,24 @@ abstract base class Command<Success, Error>
 
   // Método para executar o comando com tratamento
   Future<Result<Success, Error>> call() async {
-    if (_running.value) return _result.value!; // já está rodando
-    _running.value = true; // indica que está rodando
-    _result.value = null; // limpa resultado anterior
-    _result.value = await execute(); // executa a ação
-    _running.value = false; // indica que terminou
-    return _result.value!;
+    
+    if (_running.value) {
+      
+      while (_running.value) {
+        await Future.delayed(Duration.zero);
+      }
+      return _result.value!;
+    }
+
+    _running.value = true;
+    _result.value = null;
+
+    try {
+      _result.value = await execute();
+      return _result.value!;
+    } finally {
+      _running.value = false;
+    }
   }
 
   void clear() {

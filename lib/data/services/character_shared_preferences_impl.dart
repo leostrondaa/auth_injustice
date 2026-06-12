@@ -105,7 +105,7 @@ final class CharacterSharedPreferencesService
             return Success(character);
           }
 
-          return Error(ApiLocalFailure());
+          return Error(failure);
         },
       );
     } catch (e) {
@@ -122,7 +122,6 @@ final class CharacterSharedPreferencesService
 
       return await currentResult.fold(
         onSuccess: (characters) async {
-          final existingIds = characters.map((e) => e.id).toList();
 
           final index = characters.indexWhere((c) => c.id == character.id);
 

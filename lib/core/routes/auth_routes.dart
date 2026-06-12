@@ -13,11 +13,10 @@ class AuthPaths {
   static const splash = '/';
   static const login = '/login';
   static const register = '/register';
-  
 }
 
-final List<RouteBase> 
-authRoutes = [
+final List<RouteBase> authRoutes = [
+  
   GoRoute(
     path: AuthPaths.splash,
     name: AuthRouteNames.splash,
@@ -27,11 +26,12 @@ authRoutes = [
   GoRoute(
     path: AuthPaths.login,
     name: AuthRouteNames.login,
-    builder: (context, state) => const LoginPage(),
+    pageBuilder: (context, state) => const NoTransitionPage(child: LoginPage()),
   ),
   GoRoute(
     path: AuthPaths.register,
     name: AuthRouteNames.register,
-    builder: (context, state) => const SignupPage(),
+    pageBuilder: (context, state) =>
+        const NoTransitionPage(child: SignupPage()),
   ),
 ];

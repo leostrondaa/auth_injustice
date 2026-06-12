@@ -17,8 +17,6 @@ class AuthSessionCommands {
   final SignUpCommand _signUpCommand;
   final IAuthRepository _repository;
 
- 
-
   AuthSessionCommands({
     required this.state,
     required IAuthRepository repository,
@@ -26,11 +24,11 @@ class AuthSessionCommands {
     required SignInWithGoogleCommand signInWithGoogleCommand,
     required SignOutCommand signOutCommand,
     required SignUpCommand signUpCommand,
-  }) : _repository = repository,
-       _signInCommand = signInCommand,
-       _signInWithGoogleCommand = signInWithGoogleCommand,
-       _signOutCommand = signOutCommand,
-       _signUpCommand = signUpCommand {
+  })  : _repository = repository,
+        _signInCommand = signInCommand,
+        _signInWithGoogleCommand = signInWithGoogleCommand,
+        _signOutCommand = signOutCommand,
+        _signUpCommand = signUpCommand {
     // Observadores que reagem automaticamente ao término dos comandos
     _observeSignIn();
     _observeSignInWithGoogle();

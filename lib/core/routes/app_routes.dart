@@ -1,6 +1,7 @@
+import 'package:autth_injustice_app/domain/models/account_entity.dart';
+
 import '../../core/routes/auth_routes.dart';
 import 'package:autth_injustice_app/core/routes/injustice_routes.dart';
-import 'package:autth_injustice_app/domain/models/account_entity.dart';
 import 'package:autth_injustice_app/domain/models/character_entity.dart';
 import 'package:autth_injustice_app/presentation/views/about_view.dart';
 import 'package:autth_injustice_app/presentation/views/account_create_view.dart';
@@ -11,11 +12,12 @@ import 'package:autth_injustice_app/presentation/views/home_view.dart';
 import 'package:autth_injustice_app/presentation/views/initial_view.dart';
 import 'package:autth_injustice_app/under_construction_view.dart';
 import 'package:go_router/go_router.dart';
+import 'package:autth_injustice_app/authentication/presentation/controllers/auth_session_viewmodel.dart';
+import '../di/dependency_injection.dart';
 
 /// Route names for easier referencing
 class GlobalRouteNames {
   static const underConstruction = 'under_construction';
-
   static const initial = 'initial';
   static const home = 'home';
   static const about = 'about';
@@ -28,7 +30,6 @@ class GlobalRouteNames {
 /// Paths to keep URL structure consistent
 class GlobalPaths {
   static const underConstruction = '/under-construction';
-
   static const initial = '/initial';
   static const home = '/home';
   static const about = '/about';
@@ -44,6 +45,24 @@ class AppRouter {
 
   static final GoRouter router = GoRouter(
     initialLocation: AuthPaths.splash,
+    redirect: (context, state) {
+      final authViewModel = injector.get<AuthViewModel>();
+      final auth = authViewModel.session.session.value;
+
+      final currentPath = state.matchedLocation;
+
+      final isAuthRoute = currentPath == AuthPaths.splash ||
+          currentPath == AuthPaths.login ||
+          currentPath == AuthPaths.register;
+
+      if (auth == null && !isAuthRoute) {
+        return AuthPaths.login;
+      }
+      if (auth != null && isAuthRoute) {
+        return GlobalPaths.home;
+      }
+      return null;
+    },
     routes: <RouteBase>[
       ...authRoutes,
       ...appRoutes,
