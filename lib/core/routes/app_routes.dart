@@ -141,7 +141,7 @@ class AppRouter {
   );
 
   static bool _isNewAccount(Account account) {
-    final fiveMinutesAgo = DateTime.now().subtract(const Duration(minutes: 5));
+    final fiveMinutesAgo = DateTime.now().subtract(const Duration(seconds: 10));
     return account.createdAt.isAfter(fiveMinutesAgo);
   }
 }

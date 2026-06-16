@@ -1,3 +1,4 @@
+import 'package:autth_injustice_app/core/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import '../../core/di/dependency_injection.dart';
 import '../../core/theme/app_theme.dart';
@@ -85,10 +86,16 @@ class _AccountCreateViewState extends State<AccountCreateView> {
             case AccountSuccessEvent.created:
               message = 'Conta criada com sucesso!';
               color = Colors.green;
+              if (mounted) {
+                context.goNamed(GlobalRouteNames.home);
+              }
               break;
             case AccountSuccessEvent.updated:
               message = 'Conta atualizada com sucesso!';
               color = Colors.green;
+              if (mounted) {
+                context.goNamed(GlobalRouteNames.home);
+              }
               break;
             case AccountSuccessEvent.deleted:
               message = 'Conta excluída com sucesso!';
@@ -202,7 +209,7 @@ class _AccountCreateViewState extends State<AccountCreateView> {
       energy: _energy,
       createdAt: sessionAccount.createdAt,
       updatedAt: now,
-      isProfileConfigured: true, 
+      isProfileConfigured: true,
     );
 
     if (_vmAccount.accountState.hasAccount.value) {

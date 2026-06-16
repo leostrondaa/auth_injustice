@@ -7,6 +7,7 @@ import '../../../../domain/models/account_entity.dart';
 import '../../../../domain/models/character_entity.dart';
 import '../../../controllers/characters_view_model.dart';
 import '../../../widgets/app_drawer.dart';
+import '../../../../authentication/presentation/controllers/auth_session_viewmodel.dart';
 
 /// Página de listagem de personagens
 class CharactersView extends StatefulWidget {
@@ -26,6 +27,13 @@ class _CharactersViewState extends State<CharactersView> {
   void initState() {
     super.initState();
     _viewModel = injector.get<CharactersViewModel>();
+
+    final authViewModel = injector.get<AuthViewModel>();
+    final sessionUid = authViewModel.session.session.value?.account.uid;
+    print('🔍 CharactersView - Account UID: ${account.uid}');
+    print('🔍 CharactersView - Session UID: $sessionUid');
+    print('🔍 CharactersView - UIDs são iguais? ${account.uid == sessionUid}');
+    
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _viewModel.commands.fetchCharacters();
     });
