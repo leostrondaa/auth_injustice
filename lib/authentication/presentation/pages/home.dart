@@ -49,13 +49,13 @@ class _MyHomePageState extends State<MyHomePage> {
             CircleAvatar(
               radius: 36,
               child: Text(
-                (account.name.isNotEmpty ? account.name[0] : '?')
+                (account.displayName.isNotEmpty ? account.displayName[0] : '?')
                     .toUpperCase(),
               ),
             ),
             const SizedBox(height: 12),
             Text(
-              account.name,
+              account.displayName,
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: 6),

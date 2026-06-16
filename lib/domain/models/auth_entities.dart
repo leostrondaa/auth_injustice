@@ -8,7 +8,7 @@ import 'package:autth_injustice_app/domain/models/account_entity.dart';
 enum AuthProvider { firebase, google }
 
 // ──────────────────────────────────────────────
-// Token de autenticação
+// Token de autenticação (em memória)
 // ──────────────────────────────────────────────
 
 class Token extends Equatable {
@@ -24,12 +24,12 @@ class Token extends Equatable {
 }
 
 // ──────────────────────────────────────────────
-// Token de sessão (persistido localmente)
+// Token de sessão (persistido localmente via SharedPreferences)
 // ──────────────────────────────────────────────
 
 class SessionToken extends Equatable {
   final String uid;
-  final String? name;
+  final String? displayName;
   final String? email;
   final String value;
   final DateTime expiresAt;
@@ -38,7 +38,7 @@ class SessionToken extends Equatable {
 
   const SessionToken({
     required this.uid,
-    this.name,
+    this.displayName,
     this.email,
     required this.value,
     required this.expiresAt,
@@ -50,7 +50,7 @@ class SessionToken extends Equatable {
 
   Map<String, dynamic> toJson() => {
         'uid': uid,
-        'name': name,
+        'displayName': displayName,
         'email': email,
         'value': value,
         'expiresAt': expiresAt.toIso8601String(),
@@ -60,7 +60,7 @@ class SessionToken extends Equatable {
 
   factory SessionToken.fromJson(Map<String, dynamic> map) => SessionToken(
         uid: map['uid'] as String,
-        name: map['name'] as String?,
+        displayName: map['displayName'] as String?,
         email: map['email'] as String?,
         value: map['value'] as String,
         expiresAt: DateTime.parse(map['expiresAt'] as String),
@@ -76,7 +76,7 @@ class SessionToken extends Equatable {
 }
 
 // ──────────────────────────────────────────────
-// Sessão autenticada — carrega Account completo
+// Sessão autenticada — carrega Account completo do Firestore
 // ──────────────────────────────────────────────
 
 class AuthSession extends Equatable {

@@ -9,72 +9,59 @@ import 'account_remote_storage_interface.dart';
 
 /// Implementação de [IAccountRemoteStorage] usando Cloud Firestore.
 ///
-/// Cada conta é armazenada como um documento em `/accounts/{uid}`,
-/// onde `uid` é o id do usuário no Firebase Auth.
+/// Estrutura no Firestore:
+/// ```
+/// /accounts/{uid}   ← documento com os dados da conta
+/// ```
 final class AccountFirestoreService implements IAccountRemoteStorage {
   final FirebaseFirestore _firestore;
 
   AccountFirestoreService({FirebaseFirestore? firestore})
       : _firestore = firestore ?? FirebaseFirestore.instance;
 
-  CollectionReference<Map<String, dynamic>> get _accountsRef =>
-      _firestore.collection('accounts');
-
-  @override
-  Future<VoidResult> deleteAccount(String uid) async {
-    try {
-      await _accountsRef.doc(uid).delete();
-      return Success(null);
-    } catch (e) {
-      return Error(
-        ApiRemoteFailure('Firestore - Erro ao deletar conta: $e'),
-      );
-    }
-  }
+  DocumentReference<Map<String, dynamic>> _accountDoc(String uid) =>
+      _firestore.collection('accounts').doc(uid);
 
   @override
   Future<AccountResult> getAccount(String uid) async {
     try {
-      final snapshot = await _accountsRef.doc(uid).get();
-
+      final snapshot = await _accountDoc(uid).get();
       if (!snapshot.exists || snapshot.data() == null) {
         return Error(EmptyResultFailure());
       }
-
-      final account = AccountMapper.fromSnapshot(snapshot);
-      return Success(account);
+      return Success(AccountMapper.fromSnapshot(snapshot));
     } catch (e) {
-      return Error(
-        ApiRemoteFailure('Firestore - Erro ao obter conta: $e'),
-      );
+      return Error(ApiRemoteFailure('Firestore - Erro ao obter conta: $e'));
     }
   }
 
   @override
   Future<VoidResult> saveAccount(Account account) async {
     try {
-      await _accountsRef
-          .doc(account.uid)
-          .set(AccountMapper.toMap(account));
+      await _accountDoc(account.uid).set(AccountMapper.toMap(account));
       return Success(null);
     } catch (e) {
-      return Error(
-        ApiRemoteFailure('Firestore - Erro ao salvar conta: $e'),
-      );
+      return Error(ApiRemoteFailure('Firestore - Erro ao salvar conta: $e'));
     }
   }
 
   @override
   Future<VoidResult> updateAccount(Account account) async {
     try {
-      await _accountsRef
-          .doc(account.uid)
-          .update(AccountMapper.toMap(account));
+      await _accountDoc(account.uid).update(AccountMapper.toMap(account));
       return Success(null);
     } catch (e) {
-      return Error(
-        ApiRemoteFailure('Firestore - Erro ao atualizar conta: $e'),
-      );
+      return Error(ApiRemoteFailure('Firestore - Erro ao atualizar conta: $e'));
+    }
+  }
+
+  @override
+  Future<VoidResult> deleteAccount(String uid) async {
+    try {
+      await _accountDoc(uid).delete();
+      return Success(null);
+    } catch (e) {
+      return Error(ApiRemoteFailure('Firestore - Erro ao deletar conta: $e'));
     }
   }
 }

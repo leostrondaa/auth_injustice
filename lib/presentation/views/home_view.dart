@@ -217,6 +217,7 @@ class _HomeViewState extends State<HomeView> {
 }
 
 /// Card de cabeçalho com informações básicas da conta
+/// Card de cabeçalho com informações básicas da conta
 class _AccountHeaderCard extends StatelessWidget {
   final String displayName;
   final String email;
@@ -230,6 +231,10 @@ class _AccountHeaderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String firstLetter = displayName.isNotEmpty 
+        ? displayName[0].toUpperCase() 
+        : '?';
+
     return Container(
       width: double.infinity,
       padding: AppSpacing.paddingLg,
@@ -258,7 +263,7 @@ class _AccountHeaderCard extends StatelessWidget {
                 radius: 30,
                 backgroundColor: Theme.of(context).colorScheme.onSecondary,
                 child: Text(
-                  displayName[0].toUpperCase(),
+                  firstLetter,
                   style: context.textStyles.headlineMedium?.copyWith(
                     color: Theme.of(context).colorScheme.primary,
                   ),
@@ -270,15 +275,14 @@ class _AccountHeaderCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      displayName,
+                      displayName.isNotEmpty ? displayName : 'Sem nome',
                       style: context.textStyles.headlineSmall?.copyWith(
-                        // color: Theme.of(context).colorScheme.onPrimary,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      email,
+                      email.isNotEmpty ? email : 'Sem email',
                       style: context.textStyles.bodyMedium,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -323,7 +327,6 @@ class _AccountHeaderCard extends StatelessWidget {
     );
   }
 }
-
 /// Card para exibir recursos (Gold, Gemas, Energia)
 class _ResourceCard extends StatelessWidget {
   final IconData icon;

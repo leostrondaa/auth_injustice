@@ -2,88 +2,94 @@ import 'package:equatable/equatable.dart';
 
 class Account extends Equatable {
   final String uid;
-  final String name;
   final String email;
   final String displayName;
+  final String nickname;
   final int level;
   final int gold;
   final int gems;
   final int energy;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final bool isProfileConfigured; 
 
   const Account({
     required this.uid,
-    required this.name,
     required this.email,
     required this.displayName,
+    required this.nickname,
     required this.level,
     required this.gold,
     required this.gems,
     required this.energy,
     required this.createdAt,
     required this.updatedAt,
+    this.isProfileConfigured = false, 
   });
 
-  /// Cria um Account novo (recém-registrado), com valores iniciais padrão.
   factory Account.initial({
     required String uid,
     required String email,
-    required String name,
     required String displayName,
   }) {
     final now = DateTime.now();
     return Account(
       uid: uid,
       email: email,
-      name: name,
       displayName: displayName,
+      nickname: '',
       level: 1,
       gold: 0,
       gems: 0,
       energy: 100,
       createdAt: now,
       updatedAt: now,
+      isProfileConfigured: false, 
     );
   }
 
+  bool get isProfileIncomplete => !isProfileConfigured;
+
   Account copyWith({
     String? uid,
-    String? name,
     String? email,
     String? displayName,
+    String? nickname,
     int? level,
     int? gold,
     int? gems,
     int? energy,
     DateTime? createdAt,
     DateTime? updatedAt,
+    bool? isProfileConfigured,
   }) {
     return Account(
       uid: uid ?? this.uid,
-      name: name ?? this.name,
       email: email ?? this.email,
       displayName: displayName ?? this.displayName,
+      nickname: nickname ?? this.nickname,
       level: level ?? this.level,
       gold: gold ?? this.gold,
       gems: gems ?? this.gems,
       energy: energy ?? this.energy,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      isProfileConfigured: isProfileConfigured ?? this.isProfileConfigured,
     );
   }
 
   @override
   List<Object?> get props => [
         uid,
-        name,
         email,
         displayName,
+        nickname,
         level,
         gold,
         gems,
         energy,
         createdAt,
         updatedAt,
+        isProfileConfigured,
       ];
 }

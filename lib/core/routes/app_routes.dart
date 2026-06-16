@@ -1,7 +1,6 @@
-import 'package:autth_injustice_app/domain/models/account_entity.dart';
-
-import '../../core/routes/auth_routes.dart';
+import 'package:autth_injustice_app/core/routes/auth_routes.dart';
 import 'package:autth_injustice_app/core/routes/injustice_routes.dart';
+import 'package:autth_injustice_app/domain/models/account_entity.dart';
 import 'package:autth_injustice_app/domain/models/character_entity.dart';
 import 'package:autth_injustice_app/presentation/views/about_view.dart';
 import 'package:autth_injustice_app/presentation/views/account_create_view.dart';
@@ -15,7 +14,6 @@ import 'package:go_router/go_router.dart';
 import 'package:autth_injustice_app/authentication/presentation/controllers/auth_session_viewmodel.dart';
 import '../di/dependency_injection.dart';
 
-/// Route names for easier referencing
 class GlobalRouteNames {
   static const underConstruction = 'under_construction';
   static const initial = 'initial';
@@ -27,7 +25,6 @@ class GlobalRouteNames {
   static const charactersCreate = 'charactersCreate';
 }
 
-/// Paths to keep URL structure consistent
 class GlobalPaths {
   static const underConstruction = '/under-construction';
   static const initial = '/initial';
@@ -35,19 +32,18 @@ class GlobalPaths {
   static const about = '/about';
   static const accountCreate = '/account-create';
   static const characters = '/characters';
-  static const charactersEdit = '/charactersEdit';
-  static const charactersCreate = '/charactersCreate';
+  static const charactersEdit = '/characters/edit';
+  static const charactersCreate = '/characters/create';
 }
 
-/// app routers using go_router
 class AppRouter {
   AppRouter._();
 
-  static final GoRouter router = GoRouter(
+   static final GoRouter router = GoRouter(
     initialLocation: AuthPaths.splash,
     redirect: (context, state) {
       final authViewModel = injector.get<AuthViewModel>();
-      final auth = authViewModel.session.session.value;
+      final session = authViewModel.session.session.value;
 
       final currentPath = state.matchedLocation;
 
@@ -55,12 +51,25 @@ class AppRouter {
           currentPath == AuthPaths.login ||
           currentPath == AuthPaths.register;
 
-      if (auth == null && !isAuthRoute) {
+      final isAccountCreate = currentPath == GlobalPaths.accountCreate;
+
+      if (session == null && !isAuthRoute) {
         return AuthPaths.login;
       }
-      if (auth != null && isAuthRoute) {
+
+      if (session != null && isAuthRoute) {
+        if (!session.account.isProfileConfigured) {
+          return GlobalPaths.accountCreate;
+        }
         return GlobalPaths.home;
       }
+
+      if (session != null &&
+          !session.account.isProfileConfigured &&
+          !isAccountCreate) {
+        return GlobalPaths.accountCreate;
+      }
+
       return null;
     },
     routes: <RouteBase>[
@@ -102,8 +111,8 @@ class AppRouter {
         name: GlobalRouteNames.charactersEdit,
         path: GlobalPaths.charactersEdit,
         builder: (context, state) {
-          final extra = state.extra as ({Character character, Account account});
-
+          final extra =
+              state.extra as ({Character character, Account account});
           return CharacterEditView(
             character: extra.character,
             account: extra.account,
@@ -116,7 +125,6 @@ class AppRouter {
         builder: (context, state) {
           final extra =
               state.extra as ({Account account, Character? character});
-
           return CharacterCreateView(
             account: extra.account,
             character: extra.character,
@@ -131,4 +139,9 @@ class AppRouter {
       ),
     ],
   );
+
+  static bool _isNewAccount(Account account) {
+    final fiveMinutesAgo = DateTime.now().subtract(const Duration(minutes: 5));
+    return account.createdAt.isAfter(fiveMinutesAgo);
+  }
 }

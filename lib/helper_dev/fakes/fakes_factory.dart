@@ -13,17 +13,17 @@ abstract class FakeFactory {
 
     return Account(
       uid: _faker.datatype.uuid(),
-      name: _faker.name.fullName(),
       email: _faker.internet.email(),
       displayName: _faker.name.firstName(),
+      nickname: _faker.name.firstName(), 
+      level: _faker.datatype.number(min: 1, max: 80),
+      gold: _faker.datatype.number(min: 0, max: 100000),
+      gems: _faker.datatype.number(min: 0, max: 500),
+      energy: _faker.datatype.number(min: 50, max: 500), 
       createdAt: now.subtract(
         Duration(days: _faker.datatype.number(min: 10, max: 365)),
       ),
       updatedAt: now,
-      level: _faker.datatype.number(min: 1, max: 80),
-      gold: _faker.datatype.number(min: 0, max: 100000),
-      gems: _faker.datatype.number(min: 0, max: 500),
-      energy: _faker.datatype.number(min: 1, max: 100),
     );
   }
 
