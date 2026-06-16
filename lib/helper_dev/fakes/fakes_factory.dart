@@ -12,6 +12,7 @@ abstract class FakeFactory {
     final now = DateTime.now();
 
     return Account(
+      uid: _faker.datatype.uuid(),
       name: _faker.name.fullName(),
       email: _faker.internet.email(),
       displayName: _faker.name.firstName(),
@@ -20,7 +21,7 @@ abstract class FakeFactory {
       ),
       updatedAt: now,
       level: _faker.datatype.number(min: 1, max: 80),
-      gold: _faker.datatype.float(min: 0, max: 100000, precision: 2),
+      gold: _faker.datatype.number(min: 0, max: 100000),
       gems: _faker.datatype.number(min: 0, max: 500),
       energy: _faker.datatype.number(min: 1, max: 100),
     );

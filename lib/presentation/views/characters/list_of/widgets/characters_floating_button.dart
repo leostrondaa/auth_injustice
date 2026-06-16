@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../../helper_dev/fakes/character_factory.dart';
+import '../../../../../helper_dev/fakes/fakes_factory.dart';
 import '../../../../controllers/characters_view_model.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 import '../../../../../core/routes/app_routes.dart';
@@ -54,7 +54,7 @@ class CharactersFab extends StatelessWidget {
                   ],
                 );
                 if (selectedValue == 1) {
-                  final character = CharacterFactory.list(1).first;
+                  final character = FakeFactory.character();
                   await viewModel.commands.addCharacter(character);
                 } else if (selectedValue == 2) {
                   if (!context.mounted) return;

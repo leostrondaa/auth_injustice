@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '/domain/models/auth_entities.dart';
+import '../../../domain/models/auth_entities.dart';
 import 'i_local_session_store.dart';
 
 class SharedPrefLocalSessionService implements ILocalSessionStore {

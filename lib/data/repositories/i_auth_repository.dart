@@ -1,0 +1,1 @@
+export 'package:autth_injustice_app/authentication/data/repositories/i_auth_repository.dart';

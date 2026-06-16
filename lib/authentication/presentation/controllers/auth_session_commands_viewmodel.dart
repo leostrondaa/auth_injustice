@@ -5,7 +5,7 @@ import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../core/patterns/command.dart';
 import '../../data/repositories/i_auth_repository.dart';
-import '../../domain/models/auth_entities.dart';
+import '../../../domain/models/auth_entities.dart';
 import '../commands/auth_commands.dart';
 import 'auth_session_state_viewmodel.dart';
 

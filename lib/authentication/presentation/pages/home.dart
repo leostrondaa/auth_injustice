@@ -1,10 +1,10 @@
 import 'package:autth_injustice_app/core/di/dependency_injection.dart';
 import 'package:autth_injustice_app/core/routes/auth_routes.dart';
+import 'package:autth_injustice_app/domain/models/auth_entities.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
-import '../../domain/models/auth_entities.dart';
 import '../controllers/auth_session_viewmodel.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -19,14 +19,24 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   late final AuthViewModel authController;
+
   @override
   void initState() {
-    authController = injector.get<AuthViewModel>();
     super.initState();
+    authController = injector.get<AuthViewModel>();
+  }
+
+  Future<void> _signOut() async {
+    await authController.commands.signOut();
+    if (!mounted) return;
+    context.goNamed(AuthRouteNames.login);
   }
 
   @override
   Widget build(BuildContext context) {
+    // usa account em vez de user
+    final account = widget.session.account;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -36,54 +46,37 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            // User info section
-            ...[
             CircleAvatar(
               radius: 36,
               child: Text(
-                (widget.session.user.name.isNotEmpty
-                        ? widget.session.user.name[0]
-                        : '?')
+                (account.name.isNotEmpty ? account.name[0] : '?')
                     .toUpperCase(),
               ),
             ),
             const SizedBox(height: 12),
             Text(
-              widget.session.user.name,
+              account.name,
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: 6),
             Text(
-              widget.session.user.email,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
+              account.email,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: Colors.grey),
             ),
             const SizedBox(height: 18),
-          ],
             Watch((context) {
               final isRunning =
                   authController.commands.signOutCommand.isExecuting.value;
-
               return ElevatedButton(
-                onPressed: () async {
-                  await authController.commands.signOut();
-                  context.goNamed(AuthRouteNames.login);
-                },
-                child:
-                    isRunning
-                        ? const CircularProgressIndicator()
-                        : const Text('Desconectar'),
+                onPressed: isRunning ? null : _signOut,
+                child: isRunning
+                    ? const CircularProgressIndicator()
+                    : const Text('Desconectar'),
               );
             }),
-
-            ElevatedButton(
-              onPressed: () async {
-                await authController.commands.signOut();
-                context.goNamed(AuthRouteNames.login);
-              },
-              child: Text('Desconectar'),
-            ),
           ],
         ),
       ),

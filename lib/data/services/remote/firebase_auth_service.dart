@@ -1,26 +1,31 @@
 import 'package:autth_injustice_app/core/failure/failure.dart';
-import 'package:autth_injustice_app/core/typedefs/types_defs.dart';
 import 'package:autth_injustice_app/core/patterns/result.dart';
+import 'package:autth_injustice_app/core/typedefs/types_defs.dart';
 import 'package:autth_injustice_app/domain/models/account_entity.dart';
 import 'package:autth_injustice_app/domain/models/auth_entities.dart';
-import '../local/auth_local_session_manager.dart';
+import 'package:autth_injustice_app/data/services/remote/account_remote_storage_interface.dart';
+import 'package:autth_injustice_app/data/services/local/auth_local_session_manager.dart';
 import 'i_auth_service.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 
-/// Serviço de autenticação que utiliza o FirebaseAuth.
+/// Serviço de autenticação com Firebase.
+/// Ao logar/registrar, garante que o documento Account exista no Firestore.
 class FirebaseAuthService implements IAuthService {
   final fb.FirebaseAuth _firebaseAuth;
   final AuthLocalSessionManager _localSession;
+  final IAccountRemoteStorage _accountStorage;
 
   final Signal<AuthSession?> _currentSessionSignal = Signal<AuthSession?>(null);
 
   FirebaseAuthService({
     fb.FirebaseAuth? firebaseAuth,
     required AuthLocalSessionManager localSession,
+    required IAccountRemoteStorage accountStorage,
   })  : _firebaseAuth = firebaseAuth ?? fb.FirebaseAuth.instance,
-        _localSession = localSession {
+        _localSession = localSession,
+        _accountStorage = accountStorage {
     _firebaseAuth.authStateChanges().listen(_onAuthStateChanged);
   }
 
@@ -28,20 +33,29 @@ class FirebaseAuthService implements IAuthService {
   // Helpers internos
   // ──────────────────────────────────────────────
 
-  Account _accountFromFbUser(fb.User user, {String? overrideName}) =>
-      Account.initial(
-        uid: user.uid,
-        email: user.email ?? '',
-        name: overrideName ?? user.displayName ?? '',
-        displayName: overrideName ?? user.displayName ?? '',
-      );
+  /// Busca o Account no Firestore; se não existir, cria com dados iniciais.
+  Future<Account> _loadOrCreateAccount(fb.User fbUser) async {
+    final result = await _accountStorage.getAccount(fbUser.uid);
+    // cast correto: Success<Account, Failure> tem getter 'value'
+    if (result case Success<Account, Failure>(:final value)) {
+      return value;
+    }
+    final initial = Account.initial(
+      uid: fbUser.uid,
+      email: fbUser.email ?? '',
+      name: fbUser.displayName ?? '',
+      displayName: fbUser.displayName ?? '',
+    );
+    await _accountStorage.saveAccount(initial);
+    return initial;
+  }
 
-  Future<AuthSession> _buildSession(fb.User user,
-      {String? overrideName}) async {
-    final tokenStr = await user.getIdToken() ?? '';
+  Future<AuthSession> _buildSession(fb.User fbUser) async {
+    final account = await _loadOrCreateAccount(fbUser);
+    final tokenStr = await fbUser.getIdToken() ?? '';
     final tokenExp = DateTime.now().add(const Duration(hours: 1));
     return AuthSession(
-      account: _accountFromFbUser(user, overrideName: overrideName),
+      account: account,
       token: Token(value: tokenStr, expiresAt: tokenExp),
     );
   }
@@ -151,10 +165,7 @@ class FirebaseAuthService implements IAuthService {
         await user.reload();
       }
 
-      final session = await _buildSession(
-        _firebaseAuth.currentUser ?? user,
-        overrideName: name,
-      );
+      final session = await _buildSession(_firebaseAuth.currentUser ?? user);
       await _persistSession(session);
       return Success(session);
     } catch (e) {
@@ -174,12 +185,18 @@ class FirebaseAuthService implements IAuthService {
   Future<void> initSession() async {
     final token = await _localSession.getValidToken();
     if (token != null) {
-      final account = Account.initial(
-        uid: token.uid,
-        email: token.email ?? '',
-        name: token.name ?? '',
-        displayName: token.name ?? '',
-      );
+      final result = await _accountStorage.getAccount(token.uid);
+      final Account account;
+      if (result case Success<Account, Failure>(:final value)) {
+        account = value;
+      } else {
+        account = Account.initial(
+          uid: token.uid,
+          email: token.email ?? '',
+          name: token.name ?? '',
+          displayName: token.name ?? '',
+        );
+      }
       _currentSessionSignal.value = AuthSession(
         account: account,
         token: Token(value: token.value, expiresAt: token.expiresAt),

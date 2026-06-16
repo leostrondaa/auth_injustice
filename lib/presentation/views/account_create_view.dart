@@ -40,7 +40,7 @@ class _AccountCreateViewState extends State<AccountCreateView> {
 
   DateTime _createdAt = DateTime.now();
   int _level = 1;
-  double _gold = 0;
+  int _gold = 0;
   int _gems = 0;
   int _energy = 1;
 
@@ -223,26 +223,30 @@ class _AccountCreateViewState extends State<AccountCreateView> {
   }
 
   Future<void> _salvarConta() async {
-    if (!_validateForm()) return;
+  if (!_validateForm()) return;
 
-    Account newAccount = Account(
-      email: _formFields.email.controller.text.trim(),
-      name: _formFields.name.controller.text.trim(),
-      displayName: _formFields.displayName.controller.text.trim(),
-      createdAt: _createdAt,
-      level: _level,
-      gold: _gold,
-      gems: _gems,
-      energy: _energy,
-      updatedAt: _createdAt,
-    );
+  // uid vem da conta atualmente carregada na sessão
+  final uid = _vmAccount.accountState.state.value?.uid ?? '';
 
-    if (_vmAccount.accountState.hasAccount.value) {
-      await _vmAccount.commands.updateAccount(newAccount);
-    } else {
-      await _vmAccount.commands.saveAccount(newAccount);
-    }
-    _resetFormView();
+  Account newAccount = Account(
+    uid: uid,
+    email: _formFields.email.controller.text.trim(),
+    name: _formFields.name.controller.text.trim(),
+    displayName: _formFields.displayName.controller.text.trim(),
+    createdAt: _createdAt,
+    level: _level,
+    gold: _gold,
+    gems: _gems,
+    energy: _energy,
+    updatedAt: _createdAt,
+  );
+
+  if (_vmAccount.accountState.hasAccount.value) {
+    await _vmAccount.commands.updateAccount(newAccount);
+  } else {
+    await _vmAccount.commands.saveAccount(newAccount);
+  }
+  _resetFormView();
   }
 
   Future<void> _excluirConta() async {
@@ -371,9 +375,9 @@ class _AccountCreateViewState extends State<AccountCreateView> {
                   hint: 'Min: 0',
                   minValue: 0,
                   maxValue: 999999,
-                  value: _gold.toInt(),
+                  value: _gold,
                   onChanged: (value) =>
-                      setState(() => _gold = value.toDouble()),
+                      setState(() => _gold = value),
                 ),
                 const SizedBox(height: 1),
 

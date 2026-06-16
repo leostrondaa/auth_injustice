@@ -1,6 +1,6 @@
 import 'package:signals_flutter/signals_flutter.dart';
 
-import '../../domain/models/auth_entities.dart';
+import '../../../domain/models/auth_entities.dart';
 
 /// Enum que representa o status de autenticação
 enum AuthStatus { 
@@ -27,7 +27,7 @@ class AuthSessionState {
   bool get isAuthenticated {
     return status.value == AuthStatus.authenticated &&
       session.value != null &&
-      session.value!.isValid;
+      !session.value!.isExpired;
   }
   /// Retorna true se a sessão estiver expirada
   bool get isExpired => status.value == AuthStatus.expired;

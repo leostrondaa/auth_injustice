@@ -1,6 +1,5 @@
-// character_class_ui.dart
 import 'package:flutter/material.dart';
-import '../character_entity.dart';
+import 'package:autth_injustice_app/domain/models/character_entity.dart';
 
 extension ClassUI on CharacterClass {
   Color get color {

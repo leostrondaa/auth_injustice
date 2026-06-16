@@ -4,7 +4,7 @@ import '../../../../../core/routes/app_routes.dart';
 import '../../../../../core/theme/app_theme.dart';
 import '../../../../../domain/models/account_entity.dart';
 import '../../../../../domain/models/character_entity.dart';
-import '../../../../../domain/models/extensions/character_ui.dart';
+import '../../../../../domain/models/character_ui.dart';
 import '../../../../controllers/characters_state_viewmodel.dart';
 import '../../../../controllers/characters_view_model.dart';
 import '../../../../widgets/account_summary_card.dart';

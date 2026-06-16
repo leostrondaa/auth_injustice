@@ -1,10 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'character_entity.dart';
 
 class CharacterMapper {
-  // O método que o Dart diz que sumiu está aqui:
+  /// Converte um [Character] em um Map adequado para o Firestore.
+  ///
+  /// O campo `id` não é incluído no Map, pois ele é representado pelo
+  /// ID do documento na subcoleção `/accounts/{uid}/characters/{id}`.
   static Map<String, dynamic> toMap(Character character) {
     return {
-      'id': character.id,
       'name': character.name,
       'characterClass': character.characterClass.name,
       'rarity': character.rarity.name,
@@ -14,34 +18,47 @@ class CharacterMapper {
       'health': character.health,
       'stars': character.stars,
       'alignment': character.alignment.name,
-      'createdAt': character.createdAt.toIso8601String(),
-      'updatedAt': character.updatedAt.toIso8601String(),
+      'createdAt': Timestamp.fromDate(character.createdAt),
+      'updatedAt': Timestamp.fromDate(character.updatedAt),
     };
   }
 
-  static Character fromMap(Map<String, dynamic> map) {
+  /// Cria um [Character] a partir do Map vindo do Firestore.
+  ///
+  /// O [id] deve ser passado explicitamente (geralmente vindo de
+  /// `documentSnapshot.id`), já que não é persistido dentro do documento.
+  static Character fromMap(Map<String, dynamic> map, {required String id}) {
     return Character(
-      id: map['id'] as String? ?? '',
-      name: map['name'] as String? ?? 'Desconhecido',
-      characterClass: _parseEnum(CharacterClass.values, map['characterClass'], CharacterClass.values.first),
-      rarity: _parseEnum(CharacterRarity.values, map['rarity'], CharacterRarity.values.first),
-      level: map['level'] as int? ?? 1,
-      threat: map['threat'] as int? ?? 0,
-      attack: map['attack'] as int? ?? 0,
-      health: map['health'] as int? ?? 100,
-      stars: map['stars'] as int? ?? 1,
-      alignment: _parseEnum(CharacterAlignment.values, map['alignment'], CharacterAlignment.values.first),
-      createdAt: map['createdAt'] != null ? DateTime.parse(map['createdAt'] as String) : DateTime.now(),
-      updatedAt: map['updatedAt'] != null ? DateTime.parse(map['updatedAt'] as String) : DateTime.now(),
+      id: id,
+      name: map['name'] as String,
+      characterClass:
+          CharacterClass.values.byName(map['characterClass'] as String),
+      rarity: CharacterRarity.values.byName(map['rarity'] as String),
+      level: map['level'] as int,
+      threat: map['threat'] as int,
+      attack: map['attack'] as int,
+      health: map['health'] as int,
+      stars: map['stars'] as int,
+      alignment: CharacterAlignment.values.byName(map['alignment'] as String),
+      createdAt: _parseTimestamp(map['createdAt']),
+      updatedAt: _parseTimestamp(map['updatedAt']),
     );
   }
 
-  static T _parseEnum<T extends Enum>(List<T> values, dynamic value, T fallback) {
-    if (value == null) return fallback;
-    try {
-      return values.byName(value as String);
-    } catch (_) {
-      return fallback; 
+  /// Cria um [Character] diretamente a partir de um [DocumentSnapshot].
+  static Character fromSnapshot(
+    DocumentSnapshot<Map<String, dynamic>> snapshot,
+  ) {
+    final data = snapshot.data();
+    if (data == null) {
+      throw StateError('Documento de Character vazio para id: ${snapshot.id}');
     }
+    return fromMap(data, id: snapshot.id);
+  }
+
+  static DateTime _parseTimestamp(dynamic value) {
+    if (value is Timestamp) return value.toDate();
+    if (value is String) return DateTime.parse(value);
+    throw ArgumentError('Formato de data inválido: $value');
   }
 }

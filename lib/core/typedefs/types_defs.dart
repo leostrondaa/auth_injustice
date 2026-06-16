@@ -1,35 +1,27 @@
-import 'package:autth_injustice_app/authentication/domain/models/auth_entities.dart';
+import 'package:autth_injustice_app/domain/models/auth_entities.dart';
 import '../failure/failure.dart';
 import 'package:flutter/material.dart';
 import '../../domain/models/account_entity.dart';
 import '../../domain/models/character_entity.dart';
-
 import '../patterns/result.dart';
 
-
-// typedefs para tipo Result
 // typedefs para autenticação
 typedef VoidResult = Result<void, Failure>;
 typedef AuthSessionResult = Result<AuthSession, Failure>;
 
-
-// typedfs para parâmetros
-/// tipos usadoos para modulo de autenticação
+// typedefs para parâmetros
 typedef NoParams = ();
 typedef SignInParams = ({String email, String password});
-typedef SignUpParams =
-    ({String? name,String email, String password});
+typedef SignUpParams = ({String? name, String email, String password});
+
 // typedefs para tipo Result
 typedef AccountResult = Result<Account, Failure>;
-typedef CharacterResult = Result<Character,Failure>;
+typedef CharacterResult = Result<Character, Failure>;
 typedef ListCharacterResult = Result<List<Character>, Failure>;
 
-// typedfs para parâmetros
+// typedefs para parâmetros
 typedef AccountParams = ({Account account});
-
-/// tipos usadoos Conta de Usuario
 typedef AccountNameParams = ({String accountName});
-/// tipos usados para Personagem
 typedef CharacterIdParams = ({String id});
 typedef CharacterParams = ({Character character});
 

@@ -1,7 +1,7 @@
 import 'package:autth_injustice_app/core/typedefs/types_defs.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
-import '../../../domain/models/auth_entities.dart';
+import '../../domain/models/auth_entities.dart';
 import '../services/remote/i_auth_service.dart';
 import 'i_auth_repository.dart';
 
@@ -26,6 +26,7 @@ class AuthRepositoryImpl implements IAuthRepository {
   Future<AuthSessionResult> signIn(String email, String password) {
     return _authService.signIn(email, password);
   }
+
   /// Realiza login com Google
   @override
   Future<AuthSessionResult> signInWithGoogle() {

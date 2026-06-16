@@ -36,10 +36,17 @@ sealed class Result<TOk, TError> {
 final class Success<TOk, TError> extends Result<TOk, TError> {
   final TOk _value;
   const Success(this._value);
+
+  // Getter público — necessário para destructuring patterns
+  // (ex: `if (result case Success<Account, Failure>(:final value))`)
+  TOk get value => _value;
 }
 
 // Representa uma falha com valor do tipo TError
 final class Error<TOk, TError> extends Result<TOk, TError> {
   final TError _value;
   const Error(this._value);
+
+  // Getter público — necessário para destructuring patterns
+  TError get value => _value;
 }

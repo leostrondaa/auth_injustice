@@ -17,6 +17,12 @@ class ApiLocalFailure extends Failure {
     : super(msg ?? AppMessages.error.apiLocalError);
 }
 
+/// Falha relacionada a operações remotas (Firestore / Firebase Auth)
+class ApiRemoteFailure extends Failure {
+  ApiRemoteFailure([String? msg])
+    : super(msg ?? AppMessages.error.apiLocalError);
+}
+
 class EmptyResultFailure extends Failure {
   EmptyResultFailure([String? msg])
     : super(msg ?? AppMessages.error.emptyResultError);
@@ -53,4 +59,10 @@ class InvalidPhone extends Failure {
 class InvalidInputFailure extends Failure {
   InvalidInputFailure([String? msg])
       : super('${AppMessages.error.invalidInput}: ${msg ?? ''}');
+}
+
+/// Falha de autenticação (não logado / sessão ausente)
+class UnauthenticatedFailure extends Failure {
+  UnauthenticatedFailure([String? msg])
+    : super(msg ?? 'Nenhum usuário autenticado.');
 }

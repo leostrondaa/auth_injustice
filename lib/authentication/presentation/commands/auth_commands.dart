@@ -4,7 +4,7 @@ import 'package:autth_injustice_app/core/typedefs/types_defs.dart';
 import '../../../core/patterns/command.dart';
 import '../../../core/patterns/result.dart';
 import '../../domain/facades/i_auth_use_case_facade.dart';
-import '../../domain/models/auth_entities.dart';
+import '../../../domain/models/auth_entities.dart';
 
 final class SignInCommand extends ParameterizedCommand<AuthSession, Failure, SignInParams> {
   final IAuthUseCaseFacade _authUseCaseFacade;

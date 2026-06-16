@@ -1,7 +1,7 @@
 import 'package:autth_injustice_app/core/typedefs/types_defs.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
-import '../../domain/models/auth_entities.dart';
+import '../../../domain/models/auth_entities.dart';
 
 /// Interface para o repositório de autenticação
 abstract class IAuthRepository {
