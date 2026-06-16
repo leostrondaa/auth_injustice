@@ -125,7 +125,7 @@ class _HomeViewState extends State<HomeView> {
           children: [
             // Cabeçalho com informações básicas
             _AccountHeaderCard(
-              displayName: account.displayName,
+              nickname: account.nickname,
               email: account.email,
               level: account.level,
             ),
@@ -219,20 +219,20 @@ class _HomeViewState extends State<HomeView> {
 /// Card de cabeçalho com informações básicas da conta
 /// Card de cabeçalho com informações básicas da conta
 class _AccountHeaderCard extends StatelessWidget {
-  final String displayName;
+  final String nickname;
   final String email;
   final int level;
 
   const _AccountHeaderCard({
-    required this.displayName,
+    required this.nickname,
     required this.email,
     required this.level,
   });
 
   @override
   Widget build(BuildContext context) {
-    final String firstLetter = displayName.isNotEmpty 
-        ? displayName[0].toUpperCase() 
+    final String firstLetter = nickname.isNotEmpty 
+        ? nickname[0].toUpperCase() 
         : '?';
 
     return Container(
@@ -275,7 +275,7 @@ class _AccountHeaderCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      displayName.isNotEmpty ? displayName : 'Sem nome',
+                      nickname.isNotEmpty ? nickname : 'Sem nome',
                       style: context.textStyles.headlineSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
