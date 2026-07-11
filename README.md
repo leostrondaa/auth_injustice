@@ -6,7 +6,7 @@ A new Flutter project.
 
 This project is a starting point for a Flutter application.
 
-### comandos linux
+### comandos linux´`
 
 Instale o Firebase CLI
 - npm install -g firebase-tools

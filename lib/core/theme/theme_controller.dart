@@ -2,12 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 class ThemeController {
-  final themeMode = signal<ThemeMode>(ThemeMode.light);
-  
-  late final isLightMode = computed(() => themeMode.value == ThemeMode.light);
+  // tema atual do aparelho
+  final themeMode = signal<ThemeMode>(ThemeMode.system);
 
-  void toggleTheme() {
-    themeMode.value =
-        themeMode.value == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+  void toggleTheme(BuildContext context) {
+    if (themeMode.value == ThemeMode.system) {
+      final isPlatformDark =
+          View.of(context).platformDispatcher.platformBrightness ==
+              Brightness.dark;
+      themeMode.value = isPlatformDark ? ThemeMode.light : ThemeMode.dark;
+    } else {
+      themeMode.value =
+          themeMode.value == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+    }
   }
 }

@@ -44,7 +44,7 @@ class AuthTextFormField extends StatelessWidget {
         // labelStyle: TextStyle(color: AppColors.text(context)),
         suffixIcon: suffixIcon,
         filled: true,
-        fillColor: isDark
+        fillColor: isDark != null
             ? context.colors.primary.withValues(alpha: 0.9)
             : context.colors.secondary.withValues(alpha: 0.2),
         border: OutlineInputBorder(
@@ -71,4 +71,8 @@ class AuthTextFormField extends StatelessWidget {
       ),
     );
   }
+}
+
+extension on BuildContext {
+  Object? get isDarkMode => null;
 }

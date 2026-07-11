@@ -8,7 +8,6 @@ import 'package:signals_flutter/signals_flutter.dart';
 import '../../../core/theme/app_theme.dart';
 import '../controllers/auth_session_viewmodel.dart';
 import '../widgets/auth_text_form_field.dart';
-import '../widgets/social_login_buttons.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -47,7 +46,6 @@ class _LoginPageState extends State<LoginPage> {
     // final scope = AuthScope.of(context);
     // final vm = scope.notifier!;
     // final isDark = AppTheme.currentMode(context);
-    final isDark = context.isDarkMode;
 
     return Scaffold(
       // backgroundColor: AppColors.background(context),
@@ -199,4 +197,8 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
+}
+
+extension on BuildContext {
+  get theme => null;
 }
