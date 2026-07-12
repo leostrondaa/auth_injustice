@@ -196,15 +196,18 @@ class _LoginPageState extends State<LoginPage>
                                   },
                                 ),
                                 const SizedBox(height: 12),
-                                Center(
-                                  child: TextButtonRich(
-                                    baseText: 'Não tem uma conta? ',
-                                    actionText: 'Sign Up',
-                                    actionColor: const Color(
-                                        0xFF9B51E0), // Cor roxa destacada
-                                    onTap: () {
-                                      context.go(AuthPaths.initial);
-                                    },
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 8.0),
+                                    child: TextButtonRich(
+                                      baseText: 'Não tem uma conta? ',
+                                      actionText: 'Sign Up',
+                                      actionColor: const Color(0xFF9B51E0),
+                                      onTap: () {
+                                        context.go(AuthPaths.initial);
+                                      },
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(height: 48),
