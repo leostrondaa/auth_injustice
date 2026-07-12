@@ -1,12 +1,9 @@
-import 'dart:async';
 import 'package:autth_injustice_app/authentication/presentation/widgets/button_primary.dart';
-import 'package:autth_injustice_app/core/di/dependency_injection.dart';
-import 'package:autth_injustice_app/core/routes/app_routes.dart';
+import 'package:autth_injustice_app/authentication/presentation/widgets/clouds.dart';
 import 'package:autth_injustice_app/core/routes/auth_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
-import '../controllers/auth_session_viewmodel.dart';
 
 class InitialPage extends StatefulWidget {
   const InitialPage({super.key});
@@ -15,97 +12,119 @@ class InitialPage extends StatefulWidget {
   State<InitialPage> createState() => _InitialPageState();
 }
 
-class _InitialPageState extends State<InitialPage> {
+class _InitialPageState extends State<InitialPage>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _animController;
+  late final Animation<Offset> _textSlide;
+  late final Animation<double> _textOpacity;
+  late final Animation<Offset> _buttonSlide;
+  late final Animation<double> _buttonOpacity;
+
   @override
   void initState() {
     super.initState();
+
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+
+    _textSlide =
+        Tween<Offset>(begin: const Offset(0, -0.5), end: Offset.zero).animate(
+      CurvedAnimation(
+          parent: _animController,
+          curve: const Interval(0.0, 0.6, curve: Curves.easeOutCubic)),
+    );
+    _textOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+          parent: _animController,
+          curve: const Interval(0.0, 0.6, curve: Curves.easeOut)),
+    );
+
+    _buttonSlide =
+        Tween<Offset>(begin: const Offset(0, 1.0), end: Offset.zero).animate(
+      CurvedAnimation(
+          parent: _animController,
+          curve: const Interval(0.1, 1.0, curve: Curves.easeOutCubic)),
+    );
+    _buttonOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+          parent: _animController,
+          curve: const Interval(0.3, 1.0, curve: Curves.easeIn)),
+    );
+
+    _animController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Pegamos a largura da tela para fazer as formas do fundo responsivas
-    final screenWidth = MediaQuery.of(context).size.width;
+    final themeColors = context.colors;
+    final textTheme = context.text;
 
     return Scaffold(
-      backgroundColor: context.colors.primary,
-      body: Stack(
-        children: [
-          // Nuvem da Esquerda
-          Positioned(
-            top: 200,
-            left: -60,
-            child: Container(
-              width: 140,
-              height: 70,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(50),
-              ),
-            ),
-          ),
-          Positioned(
-            top: 250,
-            left: -50,
-            child: Container(
-              width: 230,
-              height: 90,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(50),
-              ),
-            ),
-          ),
+      backgroundColor: Colors.black,
+      body: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: context.initialPageGradient,
+        ),
+        child: SizedBox.expand(
+          child: Stack(
+            children: [
+              const CloudBackground(),
+              SafeArea(
+                child: Padding(
+                  padding: context.extraPagePadding,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const SizedBox(height: 50),
 
-          // Nuvem da Direita (Um pouco mais abaixo)
-          Positioned(
-            top: 270,
-            right: -170,
-            child: Container(
-              width: 230,
-              height: 100,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(60),
-              ),
-            ),
-          ),
-          Positioned(
-            top: 330,
-            right: -60,
-            child: Container(
-              width: 230,
-              height: 100,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(60),
-              ),
-            ),
-          ),
+                      // Animação do Texto
+                      SlideTransition(
+                        position: _textSlide,
+                        child: FadeTransition(
+                          opacity: _textOpacity,
+                          child: Text(
+                            'Welcome To\nWhere IF',
+                            textAlign: TextAlign.start,
+                            style: textTheme.headlineLarge?.copyWith(
+                              color: themeColors.onPrimary,
+                            ),
+                          ),
+                        ),
+                      ),
 
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(height: 16),
-                  Text(
-                    'Welcome To\nWhere IF',
-                    textAlign: TextAlign.start,
-                    style: context.text.headlineLarge?.copyWith(
-                      color: context.colors.onPrimary,
-                    ),
+                      const Spacer(),
+
+                      SlideTransition(
+                        position: _buttonSlide,
+                        child: FadeTransition(
+                          opacity: _buttonOpacity,
+                          child: ButtonPrimary(
+                            text: 'Continuar',
+                            onTap: () {
+                              _animController.reverse().then((_) {
+                                context.go(AuthPaths.login);
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(height: context.spaceLg),
+                    ],
                   ),
-                  const Spacer(),
-                  ButtonPrimary(
-                    text: 'Continuar',
-                    onTap: () {},
-                  )
-                ],
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

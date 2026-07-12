@@ -5,28 +5,46 @@ class AppDesign {
   static const double sm = 8.0;
   static const double md = 16.0;
   static const double lg = 24.0;
+  static const double hg = 48.0;
 
-  static const double radiusMd = 12.0;
+  static const double radiusMd = 20.0;
 }
 
 extension ThemeContext on BuildContext {
   ColorScheme get colors => Theme.of(this).colorScheme;
   TextTheme get text => Theme.of(this).textTheme;
+
+  double get spaceSm => AppDesign.sm;
+  double get spaceMd => AppDesign.md;
+  double get spaceLg => AppDesign.lg;
+
+  EdgeInsets get pagePadding =>
+      const EdgeInsets.symmetric(horizontal: AppDesign.lg);
+  EdgeInsets get extraPagePadding =>
+      const EdgeInsets.symmetric(horizontal: 40.0);
+
+  Gradient get initialPageGradient => LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          colors.primary,
+          colors.secondary,
+        ],
+      );
 }
 
 TextTheme _buildCustomTextTheme(TextTheme baseTheme, TextTheme googleFontBase) {
   return googleFontBase.copyWith(
     // Títulos grandes e chamativos
-    displayLarge:
-        GoogleFonts.gasoekOne(textStyle: googleFontBase.displayLarge?.copyWith(fontSize: 8)),
+    displayLarge: GoogleFonts.gasoekOne(
+        textStyle: googleFontBase.displayLarge?.copyWith(fontSize: 8)),
     displayMedium:
         GoogleFonts.gasoekOne(textStyle: googleFontBase.displayMedium),
-    displaySmall:
-        GoogleFonts.chauPhilomeneOne(textStyle: googleFontBase.displaySmall),
+    displaySmall: GoogleFonts.inter(textStyle: googleFontBase.displaySmall),
 
     // Títulos principais de páginas
-    headlineLarge:
-        GoogleFonts.gasoekOne(textStyle: googleFontBase.headlineLarge?.copyWith(fontSize: 45)),
+    headlineLarge: GoogleFonts.archivoBlack(
+        textStyle: googleFontBase.headlineLarge?.copyWith(fontSize: 45)),
     headlineMedium:
         GoogleFonts.gasoekOne(textStyle: googleFontBase.headlineMedium),
     headlineSmall:
@@ -45,12 +63,14 @@ ThemeData get lightTheme {
     brightness: Brightness.light,
 
     colorScheme: const ColorScheme.light(
-      primary: Color(0xFFa055da),
+      primary: Color.fromARGB(255, 213, 62, 255),
       onPrimary: Color(0xFFFFFFFF),
       surface: Color(0xFFFFFFFF),
       onSurface: Color(0xFF1C1B1F),
-      secondary: Color(0xFF7159C1),
-      onSecondary: Color(0xFFFFFFFF),
+      secondary: Color.fromARGB(255, 140, 52, 255),
+      onSecondary: Color.fromARGB(255, 0, 0, 0),
+      tertiary: Color.fromARGB(255, 255, 255, 255),
+      onTertiary: Color.fromARGB(255, 0, 0, 0),
     ),
 
     scaffoldBackgroundColor: const Color(0xFFFFFFFF),
@@ -80,12 +100,14 @@ ThemeData get darkTheme {
     brightness: Brightness.dark,
 
     colorScheme: const ColorScheme.dark(
-      primary: Color(0xFFBB86FC),
-      onPrimary: Color(0xFF000000),
+      primary: Color.fromARGB(255, 88, 0, 189),
+      onPrimary: Color.fromARGB(255, 255, 255, 255),
       surface: Color(0xFF121212),
       onSurface: Color(0xFFFFFFFF),
-      secondary: Color(0xFF9871F5),
+      secondary: Color.fromARGB(255, 153, 29, 206),
       onSecondary: Color(0xFF000000),
+      tertiary: Color.fromARGB(255, 0, 0, 0),
+      onTertiary: Color.fromARGB(255, 255, 255, 255),
     ),
 
     scaffoldBackgroundColor: const Color(0xFF000000),

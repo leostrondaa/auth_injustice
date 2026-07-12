@@ -6,10 +6,15 @@ import 'package:autth_injustice_app/core/theme/theme_controller.dart';
 import 'package:autth_injustice_app/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // 🔥 USA immersive EM VEZ DE manual
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   setupDependencies();
