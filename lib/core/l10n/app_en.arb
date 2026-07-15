@@ -38,5 +38,12 @@
   "passwordStrengthWeak": "Weak",
   "passwordStrengthFair": "Fair",
   "passwordStrengthGood": "Good",
-  "passwordStrengthExcellent": "Excellent"
+  "passwordStrengthExcellent": "Excellent",
+
+
+
+  "checkEmailTitle": "Check your email",
+  "checkEmailSentTo": "We sent a link to:",
+  "checkEmailDescription": "Click the link to continue."
+
 }

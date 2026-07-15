@@ -1,5 +1,6 @@
 import 'package:autth_injustice_app/core/constants/app_assets.dart';
 import 'package:autth_injustice_app/core/l10n/l10n_extensions.dart';
+import 'package:autth_injustice_app/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -60,9 +61,9 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
                   ),
                   Text(
                     context.l10n.googleButton,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Color(0xFF616161),
-                      fontSize: 16,
+                      fontSize: context.text.bodyMedium?.fontSize,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 0.2,
                     ),

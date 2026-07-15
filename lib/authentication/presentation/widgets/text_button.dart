@@ -6,8 +6,8 @@ class TextButton extends StatefulWidget {
   final String text;
   final VoidCallback onTap;
   final Color? color;
-  final double fontSize;
-  final FontWeight fontWeight;
+  final double? fontSize;
+  final FontWeight? fontWeight;
   final TextStyle? style;
 
   const TextButton({
@@ -15,9 +15,9 @@ class TextButton extends StatefulWidget {
     required this.text,
     required this.onTap,
     this.color,
-    this.fontSize = 14,
-    this.fontWeight = FontWeight.w500,
-    this.style, // ✅ Adicionado aqui
+    this.fontSize,
+    this.fontWeight,
+    this.style,
   });
 
   @override
@@ -30,6 +30,8 @@ class _TextButtonState extends State<TextButton> {
   @override
   Widget build(BuildContext context) {
     final effectiveColor = widget.color ?? context.colors.primary;
+    final defaultStyle = context.text.bodySmall ?? const TextStyle();
+    final baseStyle = widget.style ?? defaultStyle;
 
     return GestureDetector(
       onTapDown: (_) => setState(() => _isPressed = true),
@@ -48,12 +50,12 @@ class _TextButtonState extends State<TextButton> {
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
           child: Text(
             widget.text,
-            style: (widget.style ?? const TextStyle()).copyWith(
+            style: baseStyle.copyWith(
               color:
                   _isPressed ? effectiveColor.withOpacity(0.5) : effectiveColor,
-              fontSize: widget.style?.fontSize ?? widget.fontSize,
-              fontWeight: widget.style?.fontWeight ?? widget.fontWeight,
-              letterSpacing: widget.style?.letterSpacing ?? 0.1,
+              fontSize: widget.fontSize ?? baseStyle.fontSize,
+              fontWeight: widget.fontWeight ?? baseStyle.fontWeight,
+              letterSpacing: baseStyle.letterSpacing ?? 0.1,
             ),
           ),
         ),
@@ -68,7 +70,7 @@ class TextButtonRich extends StatefulWidget {
   final VoidCallback onTap;
   final Color? actionColor;
   final Color? baseColor;
-  final double fontSize;
+  final double? fontSize;
   final TextStyle? style;
 
   const TextButtonRich({
@@ -78,7 +80,7 @@ class TextButtonRich extends StatefulWidget {
     required this.onTap,
     this.actionColor,
     this.baseColor,
-    this.fontSize = 14,
+    this.fontSize,
     this.style,
   });
 
@@ -120,8 +122,10 @@ class _TextButtonRichState extends State<TextButtonRich> {
   @override
   Widget build(BuildContext context) {
     final actionColor = widget.actionColor ?? context.colors.primary;
-
-    final effectiveFontSize = widget.style?.fontSize ?? widget.fontSize;
+    
+    final defaultStyle = context.text.bodySmall ?? const TextStyle();
+    final baseStyle = widget.style ?? defaultStyle;
+    final effectiveFontSize = widget.fontSize ?? baseStyle.fontSize;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -130,17 +134,19 @@ class _TextButtonRichState extends State<TextButtonRich> {
         child: RichText(
           textAlign: TextAlign.start,
           text: TextSpan(
-            text: widget.baseText,
-            style: (widget.style ?? const TextStyle()).copyWith(
+            text: '${widget.baseText} ',
+            style: baseStyle.copyWith(
               color: widget.baseColor ?? const Color(0xFF757575),
               fontSize: effectiveFontSize,
-              height: widget.style?.height ?? 1.4,
+              height: baseStyle.height ?? 1.4,
+              
             ),
+            
             children: [
               TextSpan(
                 text: widget.actionText,
                 recognizer: _gestureRecognizer,
-                style: (widget.style ?? const TextStyle()).copyWith(
+                style: baseStyle.copyWith(
                   color:
                       _isPressed ? actionColor.withOpacity(0.5) : actionColor,
                   fontSize: effectiveFontSize,

@@ -17,8 +17,11 @@ final tempLocaleSignal = signal<Locale?>(null);
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 🔥 USA immersive EM VEZ DE manual
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
@@ -38,7 +41,16 @@ Future<void> main() async {
         darkTheme: app_theme.darkTheme,
         themeMode: themeController.themeMode.value,
         routerConfig: AppRouter.router,
-        // O MaterialApp vai escutar o signal e mudar na hora!
+        builder: (context, child) {
+          final media = MediaQuery.of(context);
+
+          return MediaQuery(
+            data: media.copyWith(
+              textScaler: const TextScaler.linear(1),
+            ),
+            child: child!,
+          );
+        },
         locale: tempLocaleSignal.value,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,

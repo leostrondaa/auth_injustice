@@ -279,6 +279,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Excellent'**
   String get passwordStrengthExcellent;
+
+  /// No description provided for @checkEmailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your email'**
+  String get checkEmailTitle;
+
+  /// No description provided for @checkEmailSentTo.
+  ///
+  /// In en, this message translates to:
+  /// **'We sent a link to:'**
+  String get checkEmailSentTo;
+
+  /// No description provided for @checkEmailDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Click the link to continue.'**
+  String get checkEmailDescription;
 }
 
 class _AppLocalizationsDelegate

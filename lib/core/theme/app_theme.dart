@@ -57,10 +57,10 @@ extension ThemeContext on BuildContext {
   double get radiusMd => AppDesign.radiusMd;
 
   EdgeInsets get pagePadding =>
-      const EdgeInsets.symmetric(horizontal: AppDesign.lg);
+      const EdgeInsets.symmetric(horizontal: 20);
 
   EdgeInsets get extraPagePadding =>
-      const EdgeInsets.symmetric(horizontal: 40.0);
+      const EdgeInsets.symmetric(horizontal: 27.0);
 
   Gradient get initialPageGradient => LinearGradient(
         begin: Alignment.topLeft,
@@ -84,25 +84,29 @@ TextTheme _buildCustomTextTheme(TextTheme baseTheme, TextTheme googleFontBase) {
     // Títulos principais de páginas
     headlineLarge: GoogleFonts.archivoBlack(
         textStyle: googleFontBase.headlineLarge?.copyWith(fontSize: 45)),
-    headlineMedium:
-        GoogleFonts.gasoekOne(textStyle: googleFontBase.headlineMedium),
-    headlineSmall:
-        GoogleFonts.gasoekOne(textStyle: googleFontBase.headlineSmall),
 
-    // Títulos secundários de seções e sub-blocos
-    titleLarge: GoogleFonts.gasoekOne(textStyle: googleFontBase.titleLarge),
+    headlineMedium: GoogleFonts.inter(
+        fontSize: 22, textStyle: googleFontBase.headlineMedium),
+
+    headlineSmall: GoogleFonts.inter(
+        fontSize: 18, textStyle: googleFontBase.headlineSmall),
 
     bodyLarge: GoogleFonts.inter(
+      fontSize: 16,
       textStyle: googleFontBase.bodyLarge,
     ),
     bodyMedium: GoogleFonts.inter(
+      fontSize: 14,
       textStyle: googleFontBase.bodyMedium,
     ),
     bodySmall: GoogleFonts.inter(
       textStyle: googleFontBase.bodySmall?.copyWith(
+        fontSize: 12,
         fontWeight: FontWeight.w500,
       ),
     ),
+
+    titleLarge: GoogleFonts.gasoekOne(textStyle: googleFontBase.titleLarge),
   );
 }
 

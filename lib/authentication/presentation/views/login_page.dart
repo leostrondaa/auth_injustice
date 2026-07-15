@@ -1,5 +1,4 @@
 import 'package:autth_injustice_app/authentication/presentation/controllers/login/login_viewmodel.dart';
-import 'package:autth_injustice_app/authentication/presentation/widgets/animation_error.dart';
 import 'package:autth_injustice_app/authentication/presentation/widgets/button_primary.dart';
 import 'package:autth_injustice_app/authentication/presentation/widgets/clouds.dart';
 import 'package:autth_injustice_app/authentication/presentation/widgets/google_button.dart';
@@ -9,18 +8,17 @@ import 'package:autth_injustice_app/authentication/presentation/widgets/text_but
 import 'package:autth_injustice_app/authentication/presentation/widgets/textfield.dart';
 import 'package:autth_injustice_app/authentication/presentation/widgets/translate_button.dart';
 import 'package:autth_injustice_app/core/di/dependency_injection.dart';
+import 'package:autth_injustice_app/core/extensions/responsive_extensions.dart';
 import 'package:autth_injustice_app/core/l10n/l10n_extensions.dart';
-import 'package:autth_injustice_app/core/routes/app_routes.dart';
 import 'package:autth_injustice_app/core/routes/auth_routes.dart';
+import 'package:autth_injustice_app/core/routes/route_args/check_email_args.dart';
 import 'package:autth_injustice_app/core/utils/hide_keyboard.dart';
 import 'package:autth_injustice_app/core/validators/email_validator.dart';
 import 'package:autth_injustice_app/core/validators/passworld_validator.dart';
 import 'package:flutter/material.dart' hide TextButton;
 import 'package:go_router/go_router.dart';
-import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../core/theme/app_theme.dart';
-import '../widgets/auth_text_form_field.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -113,8 +111,7 @@ class _LoginPageState extends State<LoginPage>
     final password = _passCtrl.text;
 
     if (email.isEmpty || password.isEmpty) {
-      _viewModel.state.showError(
-          context.l10n.fieldsRequired ?? "Por favor, insira seus dados.");
+      await _viewModel.state.showTemporaryError(context.l10n.fieldsRequired);
       return;
     }
 
@@ -122,8 +119,7 @@ class _LoginPageState extends State<LoginPage>
     final passwordError = PasswordValidator.validate(context, password);
 
     if (emailError != null || passwordError != null) {
-      _viewModel.state.showError(
-          context.l10n.invalidFields ?? "E-mail ou senha incorretos.");
+      await _viewModel.state.showTemporaryError(context.l10n.invalidFields);
       return;
     }
 
@@ -140,12 +136,23 @@ class _LoginPageState extends State<LoginPage>
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.sizeOf(context);
     final keyboardHeight = MediaQuery.viewInsetsOf(context).bottom;
+
+    // Variáveis auxiliares para compressão em telas pequenas
+    final isVerySmall = context.isVerySmallScreen;
+
+    // Se a tela for muito pequena, subimos o bottom sheet um pouco mais
+    // e reduzimos os espaçamentos internos para o botão do Google caber sem scroll.
+    final double sheetTopRatio = isVerySmall ? 0.22 : context.authSheetTopRatio;
+    final double gapFormTop = isVerySmall ? 16.0 : context.formTopSpacing;
+    final double gapFields = isVerySmall ? 12.0 : 16.0;
+    final double gapSmall = isVerySmall ? 8.0 : 12.0;
+    final double gapBottom = isVerySmall ? 16.0 : context.formBottomSpacing;
 
     return LoadingOverlay(
       loading: _viewModel.state.loading,
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         body: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           child: Container(
@@ -158,7 +165,7 @@ class _LoginPageState extends State<LoginPage>
               children: [
                 const CloudBackground(),
 
-                // HEADER (Fica fixo no topo)
+                // HEADER
                 Positioned(
                   top: 0,
                   left: 0,
@@ -169,7 +176,7 @@ class _LoginPageState extends State<LoginPage>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          const SizedBox(height: 50),
+                          SizedBox(height: context.headerTopSpacing),
                           SlideTransition(
                             position: _headerSlide,
                             child: FadeTransition(
@@ -179,6 +186,7 @@ class _LoginPageState extends State<LoginPage>
                                 textAlign: TextAlign.start,
                                 style: context.text.headlineLarge?.copyWith(
                                   color: context.colors.onPrimary,
+                                  fontSize: isVerySmall ? 28 : null,
                                 ),
                               ),
                             ),
@@ -189,9 +197,9 @@ class _LoginPageState extends State<LoginPage>
                   ),
                 ),
 
-                // BOTTOM SHEET (Posicionado exatamente a 38% do topo igual antes)
+                // BOTTOM SHEET
                 Positioned(
-                  top: size.height * 0.38,
+                  top: context.screenSize.height * sheetTopRatio,
                   left: 0,
                   right: 0,
                   bottom: 0,
@@ -219,8 +227,12 @@ class _LoginPageState extends State<LoginPage>
                           child: SingleChildScrollView(
                             physics: const BouncingScrollPhysics(),
                             padding: context.extraPagePadding.copyWith(
+                              top: isVerySmall
+                                  ? 16
+                                  : null, // Margem menor no topo do sheet se necessário
                               bottom: context.extraPagePadding.bottom +
-                                  keyboardHeight,
+                                  keyboardHeight +
+                                  (isVerySmall ? 12 : 20),
                             ),
                             child: SlideTransition(
                               position: _formSlide,
@@ -232,14 +244,14 @@ class _LoginPageState extends State<LoginPage>
                                     crossAxisAlignment:
                                         CrossAxisAlignment.stretch,
                                     children: [
-                                      const SizedBox(height: 40),
+                                      SizedBox(height: gapFormTop),
                                       CustomTextField(
                                         controller: _emailCtrl,
                                         hintText: context.l10n.email,
                                         keyboardType:
                                             TextInputType.emailAddress,
                                       ),
-                                      const SizedBox(height: 16),
+                                      SizedBox(height: gapFields),
                                       CustomTextField(
                                         controller: _passCtrl,
                                         hintText: context.l10n.password,
@@ -248,31 +260,53 @@ class _LoginPageState extends State<LoginPage>
                                       AuthErrorBanner(
                                         error: _viewModel.state.errorMessage,
                                       ),
-                                      const SizedBox(height: 12),
+                                      SizedBox(height: gapSmall),
                                       Align(
                                         alignment: Alignment.centerLeft,
                                         child: TextButton(
-                                          style: context.text.displaySmall
-                                              ?.copyWith(fontSize: 14),
-                                          text: context.l10n.forgot,
-                                          color: const Color(0xFF757575),
-                                          onTap: () {},
-                                        ),
+                                            style: context.text.bodyMedium,
+                                            text: context.l10n.forgot,
+                                            color: const Color(0xFF757575),
+                                            onTap: () async {
+                                              hideKeyboard();
+
+                                              final email =
+                                                  _emailCtrl.text.trim();
+                                              final error =
+                                                  EmailValidator.validate(
+                                                      context, email);
+
+                                              if (error != null) {
+                                                await _viewModel.state
+                                                    .showTemporaryError(error);
+                                                return;
+                                              }
+
+                                              if (!mounted) return;
+
+                                              context.push(
+                                                AuthPaths.checkEmail,
+                                                extra: CheckEmailArgs(
+                                                  email: email,
+                                                  flow: CheckEmailFlow
+                                                      .forgotPassword,
+                                                ),
+                                              );
+                                            }),
                                       ),
-                                      const SizedBox(height: 40),
+                                      SizedBox(height: gapFormTop),
                                       ButtonPrimary(
                                         text: context.l10n.loginButton,
                                         onTap: _handleLogin,
                                       ),
-                                      const SizedBox(height: 12),
+                                      SizedBox(height: gapSmall),
                                       Align(
                                         alignment: Alignment.centerLeft,
                                         child: Padding(
                                           padding:
                                               const EdgeInsets.only(left: 8.0),
                                           child: TextButtonRich(
-                                            style: context.text.displaySmall
-                                                ?.copyWith(fontSize: 14),
+                                            style: context.text.bodyMedium,
                                             baseText:
                                                 context.l10n.dontHaveAccount,
                                             actionText:
@@ -286,35 +320,42 @@ class _LoginPageState extends State<LoginPage>
                                           ),
                                         ),
                                       ),
-                                      const SizedBox(height: 48),
+                                      SizedBox(height: gapBottom),
                                       Row(
                                         children: [
                                           const Expanded(
-                                              child: Divider(
-                                                  color: Color(0xFF424242),
-                                                  thickness: 1)),
+                                            child: Divider(
+                                              color: Color(0xFF424242),
+                                              thickness: 1,
+                                            ),
+                                          ),
                                           Padding(
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 16),
                                             child: Text(
                                               context.l10n.or,
                                               style: TextStyle(
-                                                  color: Colors.grey.shade500),
+                                                color: Colors.grey.shade500,
+                                                fontSize: context
+                                                    .text.bodySmall?.fontSize,
+                                              ),
                                             ),
                                           ),
                                           Expanded(
-                                              child: Divider(
-                                                  color: Colors.grey.shade800,
-                                                  thickness: 1)),
+                                            child: Divider(
+                                              color: Colors.grey.shade800,
+                                              thickness: 1,
+                                            ),
+                                          ),
                                         ],
                                       ),
-                                      const SizedBox(height: 48),
+                                      SizedBox(height: gapBottom),
                                       GoogleSignInButton(
                                         onTap: () {
                                           print('Disparou o login do Google');
                                         },
                                       ),
-                                      const SizedBox(height: 24),
+                                      SizedBox(height: isVerySmall ? 16 : 24),
                                     ],
                                   ),
                                 ),

@@ -1,4 +1,7 @@
+import 'dart:ui';
+
 import 'package:autth_injustice_app/authentication/presentation/controllers/register/register_viewmodel.dart';
+import 'package:autth_injustice_app/authentication/presentation/widgets/back_button.dart';
 import 'package:autth_injustice_app/authentication/presentation/widgets/button_primary.dart';
 import 'package:autth_injustice_app/authentication/presentation/widgets/auth_error_banner.dart';
 import 'package:autth_injustice_app/authentication/presentation/widgets/password_strength_indicator.dart';
@@ -6,9 +9,10 @@ import 'package:autth_injustice_app/authentication/presentation/widgets/textfiel
 import 'package:autth_injustice_app/authentication/presentation/widgets/translate_button.dart';
 import 'package:autth_injustice_app/core/constants/app_assets.dart';
 import 'package:autth_injustice_app/core/di/dependency_injection.dart';
+import 'package:autth_injustice_app/core/extensions/responsive_extensions.dart';
 import 'package:autth_injustice_app/core/l10n/l10n_extensions.dart';
-import 'package:autth_injustice_app/core/routes/auth_routes.dart';
 import 'package:autth_injustice_app/core/theme/app_theme.dart';
+import 'package:autth_injustice_app/core/utils/hide_keyboard.dart';
 import 'package:autth_injustice_app/core/validators/email_validator.dart';
 import 'package:autth_injustice_app/core/validators/passworld_validator.dart';
 import 'package:flutter/material.dart';
@@ -108,13 +112,14 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Future<void> _previousStep() async {
+    FocusScope.of(context).unfocus();
+
     if (_pageController.page?.round() == 0) {
       context.pop();
       return;
     }
 
-    FocusScope.of(context).unfocus();
-
+    _viewModel.state.clearError();
     await _pageController.previousPage(
       duration: const Duration(milliseconds: 400),
       curve: Curves.easeInOut,
@@ -124,6 +129,8 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // CRUCIAL: Impede que a tela inteira esprema/suba quando o teclado abrir
+      resizeToAvoidBottomInset: false,
       backgroundColor: context.colors.onError,
       body: PageView(
         controller: _pageController,
@@ -151,8 +158,9 @@ class _RegisterPageState extends State<RegisterPage> {
             title: Text(
               '${context.l10n.whatYour}\n${context.l10n.email}',
               textAlign: TextAlign.start,
-              style: context.headlineLarge?.copyWith(
-                color: context.onTertiary,
+              style: context.text.headlineLarge?.copyWith(
+                color: context.colors.onTertiary,
+                fontSize: context.isVerySmallScreen ? 28 : null,
               ),
             ),
             label: context.l10n.email,
@@ -171,8 +179,9 @@ class _RegisterPageState extends State<RegisterPage> {
             title: Text(
               '${context.l10n.createPassword}\n${context.l10n.password}',
               textAlign: TextAlign.start,
-              style: context.headlineLarge?.copyWith(
-                color: context.onTertiary,
+              style: context.text.headlineLarge?.copyWith(
+                color: context.colors.onTertiary,
+                fontSize: context.isVerySmallScreen ? 28 : null,
               ),
             ),
             label: context.l10n.password,
@@ -310,82 +319,125 @@ class _SignupStepGenericState extends State<SignupStepGeneric>
 
   @override
   Widget build(BuildContext context) {
-    final mediaQuery = MediaQuery.of(context);
-    final screenWidth = mediaQuery.size.width;
-    final screenHeight = mediaQuery.size.height;
+    final keyboardHeight = MediaQuery.viewInsetsOf(context).bottom;
 
-    return Stack(
-      children: [
-        Positioned(
-          top: screenHeight - 500,
-          left: -0,
-          child: Transform.rotate(
-            angle: -0.8,
-            child: Image.asset(
-              context.isDarkMode
-                  ? AppAssets.ifLogoWhite
-                  : AppAssets.ifLogoBlack,
-              width: screenWidth * 1.0,
-              fit: BoxFit.contain,
-              cacheWidth:
-                  (screenWidth * 0.6 * mediaQuery.devicePixelRatio).round(),
+    return SizedBox.expand(
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // 1. IMAGEM DE FUNDO (Acompanha a largura da tela)
+          Positioned(
+            left: 0,
+            bottom: -150,
+            child: Transform.rotate(
+              angle: -0.8,
+              child: Image.asset(
+                context.isDarkMode
+                    ? AppAssets.ifLogoWhite
+                    : AppAssets.ifLogoBlack,
+                width: context.screenSize.width, // Usa 100% da tela natural
+                fit: BoxFit.contain,
+              ),
             ),
           ),
-        ),
 
-        // 2. CONTEÚDO VISUAL
-        SafeArea(
-          child: Padding(
-            padding: context.extraPagePadding,
+          // 2. CONTEÚDO VISUAL (Formulário fluindo livremente na tela)
+          SafeArea(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 0),
-                IconButton(
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  alignment: Alignment.centerLeft,
-                  icon: Icon(
-                    Icons.arrow_back,
-                    color: context.onTertiary,
-                  ),
-                  onPressed: widget.onBack,
-                ),
-                const SizedBox(height: 30),
-                SlideTransition(
-                  position: _textSlide,
-                  child: FadeTransition(
-                    opacity: _textOpacity,
-                    child: widget.title,
+                Padding(
+                  padding: context.extraPagePadding.copyWith(bottom: 0, top: 0),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: BackButtonWidget(onTap: widget.onBack),
                   ),
                 ),
-                const SizedBox(height: 48),
-                SlideTransition(
-                  position: _textSlide,
-                  child: FadeTransition(
-                    opacity: _textOpacity,
-                    child: CustomTextField(
-                      controller: widget.controller,
-                      focusNode: widget.focusNode,
-                      hintText: widget.label,
-                      keyboardType: widget.keyboardType,
-                      isPassword: widget.obscureText,
-                      textInputAction: widget.textInputAction,
-                      onFieldSubmitted: (_) => widget.onNext(),
+
+                // O ScrollView pega toda a área acima do botão
+                Expanded(
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: context.extraPagePadding.copyWith(
+                      bottom: keyboardHeight +
+                          80, // Mantém a rolagem segura do teclado
+                      top: context.headerTopSpacing,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SlideTransition(
+                          position: _textSlide,
+                          child: FadeTransition(
+                            opacity: _textOpacity,
+                            child: widget.title,
+                          ),
+                        ),
+                        SizedBox(height: context.formTopSpacing),
+                        SlideTransition(
+                          position: _textSlide,
+                          child: FadeTransition(
+                            opacity: _textOpacity,
+                            child: CustomTextField(
+                              controller: widget.controller,
+                              focusNode: widget.focusNode,
+                              hintText: widget.label,
+                              keyboardType: widget.keyboardType,
+                              isPassword: widget.obscureText,
+                              textInputAction: widget.textInputAction,
+                              onFieldSubmitted: (_) => widget.onNext(),
+                            ),
+                          ),
+                        ),
+                        AuthErrorBanner(
+                          error: widget.viewModel.state.errorMessage.readonly(),
+                        ),
+                        if (widget.obscureText) ...[
+                          const SizedBox(height: 25),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(
+                                sigmaX: 10,
+                                sigmaY: 10,
+                              ),
+                              child: Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color:
+                                      context.colors.onError.withOpacity(0.45),
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: Colors.white.withOpacity(0.15),
+                                  ),
+                                ),
+                                child: PasswordStrengthIndicator(
+                                  controller: widget.controller,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
                 ),
-                AuthErrorBanner(
-                  error: widget.viewModel.state.errorMessage.readonly(),
+              ],
+            ),
+          ),
+
+          // 3. BOTÃO FIXO NO RODAPÉ (Sem limitador central)
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: SafeArea(
+              child: Padding(
+                padding: context.extraPagePadding.copyWith(
+                  top: 16,
+                  bottom: context.isVerySmallScreen ? 16 : 32,
                 ),
-                if (widget.obscureText) ...[
-                  const SizedBox(height: 25),
-                  PasswordStrengthIndicator(
-                    controller: widget.controller,
-                  ),
-                ],
-                const Spacer(),
-                SlideTransition(
+                child: SlideTransition(
                   position: _buttonSlide,
                   child: FadeTransition(
                     opacity: _buttonOpacity,
@@ -399,12 +451,11 @@ class _SignupStepGenericState extends State<SignupStepGeneric>
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
-              ],
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

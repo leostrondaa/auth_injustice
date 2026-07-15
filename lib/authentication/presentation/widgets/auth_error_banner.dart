@@ -1,4 +1,3 @@
-import 'package:autth_injustice_app/authentication/presentation/controllers/login/login_viewmodel.dart';
 import 'package:autth_injustice_app/authentication/presentation/widgets/animation_error.dart';
 import 'package:flutter/material.dart';
 import 'package:signals_flutter/signals_flutter.dart';

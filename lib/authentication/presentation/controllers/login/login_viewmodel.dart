@@ -18,5 +18,6 @@ class LoginViewModel {
       signInCommand: SignInCommand(facade),
       signInWithGoogleCommand: SignInWithGoogleCommand(facade),
     );
+    
   }
 }

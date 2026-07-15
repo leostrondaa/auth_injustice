@@ -1,6 +1,7 @@
 import 'package:autth_injustice_app/authentication/presentation/widgets/button_primary.dart';
 import 'package:autth_injustice_app/authentication/presentation/widgets/clouds.dart';
 import 'package:autth_injustice_app/authentication/presentation/widgets/translate_button.dart';
+import 'package:autth_injustice_app/core/extensions/responsive_extensions.dart';
 import 'package:autth_injustice_app/core/l10n/l10n_extensions.dart';
 import 'package:autth_injustice_app/core/routes/auth_routes.dart';
 import 'package:autth_injustice_app/main.dart';
@@ -107,12 +108,14 @@ class _InitialPageState extends State<InitialPage>
               children: [
                 const CloudBackground(),
                 SafeArea(
+                  // Removido o ConstrainedBox e Align para o conteúdo esticar 100% da tela
                   child: Padding(
                     padding: context.extraPagePadding,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const SizedBox(height: 50),
+                        // Espaçamento dinâmico no topo
+                        SizedBox(height: context.headerTopSpacing),
                         RepaintBoundary(
                           child: SlideTransition(
                             position: _textSlide,
@@ -123,6 +126,9 @@ class _InitialPageState extends State<InitialPage>
                                 textAlign: TextAlign.start,
                                 style: textTheme.headlineLarge?.copyWith(
                                   color: themeColors.onPrimary,
+                                  // Fonte dinâmica para evitar estouro em telas pequenas
+                                  fontSize:
+                                      context.isVerySmallScreen ? 28 : null,
                                 ),
                               ),
                             ),
@@ -138,16 +144,13 @@ class _InitialPageState extends State<InitialPage>
                                 text: context.l10n.continueButton,
                                 onTap: () {
                                   context.push(AuthPaths.login);
-                                  //_animController.reverse().then((_) {
-                                  //_irisController.reverse().then((_) {
-                                  //});
-                                  //});
                                 },
                               ),
                             ),
                           ),
                         ),
-                        SizedBox(height: context.spaceLg),
+                        // Margem inferior ajustável (menor em telas muito pequenas)
+                        SizedBox(height: context.isVerySmallScreen ? 16 : 32),
                       ],
                     ),
                   ),

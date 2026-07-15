@@ -40,10 +40,6 @@ class _CustomTextFieldState extends State<CustomTextField> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
-    final colorScheme = theme.colorScheme;
-    final baseTextStyle = theme.textTheme.displaySmall?.copyWith(fontSize: 16);
-
     final defaultBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(16),
       borderSide: BorderSide(
@@ -61,29 +57,29 @@ class _CustomTextFieldState extends State<CustomTextField> {
         validator: widget.validator,
         textInputAction: widget.textInputAction,
         onFieldSubmitted: widget.onFieldSubmitted,
-        cursorColor: colorScheme.primary,
+        cursorColor: context.primary,
         enableSuggestions: !widget.isPassword,
         autocorrect: !widget.isPassword,
-        style: baseTextStyle?.copyWith(
-          color: colorScheme.onTertiary,
+        style:context.bodySmall?.copyWith(
+          color: context.onTertiary,
         ),
         decoration: InputDecoration(
           hintText: widget.hintText,
-          hintStyle: baseTextStyle?.copyWith(
+          hintStyle: context.bodyMedium?.copyWith(
             color: Colors.grey.shade600,
           ),
           filled: true,
           fillColor: Colors.transparent,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 20,
-            vertical: 18,
+            vertical: 10,
           ),
           border: defaultBorder,
           enabledBorder: defaultBorder,
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide(
-              color: colorScheme.primary,
+              color: context.primary,
               width: 1.5,
             ),
           ),
@@ -101,7 +97,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
               : null,
           suffixIconColor: WidgetStateColor.resolveWith((states) {
             if (states.contains(WidgetState.focused)) {
-              return colorScheme.primary;
+              return context.primary;
             }
             return Colors.grey.shade600;
           }),

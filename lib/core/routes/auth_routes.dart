@@ -1,8 +1,10 @@
+import 'package:autth_injustice_app/authentication/presentation/views/check_email_page.dart';
 import 'package:autth_injustice_app/authentication/presentation/views/login_page.dart';
 import 'package:autth_injustice_app/authentication/presentation/views/register_page.dart';
 import 'package:autth_injustice_app/authentication/presentation/views/initial_page.dart';
 import 'package:autth_injustice_app/authentication/presentation/views/splash_page.dart';
 import 'package:autth_injustice_app/core/routes/custom_transitions.dart';
+import 'package:autth_injustice_app/core/routes/route_args/check_email_args.dart';
 import 'package:go_router/go_router.dart';
 
 class AuthRouteNames {
@@ -10,6 +12,7 @@ class AuthRouteNames {
   static const login = 'login';
   static const register = 'register';
   static const initial = 'initial';
+  static const checkEmail = 'checkEmail';
 }
 
 class AuthPaths {
@@ -17,6 +20,7 @@ class AuthPaths {
   static const login = '/login';
   static const register = '/register';
   static const initial = '/initial';
+  static const checkEmail = '/checkEmail';
 }
 
 final List<RouteBase> authRoutes = [
@@ -43,5 +47,16 @@ final List<RouteBase> authRoutes = [
     name: AuthRouteNames.splash,
     pageBuilder: (context, state) =>
         const NoTransitionPage(child: SplashPage()),
+  ),
+  GoRoute(
+    path: AuthPaths.checkEmail,
+    pageBuilder: (context, state) {
+      final args = state.extra as CheckEmailArgs;
+
+      return slidePage(
+        key: state.pageKey,
+        child: CheckEmailPage(args: args),
+      );
+    },
   ),
 ];

@@ -33,7 +33,6 @@ class _ButtonPrimaryState extends State<ButtonPrimary>
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final isButtonDisabled = widget.onTap == null;
 
     return ValueListenableBuilder<double>(
@@ -66,26 +65,25 @@ class _ButtonPrimaryState extends State<ButtonPrimary>
           child: DecoratedBox(
             decoration: BoxDecoration(
               color: isButtonDisabled
-                  ? colors.surface.withOpacity(0.5)
-                  : colors.surface,
+                  ? context.surface.withOpacity(0.5)
+                  : context.surface,
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 if (!isButtonDisabled)
                   BoxShadow(
-                    color: colors.onSecondary.withOpacity(0.4),
+                    color: context.onSecondary.withOpacity(0.4),
                     blurRadius: 15,
                     offset: const Offset(0, 5),
                   )
               ],
             ),
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+              padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
               child: Text(
                 widget.text,
                 textAlign: TextAlign.center,
-                style: context.text.displaySmall?.copyWith(
-                  color: colors.onSurface,
-                  fontSize: 16,
+                style: context.text.bodyMedium?.copyWith(
+                  color: context.onSurface,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 0.5,
                 ),

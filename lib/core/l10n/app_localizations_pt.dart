@@ -98,4 +98,13 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get passwordStrengthExcellent => 'Excelente';
+
+  @override
+  String get checkEmailTitle => 'Verifique seu e-mail';
+
+  @override
+  String get checkEmailSentTo => 'Enviamos um link para:';
+
+  @override
+  String get checkEmailDescription => 'Clique no link para continuar.';
 }

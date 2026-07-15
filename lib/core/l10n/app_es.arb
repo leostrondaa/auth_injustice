@@ -37,6 +37,13 @@
   "passwordStrengthWeak": "Débil",
   "passwordStrengthFair": "Aceptable",
   "passwordStrengthGood": "Buena",
-  "passwordStrengthExcellent": "Excelente"
+  "passwordStrengthExcellent": "Excelente",
+
+
+  
+  "checkEmailTitle": "Verifica tu correo electrónico",
+  "checkEmailSentTo": "Enviamos un enlace a:",
+  "checkEmailDescription": "Haz clic en el enlace para continuar."
+
 
 }

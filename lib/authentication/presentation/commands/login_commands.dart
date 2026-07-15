@@ -30,6 +30,7 @@ class LoginCommands {
     }
   }
 
+
   Future<void> signInWithGoogle() async {
     state.setLoading(true);
 

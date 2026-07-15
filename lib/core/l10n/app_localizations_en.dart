@@ -98,4 +98,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get passwordStrengthExcellent => 'Excellent';
+
+  @override
+  String get checkEmailTitle => 'Check your email';
+
+  @override
+  String get checkEmailSentTo => 'We sent a link to:';
+
+  @override
+  String get checkEmailDescription => 'Click the link to continue.';
 }
