@@ -1,0 +1,53 @@
+import 'package:autth_injustice_app/core/l10n/app_localizations.dart';
+import 'package:flutter/material.dart';
+
+extension AppLocalizationsErrorExt on BuildContext {
+  String translateErrorKey(String key) {
+    final l10n = AppLocalizations.of(this);
+    if (l10n == null) return key;
+
+    switch (key) {
+      // Campos de login
+      case 'fieldsRequired':
+        return l10n.fieldsRequired;
+      case 'invalidFields':
+        return l10n.invalidFields;
+
+      // Validação de e-mail
+      case 'emailRequired':
+        return l10n.emailRequired;
+      case 'invalidEmail':
+        return l10n.invalidEmail;
+
+      // Validação de senha
+      case 'passwordRequired':
+        return l10n.passwordRequired;
+      case 'passwordMinLength':
+        return l10n.passwordMinLength;
+      case 'passwordRequireLowercaseAndUppercase':
+        return l10n.passwordRequireLowercaseAndUppercase;
+      case 'passwordRequireNumber':
+        return l10n.passwordRequireNumber;
+      case 'passwordRequireSymbol':
+        return l10n.passwordRequireSymbol;
+
+      // Níveis de força de senha
+      case 'passwordStrengthEmpty':
+        return l10n.passwordStrengthEmpty;
+      case 'passwordStrengthVeryWeak':
+        return l10n.passwordStrengthVeryWeak;
+      case 'passwordStrengthWeak':
+        return l10n.passwordStrengthWeak;
+      case 'passwordStrengthFair':
+        return l10n.passwordStrengthFair;
+      case 'passwordStrengthGood':
+        return l10n.passwordStrengthGood;
+      case 'passwordStrengthExcellent':
+        return l10n.passwordStrengthExcellent;
+
+      default:
+
+        return key;
+    }
+  }
+}

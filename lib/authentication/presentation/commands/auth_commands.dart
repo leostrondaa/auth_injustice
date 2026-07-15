@@ -14,7 +14,8 @@ final class SignInCommand extends ParameterizedCommand<AuthSession, Failure, Sig
   @override
   Future<AuthSessionResult> execute() async {
     if (parameter == null || parameter!.email.isEmpty || parameter!.password.isEmpty) {
-      return Error(InvalidInputFailure('Parâmetros de login inválidos.'));
+      // Dispara a chave l10n para "Por favor, preencha os campos"
+      return Error(InvalidInputFailure('fieldsRequired')); 
     }
 
     return await _authUseCaseFacade.signInUseCase(parameter!);
@@ -29,7 +30,9 @@ final class SignInWithGoogleCommand extends ParameterizedCommand<AuthSession, Fa
   @override
   Future<AuthSessionResult> execute() async {
     if (parameter == null) {
-      return Error(InvalidInputFailure('Parâmetros de login Gooogle inválidos.'));
+      // Como não criamos uma chave específica para isso no JSON,
+      // podemos passar uma mensagem direta. O nosso switch/case vai cair no 'default' e exibir isso na tela perfeitamente!
+      return Error(InvalidInputFailure('Erro interno: Parâmetro nulo no Google Sign-In.'));
     }
     return await _authUseCaseFacade.signInWithGoogleUseCase(parameter!);
   }
@@ -43,7 +46,8 @@ final class SignOutCommand extends ParameterizedCommand<void, Failure, NoParams>
   @override
   Future<VoidResult> execute() async {
     if (parameter == null) {
-      return Error(InvalidInputFailure('Erro ao realir sign-out.'));
+      // Mesma coisa: erro de desenvolvedor, cai no default e exibe esse texto.
+      return Error(InvalidInputFailure('Erro interno ao realizar sign-out.'));
     }
     return await _authUseCaseFacade.signOutUseCase(parameter!);
   }
@@ -57,10 +61,10 @@ final class SignUpCommand extends ParameterizedCommand<AuthSession, Failure, Sig
   @override
   Future<AuthSessionResult> execute() async {
     if (parameter == null || parameter!.email.isEmpty || parameter!.password.isEmpty) {
-      return Error(InvalidInputFailure('Parâmetros de registro inválidos.'));
+      // Dispara a chave l10n para "Por favor, preencha os campos"
+      return Error(InvalidInputFailure('fieldsRequired'));
     }
 
     return await _authUseCaseFacade.signUpUseCase(parameter!);
   }
-} 
-
+}

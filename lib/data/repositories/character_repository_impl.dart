@@ -26,8 +26,9 @@ final class CharacterRepositoryImpl implements ICharacterRepository {
         _firestore = firestore ?? FirebaseFirestore.instance;
 
   String? get _currentUid => _authRepository.currentSession?.account.uid;
+  
+  Failure? get _unauthError => null;
 
-  UnauthenticatedFailure get _unauthError => UnauthenticatedFailure();
 
   @override
   String generateCharacterId() =>
@@ -36,35 +37,35 @@ final class CharacterRepositoryImpl implements ICharacterRepository {
   @override
   Future<CharacterResult> getCharacterById(String id) async {
     final uid = _currentUid;
-    if (uid == null) return Error(_unauthError);
+    if (uid == null) return Error(_unauthError!);
     return _remoteStorage.getCharacterById(uid, id);
   }
 
   @override
   Future<ListCharacterResult> getAllCharacters() async {
     final uid = _currentUid;
-    if (uid == null) return Error(_unauthError);
+    if (uid == null) return Error(_unauthError!);
     return _remoteStorage.getAllCharacters(uid);
   }
 
   @override
   Future<CharacterResult> saveCharacter(Character character) async {
     final uid = _currentUid;
-    if (uid == null) return Error(_unauthError);
+    if (uid == null) return Error(_unauthError!);
     return _remoteStorage.saveCharacter(uid, character);
   }
 
   @override
   Future<CharacterResult> updateCharacter(Character character) async {
     final uid = _currentUid;
-    if (uid == null) return Error(_unauthError);
+    if (uid == null) return Error(_unauthError!);
     return _remoteStorage.updateCharacter(uid, character);
   }
 
   @override
   Future<CharacterResult> deleteCharacter(String id) async {
     final uid = _currentUid;
-    if (uid == null) return Error(_unauthError);
+    if (uid == null) return Error(_unauthError!);
     return _remoteStorage.deleteCharacter(uid, id);
   }
 }

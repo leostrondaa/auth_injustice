@@ -1,3 +1,4 @@
+import 'package:autth_injustice_app/core/theme/app_theme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
@@ -7,6 +8,7 @@ class TextButton extends StatefulWidget {
   final Color? color;
   final double fontSize;
   final FontWeight fontWeight;
+  final TextStyle? style;
 
   const TextButton({
     super.key,
@@ -15,6 +17,7 @@ class TextButton extends StatefulWidget {
     this.color,
     this.fontSize = 14,
     this.fontWeight = FontWeight.w500,
+    this.style, // ✅ Adicionado aqui
   });
 
   @override
@@ -26,13 +29,12 @@ class _TextButtonState extends State<TextButton> {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveColor =
-        widget.color ?? Theme.of(context).colorScheme.primary;
+    final effectiveColor = widget.color ?? context.colors.primary;
 
     return GestureDetector(
       onTapDown: (_) => setState(() => _isPressed = true),
       onTapCancel: () => setState(() => _isPressed = false),
-      onTap: () async {
+      onTapUp: (_) async {
         setState(() => _isPressed = true);
         await Future.delayed(const Duration(milliseconds: 150));
         if (mounted) {
@@ -46,12 +48,12 @@ class _TextButtonState extends State<TextButton> {
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
           child: Text(
             widget.text,
-            style: TextStyle(
+            style: (widget.style ?? const TextStyle()).copyWith(
               color:
                   _isPressed ? effectiveColor.withOpacity(0.5) : effectiveColor,
-              fontSize: widget.fontSize,
-              fontWeight: widget.fontWeight,
-              letterSpacing: 0.1,
+              fontSize: widget.style?.fontSize ?? widget.fontSize,
+              fontWeight: widget.style?.fontWeight ?? widget.fontWeight,
+              letterSpacing: widget.style?.letterSpacing ?? 0.1,
             ),
           ),
         ),
@@ -67,6 +69,7 @@ class TextButtonRich extends StatefulWidget {
   final Color? actionColor;
   final Color? baseColor;
   final double fontSize;
+  final TextStyle? style;
 
   const TextButtonRich({
     super.key,
@@ -76,6 +79,7 @@ class TextButtonRich extends StatefulWidget {
     this.actionColor,
     this.baseColor,
     this.fontSize = 14,
+    this.style,
   });
 
   @override
@@ -115,8 +119,9 @@ class _TextButtonRichState extends State<TextButtonRich> {
 
   @override
   Widget build(BuildContext context) {
-    final actionColor =
-        widget.actionColor ?? Theme.of(context).colorScheme.primary;
+    final actionColor = widget.actionColor ?? context.colors.primary;
+
+    final effectiveFontSize = widget.style?.fontSize ?? widget.fontSize;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -126,20 +131,20 @@ class _TextButtonRichState extends State<TextButtonRich> {
           textAlign: TextAlign.start,
           text: TextSpan(
             text: widget.baseText,
-            style: TextStyle(
+            style: (widget.style ?? const TextStyle()).copyWith(
               color: widget.baseColor ?? const Color(0xFF757575),
-              fontSize: widget.fontSize,
-              height: 1.4,
+              fontSize: effectiveFontSize,
+              height: widget.style?.height ?? 1.4,
             ),
             children: [
               TextSpan(
                 text: widget.actionText,
                 recognizer: _gestureRecognizer,
-                style: TextStyle(
+                style: (widget.style ?? const TextStyle()).copyWith(
                   color:
                       _isPressed ? actionColor.withOpacity(0.5) : actionColor,
-                  fontSize: widget.fontSize,
-                  fontWeight: FontWeight.w700,
+                  fontSize: effectiveFontSize,
+                  fontWeight: widget.style?.fontWeight ?? FontWeight.w700,
                 ),
               ),
             ],

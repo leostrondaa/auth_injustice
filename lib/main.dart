@@ -4,10 +4,15 @@ import 'package:autth_injustice_app/core/routes/app_routes.dart';
 import 'package:autth_injustice_app/core/theme/app_theme.dart' as app_theme;
 import 'package:autth_injustice_app/core/theme/theme_controller.dart';
 import 'package:autth_injustice_app/firebase_options.dart';
+import 'package:autth_injustice_app/core/l10n/app_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:signals_flutter/signals_flutter.dart';
+import 'package:autth_injustice_app/core/l10n/app_localizations.dart';
+
+// Um signal global provisório que começa como nulo (segue o sistema)
+final tempLocaleSignal = signal<Locale?>(null);
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,6 +38,10 @@ Future<void> main() async {
         darkTheme: app_theme.darkTheme,
         themeMode: themeController.themeMode.value,
         routerConfig: AppRouter.router,
+        // O MaterialApp vai escutar o signal e mudar na hora!
+        locale: tempLocaleSignal.value,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
       ),
     ),
   );

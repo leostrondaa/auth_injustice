@@ -1,0 +1,42 @@
+{
+  "welcomeTo": "Bienvenido a",
+  "whereIf": "Where IF",
+  "continueButton": "Continuar",
+
+
+
+  "joinThe": "Únete al",
+  "team": "Equipo",
+  "email": "Correo electrónico",
+  "password": "Contraseña",
+  "forgot": "¿Olvidaste tu contraseña?",
+  "loginButton": "Entrar",
+  "dontHaveAccount": "¿No tienes una cuenta?",
+  "signupButton": "Regístrarse",
+  "or": "o",
+  "googleButton": "Iniciar sesión con Google",
+
+
+
+  "whatYour": "¿Cuál es tu",
+  "createPassword": "Crea una",
+
+  "fieldsRequired": "Por favor, complete los campos",
+  "invalidFields": "Correo electrónico o contraseña incorrectos",
+
+  "emailRequired": "Introduce un correo electrónico",
+  "invalidEmail": "Correo electrónico incorrecto",
+
+  "passwordRequired": "Introduce una contraseña",
+  "passwordMinLength": "La contraseña debe tener al menos 8 caracteres",
+  "passwordRequireLowercaseAndUppercase": "Letras mayúsculas y minúsculas",
+  "passwordRequireNumber": "Incluye al menos un número",
+  "passwordRequireSymbol": "Incluye al menos un símbolo",
+  "passwordStrengthEmpty": "Introduce una contraseña",
+  "passwordStrengthVeryWeak": "Muy débil",
+  "passwordStrengthWeak": "Débil",
+  "passwordStrengthFair": "Aceptable",
+  "passwordStrengthGood": "Buena",
+  "passwordStrengthExcellent": "Excelente"
+
+}

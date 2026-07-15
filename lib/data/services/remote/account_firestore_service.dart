@@ -21,47 +21,29 @@ final class AccountFirestoreService implements IAccountRemoteStorage {
 
   DocumentReference<Map<String, dynamic>> _accountDoc(String uid) =>
       _firestore.collection('accounts').doc(uid);
+      
+        @override
+        Future<VoidResult> deleteAccount(String uid) {
+          // TODO: implement deleteAccount
+          throw UnimplementedError();
+        }
+      
+        @override
+        Future<AccountResult> getAccount(String uid) {
+          // TODO: implement getAccount
+          throw UnimplementedError();
+        }
+      
+        @override
+        Future<VoidResult> saveAccount(Account account) {
+          // TODO: implement saveAccount
+          throw UnimplementedError();
+        }
+      
+        @override
+        Future<VoidResult> updateAccount(Account account) {
+          // TODO: implement updateAccount
+          throw UnimplementedError();
+        }
 
-  @override
-  Future<AccountResult> getAccount(String uid) async {
-    try {
-      final snapshot = await _accountDoc(uid).get();
-      if (!snapshot.exists || snapshot.data() == null) {
-        return Error(EmptyResultFailure());
-      }
-      return Success(AccountMapper.fromSnapshot(snapshot));
-    } catch (e) {
-      return Error(ApiRemoteFailure('Firestore - Erro ao obter conta: $e'));
-    }
-  }
-
-  @override
-  Future<VoidResult> saveAccount(Account account) async {
-    try {
-      await _accountDoc(account.uid).set(AccountMapper.toMap(account));
-      return Success(null);
-    } catch (e) {
-      return Error(ApiRemoteFailure('Firestore - Erro ao salvar conta: $e'));
-    }
-  }
-
-  @override
-  Future<VoidResult> updateAccount(Account account) async {
-    try {
-      await _accountDoc(account.uid).update(AccountMapper.toMap(account));
-      return Success(null);
-    } catch (e) {
-      return Error(ApiRemoteFailure('Firestore - Erro ao atualizar conta: $e'));
-    }
-  }
-
-  @override
-  Future<VoidResult> deleteAccount(String uid) async {
-    try {
-      await _accountDoc(uid).delete();
-      return Success(null);
-    } catch (e) {
-      return Error(ApiRemoteFailure('Firestore - Erro ao deletar conta: $e'));
-    }
-  }
 }

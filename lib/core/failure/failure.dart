@@ -1,5 +1,3 @@
-import '../messages/app_messages.dart';
-
 sealed class Failure implements Exception {
   final String msg;
   Failure(this.msg);
@@ -9,60 +7,14 @@ sealed class Failure implements Exception {
 }
 
 class DefaultFailure extends Failure {
-  DefaultFailure([String? msg]) : super(msg ?? AppMessages.error.defaultError);
+  DefaultFailure([String? msg])
+      : super(msg ?? 'fieldsRequired'); // Usa uma chave como padrão
 }
 
-class ApiLocalFailure extends Failure {
-  ApiLocalFailure([String? msg])
-    : super(msg ?? AppMessages.error.apiLocalError);
-}
-
-/// Falha relacionada a operações remotas (Firestore / Firebase Auth)
-class ApiRemoteFailure extends Failure {
-  ApiRemoteFailure([String? msg])
-    : super(msg ?? AppMessages.error.apiLocalError);
-}
-
-class EmptyResultFailure extends Failure {
-  EmptyResultFailure([String? msg])
-    : super(msg ?? AppMessages.error.emptyResultError);
-}
-
-class InputFailure extends Failure {
-  InputFailure([String? msg]) : super(msg ?? AppMessages.error.inputError);
-}
-
-class InvalidDate extends Failure {
-  InvalidDate([String? msg]) : super(msg ?? AppMessages.error.invalidDateError);
-}
-
-class InvalidEmail extends Failure {
-  InvalidEmail([String? msg])
-    : super(msg ?? AppMessages.error.invalidEmailError);
-}
-
-class InvalidPassword extends Failure {
-  InvalidPassword([String? msg])
-    : super(msg ?? AppMessages.error.invalidPasswordError);
-}
-
-class PasswordNotConfirmed extends Failure {
-  PasswordNotConfirmed([String? msg])
-    : super(msg ?? AppMessages.error.passwordMismatchError);
-}
-
-class InvalidPhone extends Failure {
-  InvalidPhone([String? msg])
-    : super(msg ?? AppMessages.error.invalidPhoneError);
+class ValidationError extends Failure {
+  ValidationError(super.msg);
 }
 
 class InvalidInputFailure extends Failure {
-  InvalidInputFailure([String? msg])
-      : super('${AppMessages.error.invalidInput}: ${msg ?? ''}');
-}
-
-/// Falha de autenticação (não logado / sessão ausente)
-class UnauthenticatedFailure extends Failure {
-  UnauthenticatedFailure([String? msg])
-    : super(msg ?? 'Nenhum usuário autenticado.');
+  InvalidInputFailure([String? msg]) : super(msg ?? 'fieldsRequired');
 }

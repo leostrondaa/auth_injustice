@@ -1,0 +1,6 @@
+{
+  "dart.analysisIncludedFolders": [
+    "lib",
+    ".dart_tool/flutter_gen"
+  ]
+}

@@ -1,7 +1,8 @@
-import 'package:autth_injustice_app/authentication/presentation/pages/signin_page.dart';
-import 'package:autth_injustice_app/authentication/presentation/pages/signup_page.dart';
-import 'package:autth_injustice_app/authentication/presentation/pages/splash_page.dart';
-import 'package:autth_injustice_app/authentication/presentation/pages/initial_page.dart';
+import 'package:autth_injustice_app/authentication/presentation/views/login_page.dart';
+import 'package:autth_injustice_app/authentication/presentation/views/register_page.dart';
+import 'package:autth_injustice_app/authentication/presentation/views/initial_page.dart';
+import 'package:autth_injustice_app/authentication/presentation/views/splash_page.dart';
+import 'package:autth_injustice_app/core/routes/custom_transitions.dart';
 import 'package:go_router/go_router.dart';
 
 class AuthRouteNames {
@@ -19,18 +20,11 @@ class AuthPaths {
 }
 
 final List<RouteBase> authRoutes = [
-  
   GoRoute(
     path: AuthPaths.initial,
     name: AuthRouteNames.initial,
     pageBuilder: (context, state) =>
         const NoTransitionPage(child: InitialPage()),
-  ),
-  GoRoute(
-    path: AuthPaths.splash,
-    name: AuthRouteNames.splash,
-    pageBuilder: (context, state) =>
-        const NoTransitionPage(child: SplashPage()),
   ),
   GoRoute(
     path: AuthPaths.login,
@@ -39,8 +33,15 @@ final List<RouteBase> authRoutes = [
   ),
   GoRoute(
     path: AuthPaths.register,
-    name: AuthRouteNames.register,
+    pageBuilder: (context, state) => slidePage(
+      key: state.pageKey,
+      child: const RegisterPage(),
+    ),
+  ),
+  GoRoute(
+    path: AuthPaths.splash,
+    name: AuthRouteNames.splash,
     pageBuilder: (context, state) =>
-        const NoTransitionPage(child: SignupPage()),
+        const NoTransitionPage(child: SplashPage()),
   ),
 ];

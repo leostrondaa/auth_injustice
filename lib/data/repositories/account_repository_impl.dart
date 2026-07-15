@@ -21,32 +21,32 @@ final class AccountRepositoryImpl implements IAccountRepository {
         _authRepository = authRepository;
 
   String? get _currentUid => _authRepository.currentSession?.account.uid;
-
-  UnauthenticatedFailure get _unauthError => UnauthenticatedFailure();
+  
+  Failure? get _unauthError => null;
 
   @override
   Future<AccountResult> getAccount() async {
     final uid = _currentUid;
-    if (uid == null) return Error(_unauthError);
+    if (uid == null) return Error(_unauthError!);
     return _remoteStorage.getAccount(uid);
   }
 
   @override
   Future<VoidResult> saveAccount(Account account) async {
-    if (_currentUid == null) return Error(_unauthError);
+    if (_currentUid == null) return Error(_unauthError!);
     return _remoteStorage.saveAccount(account);
   }
 
   @override
   Future<VoidResult> updateAccount(Account account) async {
-    if (_currentUid == null) return Error(_unauthError);
+    if (_currentUid == null) return Error(_unauthError!);
     return _remoteStorage.updateAccount(account);
   }
 
   @override
   Future<VoidResult> deleteAccount() async {
     final uid = _currentUid;
-    if (uid == null) return Error(_unauthError);
+    if (uid == null) return Error(_unauthError!);
     return _remoteStorage.deleteAccount(uid);
   }
 }

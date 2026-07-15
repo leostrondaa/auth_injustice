@@ -11,15 +11,54 @@ class AppDesign {
 }
 
 extension ThemeContext on BuildContext {
-  ColorScheme get colors => Theme.of(this).colorScheme;
-  TextTheme get text => Theme.of(this).textTheme;
+  ThemeData get theme => Theme.of(this);
+
+  ColorScheme get colors => theme.colorScheme;
+  TextTheme get text => theme.textTheme;
+
+  TextStyle? get displayLarge => text.displayLarge;
+  TextStyle? get displayMedium => text.displayMedium;
+  TextStyle? get displaySmall => text.displaySmall;
+
+  TextStyle? get headlineLarge => text.headlineLarge;
+  TextStyle? get headlineMedium => text.headlineMedium;
+  TextStyle? get headlineSmall => text.headlineSmall;
+
+  TextStyle? get bodyLarge => text.bodyLarge;
+  TextStyle? get bodyMedium => text.bodyMedium;
+  TextStyle? get bodySmall => text.bodySmall;
+
+  TextStyle? get titleLarge => text.titleLarge;
+
+  bool get isDarkMode => theme.brightness == Brightness.dark;
+  bool get isLightMode => theme.brightness == Brightness.light;
 
   double get spaceSm => AppDesign.sm;
   double get spaceMd => AppDesign.md;
   double get spaceLg => AppDesign.lg;
 
+  // Backgrounds
+  Color get background => theme.scaffoldBackgroundColor;
+  Color get scaffoldBackground => theme.scaffoldBackgroundColor;
+  Color get surface => colors.surface;
+
+  // Principais cores
+  Color get primary => colors.primary;
+  Color get secondary => colors.secondary;
+  Color get tertiary => colors.tertiary;
+
+  // Cores "on"
+  Color get onPrimary => colors.onPrimary;
+  Color get onSecondary => colors.onSecondary;
+  Color get onSurface => colors.onSurface;
+  Color get onTertiary => colors.onTertiary;
+
+  // Bordas
+  double get radiusMd => AppDesign.radiusMd;
+
   EdgeInsets get pagePadding =>
       const EdgeInsets.symmetric(horizontal: AppDesign.lg);
+
   EdgeInsets get extraPagePadding =>
       const EdgeInsets.symmetric(horizontal: 40.0);
 
@@ -52,6 +91,18 @@ TextTheme _buildCustomTextTheme(TextTheme baseTheme, TextTheme googleFontBase) {
 
     // Títulos secundários de seções e sub-blocos
     titleLarge: GoogleFonts.gasoekOne(textStyle: googleFontBase.titleLarge),
+
+    bodyLarge: GoogleFonts.inter(
+      textStyle: googleFontBase.bodyLarge,
+    ),
+    bodyMedium: GoogleFonts.inter(
+      textStyle: googleFontBase.bodyMedium,
+    ),
+    bodySmall: GoogleFonts.inter(
+      textStyle: googleFontBase.bodySmall?.copyWith(
+        fontWeight: FontWeight.w500,
+      ),
+    ),
   );
 }
 

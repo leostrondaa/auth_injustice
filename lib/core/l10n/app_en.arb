@@ -1,0 +1,42 @@
+{
+  "welcomeTo": "Welcome To",
+  "whereIf": "Where IF",
+  "continueButton": "Continue",
+
+  
+
+  "joinThe": "Join the",
+  "team": "Team",
+  "email": "Email",
+  "password": "Password",
+  "forgot": "Forgot your password?",
+  "loginButton": "Enter",
+  "dontHaveAccount": "Don't have an account?",
+  "signupButton": "Sign up",
+  "or": "or",
+  "googleButton": "Sign in with Google",
+
+  
+
+  "whatYour": "What's your",
+  "createPassword": "Create a",
+
+  
+  "fieldsRequired": "Please fill in the fields",
+  "invalidFields": "Incorrect email or password",
+
+  "emailRequired": "Please enter a email",
+  "invalidEmail": "Incorrect email",
+
+  "passwordRequired": "Please enter a password",
+  "passwordMinLength": "Password must be at least 8 characters long",
+  "passwordRequireLowercaseAndUppercase": "Uppercase and lowercase letters",
+  "passwordRequireNumber": "Include at least one number",
+  "passwordRequireSymbol": "Include at least one symbol",
+  "passwordStrengthEmpty": "Enter a password",
+  "passwordStrengthVeryWeak": "Very weak",
+  "passwordStrengthWeak": "Weak",
+  "passwordStrengthFair": "Fair",
+  "passwordStrengthGood": "Good",
+  "passwordStrengthExcellent": "Excellent"
+}

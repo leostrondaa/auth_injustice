@@ -8,8 +8,9 @@ class AuthTextFormField extends StatelessWidget {
   final TextInputType keyboardType;
   final bool obscureText;
   final Widget? suffixIcon;
-  final String? Function(String?)? validator; // para validação opcional
+  final String? Function(String?)? validator;
   final void Function(String)? onChanged;
+  final bool showError;
 
   const AuthTextFormField({
     super.key,
@@ -20,28 +21,27 @@ class AuthTextFormField extends StatelessWidget {
     this.suffixIcon,
     this.validator,
     this.onChanged,
+    this.showError = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    // final isDark = AppTheme.currentMode(context);
     final isDark = context.isDarkMode;
 
     return TextFormField(
+      // O parâmetro inválido 'showError' foi removido daqui de dentro!
       controller: controller,
       keyboardType: keyboardType,
       obscureText: obscureText,
-      validator: validator,
+      validator: showError ? validator : null, // A lógica continua ativa aqui
       onChanged: onChanged,
       cursorColor: context.colors.onPrimary,
       style: TextStyle(
         color: context.colors.onSurface,
-        // color: AppColors.text(context),
       ),
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(color: context.colors.onSurface),
-        // labelStyle: TextStyle(color: AppColors.text(context)),
         suffixIcon: suffixIcon,
         filled: true,
         fillColor: isDark != null
@@ -50,29 +50,25 @@ class AuthTextFormField extends StatelessWidget {
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color:context.colors.onPrimary.withValues(alpha: 0.5),
+            color: context.onPrimary.withValues(alpha: 0.5),
             width: 1.0,
           ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color:context.colors.onPrimary.withValues(alpha: 0.5),
+            color: context.onPrimary.withValues(alpha: 0.5),
             width: 1.0,
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: context.colors.onPrimary,
+            color: context.onPrimary,
             width: 1.5,
           ),
         ),
       ),
     );
   }
-}
-
-extension on BuildContext {
-  Object? get isDarkMode => null;
 }

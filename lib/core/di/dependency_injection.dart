@@ -22,7 +22,9 @@ import 'package:autth_injustice_app/authentication/domain/facades/i_auth_use_cas
 import 'package:autth_injustice_app/authentication/domain/facades/auth_use_case_facade_impl.dart';
 
 // ── Auth ViewModel ─────────────────────────────────────────────────────────
-import 'package:autth_injustice_app/authentication/presentation/controllers/auth_session_viewmodel.dart';
+import 'package:autth_injustice_app/authentication/presentation/controllers/auth/auth_session_viewmodel.dart';
+import 'package:autth_injustice_app/authentication/presentation/controllers/login/login_viewmodel.dart';
+import 'package:autth_injustice_app/authentication/presentation/controllers/register/register_viewmodel.dart';
 
 // ── Account remote storage ─────────────────────────────────────────────────
 import 'package:autth_injustice_app/data/services/remote/account_remote_storage_interface.dart';
@@ -48,9 +50,6 @@ import 'package:autth_injustice_app/domain/usecases/account_usecases_impl.dart';
 import 'package:autth_injustice_app/domain/facades/account_facade_usecases_interface.dart';
 import 'package:autth_injustice_app/domain/facades/account_facade_usecases_impl.dart';
 
-// ── Account ViewModel ──────────────────────────────────────────────────────
-import 'package:autth_injustice_app/presentation/controllers/account_viewmodel.dart';
-
 // ── Character use cases ────────────────────────────────────────────────────
 import 'package:autth_injustice_app/domain/usecases/character_usecases_interfaces.dart';
 import 'package:autth_injustice_app/domain/usecases/character_usecases_impl.dart';
@@ -58,9 +57,6 @@ import 'package:autth_injustice_app/domain/usecases/character_usecases_impl.dart
 // ── Character facade ───────────────────────────────────────────────────────
 import 'package:autth_injustice_app/domain/facades/character_facade_usecases_interface.dart';
 import 'package:autth_injustice_app/domain/facades/character_facade_usecases_impl.dart';
-
-// ── Character ViewModel ────────────────────────────────────────────────────
-import 'package:autth_injustice_app/presentation/controllers/characters_view_model.dart';
 
 // ── Theme ──────────────────────────────────────────────────────────────────
 import 'package:autth_injustice_app/core/theme/theme_controller.dart';
@@ -94,7 +90,19 @@ void setupDependencies() {
   injector.addSingleton<IAuthUseCaseFacade>(AuthUseCaseFacadeImpl.new);
 
   // ── 7. Auth ViewModel ────────────────────────────────────────────────────
-  injector.addSingleton<AuthViewModel>(AuthViewModel.new);
+  injector.addSingleton<AuthSessionViewModel>(
+    AuthSessionViewModel.new,
+  );
+
+  // ── 7.1. Login ViewModel ────────────────────────────────────────────────────
+  injector.addSingleton<LoginViewModel>(
+    LoginViewModel.new,
+  );
+
+  // ── 7.2. Sign up ViewModel ────────────────────────────────────────────────────
+  injector.addSingleton<RegisterViewModel>(
+    RegisterViewModel.new,
+  );
 
   // ── 8. Character remote storage ──────────────────────────────────────────
   injector.addSingleton<ICharacterRemoteStorage>(CharacterFirestoreService.new);
@@ -116,21 +124,20 @@ void setupDependencies() {
   // ── 12. Account facade ───────────────────────────────────────────────────
   injector.addSingleton<IAccountFacadeUseCases>(AccountFacadeUsecasesImpl.new);
 
-  // ── 13. Account ViewModel ────────────────────────────────────────────────
-  injector.addSingleton<AccountViewModel>(AccountViewModel.new);
-
   // ── 14. Character use cases ──────────────────────────────────────────────
-  injector.addSingleton<IGetCharacterByIdUseCase>(GetCharacterByIdUseCaseImpl.new);
-  injector.addSingleton<IGetAllCharactersUseCase>(GetAllCharactersUseCaseImpl.new);
+  injector
+      .addSingleton<IGetCharacterByIdUseCase>(GetCharacterByIdUseCaseImpl.new);
+  injector
+      .addSingleton<IGetAllCharactersUseCase>(GetAllCharactersUseCaseImpl.new);
   injector.addSingleton<ISaveCharacterUseCase>(SaveCharacterUseCaseImpl.new);
-  injector.addSingleton<IDeleteCharacterUseCase>(DeleteCharacterUseCaseImpl.new);
-  injector.addSingleton<IUpdateCharacterUseCase>(UpdateCharacterUseCaseImpl.new);
+  injector
+      .addSingleton<IDeleteCharacterUseCase>(DeleteCharacterUseCaseImpl.new);
+  injector
+      .addSingleton<IUpdateCharacterUseCase>(UpdateCharacterUseCaseImpl.new);
 
   // ── 15. Character facade ─────────────────────────────────────────────────
-  injector.addSingleton<ICharacterFacadeUseCases>(CharacterFacadeUseCasesImpl.new);
-
-  // ── 16. Character ViewModel ──────────────────────────────────────────────
-  injector.addSingleton<CharactersViewModel>(CharactersViewModel.new);
+  injector
+      .addSingleton<ICharacterFacadeUseCases>(CharacterFacadeUseCasesImpl.new);
 
   // ── 17. Theme ────────────────────────────────────────────────────────────
   injector.addSingleton<ThemeController>(ThemeController.new);
