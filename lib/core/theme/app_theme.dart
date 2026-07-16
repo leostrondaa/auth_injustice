@@ -56,8 +56,7 @@ extension ThemeContext on BuildContext {
   // Bordas
   double get radiusMd => AppDesign.radiusMd;
 
-  EdgeInsets get pagePadding =>
-      const EdgeInsets.symmetric(horizontal: 20);
+  EdgeInsets get pagePadding => const EdgeInsets.symmetric(horizontal: 20);
 
   EdgeInsets get extraPagePadding =>
       const EdgeInsets.symmetric(horizontal: 27.0);
@@ -72,41 +71,108 @@ extension ThemeContext on BuildContext {
       );
 }
 
-TextTheme _buildCustomTextTheme(TextTheme baseTheme, TextTheme googleFontBase) {
-  return googleFontBase.copyWith(
-    // Títulos grandes e chamativos
-    displayLarge: GoogleFonts.gasoekOne(
-        textStyle: googleFontBase.displayLarge?.copyWith(fontSize: 8)),
-    displayMedium:
-        GoogleFonts.gasoekOne(textStyle: googleFontBase.displayMedium),
-    displaySmall: GoogleFonts.inter(textStyle: googleFontBase.displaySmall),
-
-    // Títulos principais de páginas
-    headlineLarge: GoogleFonts.archivoBlack(
-        textStyle: googleFontBase.headlineLarge?.copyWith(fontSize: 45)),
-
-    headlineMedium: GoogleFonts.inter(
-        fontSize: 22, textStyle: googleFontBase.headlineMedium),
-
-    headlineSmall: GoogleFonts.inter(
-        fontSize: 18, textStyle: googleFontBase.headlineSmall),
-
-    bodyLarge: GoogleFonts.inter(
-      fontSize: 16,
-      textStyle: googleFontBase.bodyLarge,
-    ),
-    bodyMedium: GoogleFonts.inter(
-      fontSize: 14,
-      textStyle: googleFontBase.bodyMedium,
-    ),
-    bodySmall: GoogleFonts.inter(
-      textStyle: googleFontBase.bodySmall?.copyWith(
-        fontSize: 12,
-        fontWeight: FontWeight.w500,
+TextTheme _buildCustomTextTheme(TextTheme baseTheme) {
+  return baseTheme.copyWith(
+    displayLarge: GoogleFonts.archivoBlack(
+      textStyle: baseTheme.displayLarge?.copyWith(
+        fontSize: 48,
+        height: 1.0,
+        letterSpacing: 0,
       ),
     ),
-
-    titleLarge: GoogleFonts.gasoekOne(textStyle: googleFontBase.titleLarge),
+    displayMedium: GoogleFonts.archivoBlack(
+      textStyle: baseTheme.displayMedium?.copyWith(
+        fontSize: 40,
+        height: 1.05,
+        letterSpacing: 0,
+      ),
+    ),
+    displaySmall: GoogleFonts.archivoBlack(
+      textStyle: baseTheme.displaySmall?.copyWith(
+        fontSize: 32,
+        height: 1.08,
+        letterSpacing: 0,
+      ),
+    ),
+    headlineLarge: GoogleFonts.archivoBlack(
+      textStyle: baseTheme.headlineLarge?.copyWith(
+        fontSize: 36,
+        height: 1.05,
+        letterSpacing: 0,
+      ),
+    ),
+    headlineMedium: GoogleFonts.inter(
+      textStyle: baseTheme.headlineMedium?.copyWith(
+        fontSize: 24,
+        height: 1.18,
+        fontWeight: FontWeight.w800,
+        letterSpacing: 0,
+      ),
+    ),
+    headlineSmall: GoogleFonts.inter(
+      textStyle: baseTheme.headlineSmall?.copyWith(
+        fontSize: 20,
+        height: 1.2,
+        fontWeight: FontWeight.w700,
+        letterSpacing: 0,
+      ),
+    ),
+    titleLarge: GoogleFonts.inter(
+      textStyle: baseTheme.titleLarge?.copyWith(
+        fontSize: 18,
+        height: 1.25,
+        fontWeight: FontWeight.w700,
+        letterSpacing: 0,
+      ),
+    ),
+    bodyLarge: GoogleFonts.inter(
+      textStyle: baseTheme.bodyLarge?.copyWith(
+        fontSize: 16,
+        height: 1.45,
+        fontWeight: FontWeight.w400,
+        letterSpacing: 0,
+      ),
+    ),
+    bodyMedium: GoogleFonts.inter(
+      textStyle: baseTheme.bodyMedium?.copyWith(
+        fontSize: 14,
+        height: 1.4,
+        fontWeight: FontWeight.w500,
+        letterSpacing: 0,
+      ),
+    ),
+    bodySmall: GoogleFonts.inter(
+      textStyle: baseTheme.bodySmall?.copyWith(
+        fontSize: 12,
+        height: 1.35,
+        fontWeight: FontWeight.w500,
+        letterSpacing: 0,
+      ),
+    ),
+    labelLarge: GoogleFonts.inter(
+      textStyle: baseTheme.labelLarge?.copyWith(
+        fontSize: 14,
+        height: 1.2,
+        fontWeight: FontWeight.w700,
+        letterSpacing: 0,
+      ),
+    ),
+    labelMedium: GoogleFonts.inter(
+      textStyle: baseTheme.labelMedium?.copyWith(
+        fontSize: 12,
+        height: 1.2,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0,
+      ),
+    ),
+    labelSmall: GoogleFonts.inter(
+      textStyle: baseTheme.labelSmall?.copyWith(
+        fontSize: 11,
+        height: 1.2,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0,
+      ),
+    ),
   );
 }
 
@@ -116,7 +182,6 @@ ThemeData get lightTheme {
   return base.copyWith(
     useMaterial3: true,
     brightness: Brightness.light,
-
     colorScheme: const ColorScheme.light(
       primary: Color.fromARGB(255, 213, 62, 255),
       onPrimary: Color(0xFFFFFFFF),
@@ -127,13 +192,8 @@ ThemeData get lightTheme {
       tertiary: Color.fromARGB(255, 255, 255, 255),
       onTertiary: Color.fromARGB(255, 0, 0, 0),
     ),
-
     scaffoldBackgroundColor: const Color(0xFFFFFFFF),
-
-    // Usa Syne para a base e injeta Alfa Slab One nos títulos
-    textTheme: _buildCustomTextTheme(
-        base.textTheme, GoogleFonts.syneTextTheme(base.textTheme)),
-
+    textTheme: _buildCustomTextTheme(base.textTheme),
     appBarTheme: const AppBarTheme(
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -153,7 +213,6 @@ ThemeData get darkTheme {
   return base.copyWith(
     useMaterial3: true,
     brightness: Brightness.dark,
-
     colorScheme: const ColorScheme.dark(
       primary: Color.fromARGB(255, 88, 0, 189),
       onPrimary: Color.fromARGB(255, 255, 255, 255),
@@ -164,13 +223,8 @@ ThemeData get darkTheme {
       tertiary: Color.fromARGB(255, 0, 0, 0),
       onTertiary: Color.fromARGB(255, 255, 255, 255),
     ),
-
     scaffoldBackgroundColor: const Color(0xFF000000),
-
-    // Usa Inter para a base e injeta Alfa Slab One nos títulos
-    textTheme: _buildCustomTextTheme(
-        base.textTheme, GoogleFonts.interTextTheme(base.textTheme)),
-
+    textTheme: _buildCustomTextTheme(base.textTheme),
     appBarTheme: const AppBarTheme(
       backgroundColor: Colors.transparent,
       elevation: 0,

@@ -43,7 +43,13 @@
   
   "checkEmailTitle": "Verifica tu correo electrónico",
   "checkEmailSentTo": "Enviamos un enlace a:",
-  "checkEmailDescription": "Haz clic en el enlace para continuar."
+  "checkEmailDescription": "Haz clic en el enlace para continuar.",
+
+
+
+  "emailConfirmedTitle": "¡Email confirmado!",
+  "emailConfirmedSubtitle": "Todo listo. Ahora continuemos para crear tu nueva contraseña.",
+  "accountConfirmedSubtitle": "Tu cuenta ha sido confirmada. Ahora puedes continuar."
 
 
 }

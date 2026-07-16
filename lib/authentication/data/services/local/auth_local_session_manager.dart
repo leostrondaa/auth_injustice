@@ -1,4 +1,4 @@
-import '/../domain/models/auth_entities.dart';
+import 'package:autth_injustice_app/domain/models/auth_entities.dart';
 import 'i_local_session_store.dart';
 
 class AuthLocalSessionManager {

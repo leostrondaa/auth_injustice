@@ -1,5 +1,5 @@
 import 'package:autth_injustice_app/authentication/presentation/commands/auth_commands.dart';
-import 'package:autth_injustice_app/authentication/presentation/controllers/register/register_state_viewmodel.dart';
+import 'package:autth_injustice_app/authentication/presentation/viewmodels/register/register_state_viewmodel.dart';
 
 class RegisterCommands {
   final RegisterState state;
@@ -18,6 +18,7 @@ class RegisterCommands {
   }) async {
     state.setLoading(true);
     state.clearError();
+    state.setSuccess(false);
 
     // ==========================================================
     // TODO:
@@ -38,12 +39,7 @@ class RegisterCommands {
     await Future.delayed(const Duration(seconds: 2));
 
     state.setLoading(false);
-
-    state.showError('Erro ao criar conta');
-
-    await Future.delayed(const Duration(seconds: 3));
-
-    state.clearError();
+    state.setSuccess(true);
   }
 
   // ==========================================================

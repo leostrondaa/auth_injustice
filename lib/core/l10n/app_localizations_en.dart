@@ -107,4 +107,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get checkEmailDescription => 'Click the link to continue.';
+
+  @override
+  String get emailConfirmedTitle => 'Email confirmed!';
+
+  @override
+  String get emailConfirmedSubtitle =>
+      'All set. Now let\'s continue so you can create your new password.';
+
+  @override
+  String get accountConfirmedSubtitle =>
+      'Your account has been confirmed. You can now continue.';
 }

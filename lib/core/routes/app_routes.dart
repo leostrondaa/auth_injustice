@@ -1,11 +1,7 @@
-import 'package:flutter/material.dart'; // IMPORTANTE: Adicione este import para o GlobalKey
 import 'package:autth_injustice_app/core/routes/auth_routes.dart';
 import 'package:autth_injustice_app/core/routes/injustice_routes.dart';
-import 'package:autth_injustice_app/domain/models/account_entity.dart';
-import 'package:autth_injustice_app/domain/models/character_entity.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:autth_injustice_app/authentication/presentation/controllers/auth/auth_session_viewmodel.dart';
-import '../di/dependency_injection.dart';
 
 class GlobalRouteNames {
   static const underConstruction = 'under_construction';
@@ -30,11 +26,12 @@ class GlobalPaths {
 class AppRouter {
   AppRouter._();
 
-  static final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
+  static final GlobalKey<NavigatorState> rootNavigatorKey =
+      GlobalKey<NavigatorState>();
 
   static final GoRouter router = GoRouter(
     navigatorKey: rootNavigatorKey,
-    initialLocation: AuthPaths.splash, 
+    initialLocation: AuthPaths.splash,
     routes: <RouteBase>[
       ...authRoutes,
       ...appRoutes,

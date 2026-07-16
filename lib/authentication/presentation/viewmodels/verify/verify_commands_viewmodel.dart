@@ -1,5 +1,6 @@
 import 'package:autth_injustice_app/authentication/presentation/commands/auth_commands.dart';
-import 'package:autth_injustice_app/authentication/presentation/viewmodels/login/login_state_viewmodel.dart';
+
+import 'verify_state_viewmodel.dart';
 
 class LoginCommands {
   final LoginState state;
@@ -19,22 +20,19 @@ class LoginCommands {
     required String password,
   }) async {
     state.setLoading(true);
+    state.clearError();
 
     try {
       await _signInCommand.executeWith((
         email: email,
         password: password,
       ));
-    } finally {
-      state.setLoading(false);
-    }
-  }
+    } catch (_) {
+      state.showError("E-mail ou senha incorretos");
 
-  Future<void> signInWithGoogle() async {
-    state.setLoading(true);
+      await Future.delayed(const Duration(seconds: 3));
 
-    try {
-      await _signInWithGoogleCommand.executeWith(());
+      state.clearError();
     } finally {
       state.setLoading(false);
     }

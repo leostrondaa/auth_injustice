@@ -1,8 +1,8 @@
-import 'package:autth_injustice_app/authentication/presentation/views/check_email_page.dart';
-import 'package:autth_injustice_app/authentication/presentation/views/login_page.dart';
-import 'package:autth_injustice_app/authentication/presentation/views/register_page.dart';
-import 'package:autth_injustice_app/authentication/presentation/views/initial_page.dart';
-import 'package:autth_injustice_app/authentication/presentation/views/splash_page.dart';
+import 'package:autth_injustice_app/authentication/presentation/pages/check_email_page.dart';
+import 'package:autth_injustice_app/authentication/presentation/pages/login_page.dart';
+import 'package:autth_injustice_app/authentication/presentation/pages/register_page.dart';
+import 'package:autth_injustice_app/authentication/presentation/pages/initial_page.dart';
+import 'package:autth_injustice_app/authentication/presentation/pages/splash_page.dart';
 import 'package:autth_injustice_app/core/routes/custom_transitions.dart';
 import 'package:autth_injustice_app/core/routes/route_args/check_email_args.dart';
 import 'package:go_router/go_router.dart';

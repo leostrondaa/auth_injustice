@@ -297,6 +297,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Click the link to continue.'**
   String get checkEmailDescription;
+
+  /// No description provided for @emailConfirmedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Email confirmed!'**
+  String get emailConfirmedTitle;
+
+  /// No description provided for @emailConfirmedSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'All set. Now let\'s continue so you can create your new password.'**
+  String get emailConfirmedSubtitle;
+
+  /// No description provided for @accountConfirmedSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account has been confirmed. You can now continue.'**
+  String get accountConfirmedSubtitle;
 }
 
 class _AppLocalizationsDelegate

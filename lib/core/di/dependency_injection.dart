@@ -22,9 +22,10 @@ import 'package:autth_injustice_app/authentication/domain/facades/i_auth_use_cas
 import 'package:autth_injustice_app/authentication/domain/facades/auth_use_case_facade_impl.dart';
 
 // ── Auth ViewModel ─────────────────────────────────────────────────────────
-import 'package:autth_injustice_app/authentication/presentation/controllers/auth/auth_session_viewmodel.dart';
-import 'package:autth_injustice_app/authentication/presentation/controllers/login/login_viewmodel.dart';
-import 'package:autth_injustice_app/authentication/presentation/controllers/register/register_viewmodel.dart';
+import 'package:autth_injustice_app/authentication/presentation/viewmodels/auth/auth_session_viewmodel.dart';
+import 'package:autth_injustice_app/authentication/presentation/viewmodels/check_email/check_email_viewmodel.dart';
+import 'package:autth_injustice_app/authentication/presentation/viewmodels/login/login_viewmodel.dart';
+import 'package:autth_injustice_app/authentication/presentation/viewmodels/register/register_viewmodel.dart';
 
 // ── Account remote storage ─────────────────────────────────────────────────
 import 'package:autth_injustice_app/data/services/remote/account_remote_storage_interface.dart';
@@ -102,6 +103,11 @@ void setupDependencies() {
   // ── 7.2. Sign up ViewModel ────────────────────────────────────────────────────
   injector.addSingleton<RegisterViewModel>(
     RegisterViewModel.new,
+  );
+
+  // Check email ViewModel
+  injector.addSingleton<CheckEmailViewModel>(
+    CheckEmailViewModel.new,
   );
 
   // ── 8. Character remote storage ──────────────────────────────────────────

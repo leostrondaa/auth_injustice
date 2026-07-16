@@ -44,6 +44,12 @@
 
   "checkEmailTitle": "Check your email",
   "checkEmailSentTo": "We sent a link to:",
-  "checkEmailDescription": "Click the link to continue."
+  "checkEmailDescription": "Click the link to continue.",
+
+
+
+  "emailConfirmedTitle": "Email confirmed!",
+  "emailConfirmedSubtitle": "All set. Now let's continue so you can create your new password.",
+  "accountConfirmedSubtitle": "Your account has been confirmed. You can now continue."
 
 }
