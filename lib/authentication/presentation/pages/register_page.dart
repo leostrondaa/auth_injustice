@@ -1,21 +1,22 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:autth_injustice_app/authentication/presentation/viewmodels/register/register_viewmodel.dart';
 import 'package:autth_injustice_app/authentication/presentation/widgets/buttons/auth_back_button.dart';
-import 'package:autth_injustice_app/authentication/presentation/widgets/buttons/primary_button.dart';
 import 'package:autth_injustice_app/authentication/presentation/widgets/feedback/auth_error_banner.dart';
 import 'package:autth_injustice_app/authentication/presentation/widgets/forms/password_strength_indicator.dart';
 import 'package:autth_injustice_app/authentication/presentation/widgets/forms/auth_text_field.dart';
-import 'package:autth_injustice_app/authentication/presentation/widgets/buttons/translate_button.dart';
 import 'package:autth_injustice_app/core/constants/app_assets.dart';
 import 'package:autth_injustice_app/core/di/dependency_injection.dart';
 import 'package:autth_injustice_app/core/extensions/responsive_extensions.dart';
 import 'package:autth_injustice_app/core/l10n/l10n_extensions.dart';
-import 'package:autth_injustice_app/core/routes/auth_routes.dart';
-import 'package:autth_injustice_app/core/routes/route_args/check_email_args.dart';
+import 'package:autth_injustice_app/authentication/presentation/navigation/auth_routes.dart';
+import 'package:autth_injustice_app/authentication/presentation/navigation/check_email_args.dart';
 import 'package:autth_injustice_app/core/theme/app_theme.dart';
 import 'package:autth_injustice_app/core/validators/email_validator.dart';
 import 'package:autth_injustice_app/core/validators/password_validator.dart';
+import 'package:autth_injustice_app/core/widgets/app_action_button.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:signals_flutter/signals_flutter.dart';
@@ -49,6 +50,7 @@ class _RegisterPageState extends State<RegisterPage> {
     super.initState();
 
     _viewModel = injector.get<RegisterViewModel>();
+    _viewModel.state.reset();
 
     _passCtrl.addListener(() {
       setState(() {});
@@ -74,30 +76,25 @@ class _RegisterPageState extends State<RegisterPage> {
     FocusScope.of(context).requestFocus(_stepFocusNodes[index]);
   }
 
-  void _goToStep(int index) {
-    FocusScope.of(context).unfocus();
-
-    _pageController.jumpToPage(index);
-    _focusStep(index);
-  }
-
   Future<void> _nextStep() async {
     if (_isProcessingNext || _viewModel.state.loading.value) return;
 
-    _isProcessingNext = true;
+    final step = _currentPage;
+    final error = switch (step) {
+      0 => EmailValidator.validate(context, _emailCtrl.text),
+      1 => PasswordValidator.validate(context, _passCtrl.text),
+      _ => null,
+    };
+
+    if (error != null) {
+      unawaited(_viewModel.state.showTemporaryError(error));
+      return;
+    }
+
+    _setProcessingNext(true);
 
     try {
-      if (_currentPage == 0) {
-        final error = EmailValidator.validate(
-          context,
-          _emailCtrl.text,
-        );
-
-        if (error != null) {
-          await _viewModel.state.showTemporaryError(error);
-          return;
-        }
-
+      if (step == 0) {
         FocusScope.of(context).unfocus();
 
         await _pageController.nextPage(
@@ -108,17 +105,7 @@ class _RegisterPageState extends State<RegisterPage> {
         return;
       }
 
-      if (_currentPage == 1) {
-        final error = PasswordValidator.validate(
-          context,
-          _passCtrl.text,
-        );
-
-        if (error != null) {
-          await _viewModel.state.showTemporaryError(error);
-          return;
-        }
-
+      if (step == 1) {
         await _viewModel.commands.signUp(
           email: _emailCtrl.text.trim(),
           password: _passCtrl.text,
@@ -128,26 +115,33 @@ class _RegisterPageState extends State<RegisterPage> {
         if (!mounted) return;
 
         if (_viewModel.state.success.value) {
-          await context.push(
-            AuthPaths.checkEmail,
+          _viewModel.state.setSuccess(false);
+
+          await context.pushNamed(
+            AuthRouteNames.checkEmail,
             extra: CheckEmailArgs(
               email: _emailCtrl.text.trim(),
               flow: CheckEmailFlow.register,
             ),
           );
 
-          if (mounted) {
-            _viewModel.state.setSuccess(false);
-          }
           return;
         }
       }
     } finally {
-      // Mantém a trava enquanto a rota de confirmação abre, evitando envios repetidos.
-      if (mounted && !_viewModel.state.success.value) {
-        _isProcessingNext = false;
-      }
+      _setProcessingNext(false);
     }
+  }
+
+  void _setProcessingNext(bool value) {
+    if (_isProcessingNext == value) return;
+
+    if (!mounted) {
+      _isProcessingNext = value;
+      return;
+    }
+
+    setState(() => _isProcessingNext = value);
   }
 
   Future<void> _previousStep() async {
@@ -191,6 +185,7 @@ class _RegisterPageState extends State<RegisterPage> {
         children: [
           SignupStepGeneric(
             viewModel: _viewModel,
+            isProcessing: _isProcessingNext,
             active: _currentPage == 0,
             validator: (value) => EmailValidator.validate(context, value),
             onBack: _previousStep,
@@ -212,6 +207,7 @@ class _RegisterPageState extends State<RegisterPage> {
           ),
           SignupStepGeneric(
             viewModel: _viewModel,
+            isProcessing: _isProcessingNext,
             active: _currentPage == 1,
             validator: (value) => PasswordValidator.validate(context, value),
             onBack: _previousStep,
@@ -234,13 +230,13 @@ class _RegisterPageState extends State<RegisterPage> {
           ),
         ],
       ),
-      floatingActionButton: const TranslateButton(),
     );
   }
 }
 
 class SignupStepGeneric extends StatefulWidget {
   final bool active;
+  final bool isProcessing;
   final Widget title;
   final String label;
   final TextEditingController controller;
@@ -258,6 +254,7 @@ class SignupStepGeneric extends StatefulWidget {
   const SignupStepGeneric({
     super.key,
     required this.active,
+    required this.isProcessing,
     required this.title,
     required this.label,
     required this.controller,
@@ -443,11 +440,12 @@ class _SignupStepGenericState extends State<SignupStepGeneric>
                               child: Container(
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
-                                  color:
-                                      context.colors.onError.withOpacity(0.45),
+                                  color: context.colors.onError.withValues(
+                                    alpha: 0.45,
+                                  ),
                                   borderRadius: BorderRadius.circular(16),
                                   border: Border.all(
-                                    color: Colors.white.withOpacity(0.15),
+                                    color: Colors.white.withValues(alpha: 0.15),
                                   ),
                                 ),
                                 child: PasswordStrengthIndicator(
@@ -471,27 +469,33 @@ class _SignupStepGenericState extends State<SignupStepGeneric>
             left: 0,
             right: 0,
             child: SafeArea(
+              maintainBottomViewPadding: true,
               child: Padding(
                 padding: context.extraPagePadding.copyWith(
                   top: 16,
-                  bottom: context.isVerySmallScreen ? 16 : 32,
+                  bottom: context.isVerySmallScreen ? 16 : 16,
                 ),
                 child: SlideTransition(
                   position: _buttonSlide,
                   child: FadeTransition(
                     opacity: _buttonOpacity,
                     child: Watch(
-                      (context) => SizedBox(
-                        width: double.infinity,
-                        height: 56,
-                        child: PrimaryButton(
-                          text: widget.buttonText,
-                          isLoading: widget.viewModel.state.loading.value,
-                          onTap: widget.viewModel.state.loading.value
-                              ? null
-                              : widget.onNext,
-                        ),
-                      ),
+                      (context) {
+                        final isLoading = widget.isProcessing ||
+                            widget.viewModel.state.loading.value;
+
+                        return SizedBox(
+                          width: double.infinity,
+                          height: 56,
+                          child: AppActionButton(
+                            text: widget.buttonText,
+                            color: context.tertiary.withValues(alpha: 0.95),
+                            foregroundColor: context.onTertiary,
+                            isLoading: isLoading,
+                            onPressed: isLoading ? null : widget.onNext,
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ),

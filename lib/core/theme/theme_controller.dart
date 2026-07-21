@@ -5,6 +5,10 @@ class ThemeController {
   // tema atual do aparelho
   final themeMode = signal<ThemeMode>(ThemeMode.system);
 
+  void setDarkMode(bool enabled) {
+    themeMode.value = enabled ? ThemeMode.dark : ThemeMode.light;
+  }
+
   void toggleTheme(BuildContext context) {
     if (themeMode.value == ThemeMode.system) {
       final isPlatformDark =

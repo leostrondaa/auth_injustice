@@ -7,8 +7,4 @@ abstract interface class IAuthUseCaseFacade {
   Future<AuthSessionResult> signInWithGoogleUseCase(NoParams params);
   Future<VoidResult> signOutUseCase(NoParams params);
   Future<AuthSessionResult> signUpUseCase(SignUpParams params);
-  // Dados mock para fallback
-  // CurrencyResult getMockCurrency();
-  // CurrencyListResult getMockCurrencies();
-  // HistoricalQuotesResult getMockHistoricalQuotes();
 }

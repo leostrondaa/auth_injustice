@@ -28,6 +28,12 @@ class RegisterState {
     success.value = value;
   }
 
+  void reset() {
+    loading.value = false;
+    errorMessage.value = null;
+    success.value = false;
+  }
+
   Future<void> showTemporaryError(String message) async {
     showError(message);
 
@@ -39,20 +45,4 @@ class RegisterState {
   void clearError() {
     errorMessage.value = null;
   }
-
-  // ==========================================================
-  // FUTURO
-  // ==========================================================
-  //
-  // final success = signal(false);
-  //
-  // final emailVerificationSent = signal(false);
-  //
-  // final accountCreated = signal<AuthSession?>(null);
-  //
-  // void setSuccess(bool value) { ... }
-  //
-  // void setEmailVerificationSent(bool value) { ... }
-  //
-  // ==========================================================
 }

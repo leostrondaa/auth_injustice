@@ -12,6 +12,22 @@ extension AppLocalizationsErrorExt on BuildContext {
         return l10n.fieldsRequired;
       case 'invalidFields':
         return l10n.invalidFields;
+      case 'authEmailAlreadyInUse':
+        return l10n.authEmailAlreadyInUse;
+      case 'authWeakPassword':
+        return l10n.authWeakPassword;
+      case 'authNetworkError':
+        return l10n.authNetworkError;
+      case 'authTooManyRequests':
+        return l10n.authTooManyRequests;
+      case 'authAccountDisabled':
+        return l10n.authAccountDisabled;
+      case 'authUnexpectedError':
+        return l10n.authUnexpectedError;
+      case 'authUserNotFound':
+        return l10n.authUserNotFound;
+      case 'authGoogleCanceled':
+        return l10n.authGoogleCanceled;
 
       // Validação de e-mail
       case 'emailRequired':
@@ -46,7 +62,6 @@ extension AppLocalizationsErrorExt on BuildContext {
         return l10n.passwordStrengthExcellent;
 
       default:
-
         return key;
     }
   }

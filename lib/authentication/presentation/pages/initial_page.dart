@@ -1,10 +1,9 @@
-import 'package:autth_injustice_app/authentication/presentation/widgets/buttons/primary_button.dart';
 import 'package:autth_injustice_app/authentication/presentation/widgets/backgrounds/clouds.dart';
-import 'package:autth_injustice_app/authentication/presentation/widgets/buttons/translate_button.dart';
 import 'package:autth_injustice_app/core/extensions/responsive_extensions.dart';
 import 'package:autth_injustice_app/core/l10n/l10n_extensions.dart';
-import 'package:autth_injustice_app/core/routes/auth_routes.dart';
+import 'package:autth_injustice_app/authentication/presentation/navigation/auth_routes.dart';
 import 'package:autth_injustice_app/core/theme/app_theme.dart';
+import 'package:autth_injustice_app/core/widgets/app_action_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:go_router/go_router.dart';
@@ -139,17 +138,16 @@ class _InitialPageState extends State<InitialPage>
                             position: _buttonSlide,
                             child: FadeTransition(
                               opacity: _buttonOpacity,
-                              child: PrimaryButton(
+                              child: AppActionButton(
                                 text: context.l10n.continueButton,
-                                onTap: () {
-                                  context.push(AuthPaths.login);
-                                },
+                                color: context.tertiary.withValues(alpha: 0.95),
+                                foregroundColor: context.onTertiary,
+                                onPressed: () => context.push(AuthPaths.login),
                               ),
                             ),
                           ),
                         ),
-                        // Margem inferior ajustável (menor em telas muito pequenas)
-                        SizedBox(height: context.isVerySmallScreen ? 16 : 32),
+                        SizedBox(height: context.isVerySmallScreen ? 16 : 16),
                       ],
                     ),
                   ),
@@ -159,7 +157,6 @@ class _InitialPageState extends State<InitialPage>
           ),
         ),
       ),
-      floatingActionButton: const TranslateButton(),
     );
   }
 }

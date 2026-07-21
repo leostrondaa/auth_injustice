@@ -5,7 +5,7 @@ import 'package:signals_flutter/signals_flutter.dart';
 
 import 'package:autth_injustice_app/core/patterns/command.dart';
 import 'package:autth_injustice_app/authentication/data/repositories/i_auth_repository.dart';
-import 'package:autth_injustice_app/domain/models/auth_entities.dart';
+import 'package:autth_injustice_app/authentication/domain/models/auth_session.dart';
 import 'package:autth_injustice_app/authentication/presentation/commands/auth_commands.dart';
 import 'auth_session_state_viewmodel.dart';
 

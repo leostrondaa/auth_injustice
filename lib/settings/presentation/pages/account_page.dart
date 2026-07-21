@@ -1,0 +1,131 @@
+import 'package:autth_injustice_app/core/extensions/responsive_extensions.dart';
+import 'package:autth_injustice_app/core/l10n/l10n_extensions.dart';
+import 'package:autth_injustice_app/core/theme/app_theme.dart';
+import 'package:autth_injustice_app/core/widgets/app_entrance_transition.dart';
+import 'package:autth_injustice_app/settings/presentation/widgets/settings/settings_option_tile.dart';
+import 'package:autth_injustice_app/settings/presentation/widgets/settings/settings_panel.dart';
+import 'package:autth_injustice_app/settings/presentation/navigation/settings_routes.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+class AccountPage extends StatelessWidget {
+  const AccountPage({super.key});
+
+  void _showComingSoon(BuildContext context) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(content: Text(context.l10n.settingsComingSoon)),
+      );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final responsive = context.responsive;
+    final scale = responsive.layoutScale;
+    final textScale = responsive.textScale;
+    final topPadding = responsive.isCompact ? 12.0 : 18.0;
+    final bottomPadding = (36 * scale).clamp(28.0, 48.0);
+
+    return Scaffold(
+      backgroundColor: context.tertiary,
+      body: SafeArea(
+        bottom: false,
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(
+            parent: AlwaysScrollableScrollPhysics(),
+          ),
+          padding: context.extraPagePadding.copyWith(
+            top: topPadding,
+            bottom: bottomPadding,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              AppEntranceTransition(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: IconButton(
+                    tooltip:
+                        MaterialLocalizations.of(context).backButtonTooltip,
+                    onPressed: context.pop,
+                    icon: Icon(
+                      Icons.arrow_back_rounded,
+                      size: 25 * scale,
+                      color: context.onTertiary,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 18 * scale),
+              AppEntranceTransition(
+                delay: const Duration(milliseconds: 45),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      context.l10n.accountTitle,
+                      maxLines: 1,
+                      style: context.displayLarge?.copyWith(
+                        color: context.onTertiary,
+                        fontSize: 48 * textScale,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 30 * scale),
+              AppEntranceTransition(
+                delay: const Duration(milliseconds: 105),
+                child: SettingsPanel(
+                  scale: scale,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SettingsSectionTitle(
+                        title: context.l10n.accountSecuritySection,
+                        textScale: textScale,
+                      ),
+                      SizedBox(height: 12 * scale),
+                      SettingsOptionTile(
+                        icon: Icons.alternate_email_rounded,
+                        label: context.l10n.accountChangeEmail,
+                        scale: scale,
+                        textScale: textScale,
+                        showChevron: true,
+                        onTap: () => context.pushNamed(
+                          SettingsRouteNames.changeEmail,
+                        ),
+                      ),
+                      SettingsOptionTile(
+                        icon: Icons.lock_outline_rounded,
+                        label: context.l10n.accountChangePassword,
+                        scale: scale,
+                        textScale: textScale,
+                        showChevron: true,
+                        onTap: () => context.pushNamed(
+                          SettingsRouteNames.changePassword,
+                        ),
+                      ),
+                      SizedBox(height: 8 * scale),
+                      SettingsOptionTile(
+                        icon: Icons.delete_outline_rounded,
+                        label: context.l10n.accountDelete,
+                        scale: scale,
+                        textScale: textScale,
+                        destructive: true,
+                        showChevron: true,
+                        onTap: () => _showComingSoon(context),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

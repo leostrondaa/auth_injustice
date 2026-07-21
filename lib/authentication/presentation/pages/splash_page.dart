@@ -3,8 +3,7 @@ import 'dart:async';
 import 'package:autth_injustice_app/core/constants/app_assets.dart'; // ✅ Importe seu arquivo de assets
 import 'package:autth_injustice_app/core/di/dependency_injection.dart';
 
-import 'package:autth_injustice_app/core/routes/app_routes.dart';
-import 'package:autth_injustice_app/core/routes/auth_routes.dart';
+import 'package:autth_injustice_app/map/presentation/navigation/map_routes.dart';
 import 'package:autth_injustice_app/core/utils/hide_keyboard.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -69,9 +68,9 @@ class _SplashPageState extends State<SplashPage>
     final loggedIn = authSession.session.isAuthenticated;
 
     if (loggedIn) {
-      context.goNamed(GlobalRouteNames.underConstruction);
+      context.goNamed(MapRouteNames.map);
     } else {
-      context.goNamed(AuthRouteNames.initial);
+      context.goNamed(MapRouteNames.map);
     }
   }
 

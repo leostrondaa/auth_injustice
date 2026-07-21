@@ -195,7 +195,7 @@ class _ProgressBarSegment extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Color inactiveColor =
-        isDark ? Colors.white10 : Colors.black.withOpacity(0.06);
+        isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.06);
 
     final double segmentFill = (currentProgress * 4.0 - index).clamp(0.0, 1.0);
 

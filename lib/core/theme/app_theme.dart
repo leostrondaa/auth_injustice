@@ -7,6 +7,9 @@ class AppDesign {
   static const double lg = 24.0;
   static const double hg = 48.0;
 
+  static const double pageHorizontalPadding = 20.0;
+  static const double extraPageHorizontalPadding = 27.0;
+
   static const double radiusMd = 20.0;
 }
 
@@ -56,10 +59,13 @@ extension ThemeContext on BuildContext {
   // Bordas
   double get radiusMd => AppDesign.radiusMd;
 
-  EdgeInsets get pagePadding => const EdgeInsets.symmetric(horizontal: 20);
+  EdgeInsets get pagePadding => const EdgeInsets.symmetric(
+        horizontal: AppDesign.pageHorizontalPadding,
+      );
 
-  EdgeInsets get extraPagePadding =>
-      const EdgeInsets.symmetric(horizontal: 27.0);
+  EdgeInsets get extraPagePadding => const EdgeInsets.symmetric(
+        horizontal: AppDesign.extraPageHorizontalPadding,
+      );
 
   Gradient get initialPageGradient => LinearGradient(
         begin: Alignment.topLeft,
@@ -178,9 +184,8 @@ TextTheme _buildCustomTextTheme(TextTheme baseTheme) {
 
 /// TEMA CLARO: Roxo e Branco
 ThemeData get lightTheme {
-  final base = ThemeData.light();
+  final base = ThemeData.light(useMaterial3: true);
   return base.copyWith(
-    useMaterial3: true,
     brightness: Brightness.light,
     colorScheme: const ColorScheme.light(
       primary: Color.fromARGB(255, 213, 62, 255),
@@ -188,7 +193,7 @@ ThemeData get lightTheme {
       surface: Color(0xFFFFFFFF),
       onSurface: Color(0xFF1C1B1F),
       secondary: Color.fromARGB(255, 140, 52, 255),
-      onSecondary: Color.fromARGB(255, 0, 0, 0),
+      onSecondary: Color.fromARGB(255, 255, 255, 255),
       tertiary: Color.fromARGB(255, 255, 255, 255),
       onTertiary: Color.fromARGB(255, 0, 0, 0),
     ),
@@ -209,9 +214,8 @@ ThemeData get lightTheme {
 
 /// TEMA ESCURO: Roxo e Preto
 ThemeData get darkTheme {
-  final base = ThemeData.dark();
+  final base = ThemeData.dark(useMaterial3: true);
   return base.copyWith(
-    useMaterial3: true,
     brightness: Brightness.dark,
     colorScheme: const ColorScheme.dark(
       primary: Color.fromARGB(255, 88, 0, 189),
@@ -219,7 +223,7 @@ ThemeData get darkTheme {
       surface: Color(0xFF121212),
       onSurface: Color(0xFFFFFFFF),
       secondary: Color.fromARGB(255, 153, 29, 206),
-      onSecondary: Color(0xFF000000),
+      onSecondary: Color.fromARGB(255, 255, 255, 255),
       tertiary: Color.fromARGB(255, 0, 0, 0),
       onTertiary: Color.fromARGB(255, 255, 255, 255),
     ),

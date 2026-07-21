@@ -15,7 +15,7 @@ class LoginCommands {
   })  : _signInCommand = signInCommand,
         _signInWithGoogleCommand = signInWithGoogleCommand;
 
-  Future<void> signIn({
+  Future<bool> signIn({
     required String email,
     required String password,
   }) async {
@@ -23,14 +23,42 @@ class LoginCommands {
     state.clearError();
 
     try {
-      await _signInCommand.executeWith((
+      final result = await _signInCommand.executeWith((
         email: email,
         password: password,
       ));
-    } catch (_) {
-      await state.showTemporaryError(
-        "Email ou senha incorretos",
+
+      return result.fold(
+        onSuccess: (_) => true,
+        onFailure: (failure) {
+          state.showError(failure.msg);
+          return false;
+        },
       );
+    } catch (_) {
+      state.showError('authUnexpectedError');
+      return false;
+    } finally {
+      state.setLoading(false);
+    }
+  }
+
+  Future<bool> signInWithGoogle() async {
+    state.setLoading(true);
+    state.clearError();
+
+    try {
+      final result = await _signInWithGoogleCommand.executeWith(());
+      return result.fold(
+        onSuccess: (_) => true,
+        onFailure: (failure) {
+          state.showError(failure.msg);
+          return false;
+        },
+      );
+    } catch (_) {
+      state.showError('authUnexpectedError');
+      return false;
     } finally {
       state.setLoading(false);
     }

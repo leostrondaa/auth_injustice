@@ -11,7 +11,7 @@ class RegisterCommands {
     required SignUpCommand signUpCommand,
   }) : _signUpCommand = signUpCommand;
 
-  Future<void> signUp({
+  Future<bool> signUp({
     required String email,
     required String password,
     String? name,
@@ -20,37 +20,28 @@ class RegisterCommands {
     state.clearError();
     state.setSuccess(false);
 
-    // ==========================================================
-    // TODO:
-    // await _signUpCommand.executeWith((
-    //   email: email,
-    //   password: password,
-    //   name: name,
-    // ));
-    //
-    // Observar o resultado do command e atualizar o RegisterState:
-    // - loading
-    // - mensagens de erro
-    // - sucesso do cadastro
-    // - redirecionamento
-    // ==========================================================
+    try {
+      final result = await _signUpCommand.executeWith((
+        email: email,
+        password: password,
+        name: name,
+      ));
 
-    // Simulação temporária
-    await Future.delayed(const Duration(seconds: 2));
-
-    state.setLoading(false);
-    state.setSuccess(true);
+      return result.fold(
+        onSuccess: (_) {
+          state.setSuccess(true);
+          return true;
+        },
+        onFailure: (failure) {
+          state.showError(failure.msg);
+          return false;
+        },
+      );
+    } catch (_) {
+      state.showError('authUnexpectedError');
+      return false;
+    } finally {
+      state.setLoading(false);
+    }
   }
-
-  // ==========================================================
-  // FUTURO
-  // ==========================================================
-  //
-  // Future<void> resendVerificationEmail()
-  //
-  // Future<void> verifyEmail()
-  //
-  // Future<void> cancelRegister()
-  //
-  // ==========================================================
 }

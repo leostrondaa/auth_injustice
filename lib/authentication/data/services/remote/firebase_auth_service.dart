@@ -1,9 +1,9 @@
 import 'package:autth_injustice_app/core/failure/failure.dart';
 import 'package:autth_injustice_app/core/patterns/result.dart';
 import 'package:autth_injustice_app/core/typedefs/types_defs.dart';
-import 'package:autth_injustice_app/domain/models/account_entity.dart';
-import 'package:autth_injustice_app/domain/models/auth_entities.dart';
-import 'package:autth_injustice_app/data/services/remote/account_remote_storage_interface.dart';
+import 'package:autth_injustice_app/account/data/services/i_account_remote_storage.dart';
+import 'package:autth_injustice_app/account/domain/models/account.dart';
+import 'package:autth_injustice_app/authentication/domain/models/auth_session.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
@@ -20,16 +20,20 @@ import 'i_auth_service.dart';
 /// - Persistir o token localmente para restaurar sessão após restart.
 class FirebaseAuthService implements IAuthService {
   final fb.FirebaseAuth _firebaseAuth;
+  final GoogleSignIn _googleSignIn;
   final AuthLocalSessionManager _localSession;
   final IAccountRemoteStorage _accountStorage;
+  Future<void>? _googleInitialization;
 
   final Signal<AuthSession?> _currentSessionSignal = Signal<AuthSession?>(null);
 
   FirebaseAuthService({
     fb.FirebaseAuth? firebaseAuth,
+    GoogleSignIn? googleSignIn,
     required AuthLocalSessionManager localSession,
     required IAccountRemoteStorage accountStorage,
   })  : _firebaseAuth = firebaseAuth ?? fb.FirebaseAuth.instance,
+        _googleSignIn = googleSignIn ?? GoogleSignIn.instance,
         _localSession = localSession,
         _accountStorage = accountStorage {
     // Escuta mudanças de estado do Firebase Auth (ex: token revogado externamente)
@@ -47,20 +51,31 @@ class FirebaseAuthService implements IAuthService {
     if (result case Success<Account, Failure>(:final value)) {
       return value;
     }
+
+    final failure = result.failureValueOrNull;
+    if (failure is! NotFoundFailure) {
+      throw failure ?? RemoteFailure('accountLoadError');
+    }
+
     // Documento não existe ainda: cria com valores padrão
     final initial = Account.initial(
       uid: fbUser.uid,
       email: fbUser.email ?? '',
       displayName: fbUser.displayName ?? '',
     );
-    await _accountStorage.saveAccount(initial);
+    final saveResult = await _accountStorage.saveAccount(initial);
+    if (saveResult case Error<void, Failure>(:final value)) {
+      throw value;
+    }
     return initial;
   }
 
   Future<AuthSession> _buildSession(fb.User fbUser) async {
     final account = await _loadOrCreateAccount(fbUser);
-    final tokenStr = await fbUser.getIdToken() ?? '';
-    final tokenExp = DateTime.now().add(const Duration(hours: 1));
+    final tokenResult = await fbUser.getIdTokenResult();
+    final tokenStr = tokenResult.token ?? '';
+    final tokenExp = tokenResult.expirationTime ??
+        DateTime.now().add(const Duration(minutes: 50));
     return AuthSession(
       account: account,
       token: Token(value: tokenStr, expiresAt: tokenExp),
@@ -96,8 +111,45 @@ class FirebaseAuthService implements IAuthService {
     // Evita sobrescrever uma sessão já carregada (ex: vinda do initSession)
     if (_currentSessionSignal.value != null) return;
 
-    final session = await _buildSession(user);
-    await _persistSession(session);
+    try {
+      final session = await _buildSession(user);
+      await _persistSession(session);
+    } catch (_) {
+      _currentSessionSignal.value = null;
+    }
+  }
+
+  Failure _mapAuthFailure(Object error) {
+    if (error is Failure) return error;
+
+    if (error is GoogleSignInException) {
+      if (error.code == GoogleSignInExceptionCode.canceled) {
+        return DefaultFailure('authGoogleCanceled');
+      }
+      return DefaultFailure('authUnexpectedError');
+    }
+
+    if (error is fb.FirebaseAuthException) {
+      return switch (error.code) {
+        'invalid-credential' ||
+        'invalid-email' ||
+        'user-not-found' ||
+        'wrong-password' =>
+          DefaultFailure('invalidFields'),
+        'email-already-in-use' => DefaultFailure('authEmailAlreadyInUse'),
+        'weak-password' => DefaultFailure('authWeakPassword'),
+        'network-request-failed' => DefaultFailure('authNetworkError'),
+        'too-many-requests' => DefaultFailure('authTooManyRequests'),
+        'user-disabled' => DefaultFailure('authAccountDisabled'),
+        _ => DefaultFailure('authUnexpectedError'),
+      };
+    }
+
+    return DefaultFailure('authUnexpectedError');
+  }
+
+  Future<void> _initializeGoogleSignIn() {
+    return _googleInitialization ??= _googleSignIn.initialize();
   }
 
   // ──────────────────────────────────────────────
@@ -112,27 +164,33 @@ class FirebaseAuthService implements IAuthService {
 
   @override
   Future<void> initSession() async {
-    final token = await _localSession.getValidToken();
-    if (token == null) return;
-
-    // Tenta carregar o Account atualizado do Firestore
-    final result = await _accountStorage.getAccount(token.uid);
-    final Account account;
-    if (result case Success<Account, Failure>(:final value)) {
-      account = value;
-    } else {
-      // Fallback com dados mínimos do token local
-      account = Account.initial(
-        uid: token.uid,
-        email: token.email ?? '',
-        displayName: token.displayName ?? '',
-      );
+    final user = _firebaseAuth.currentUser;
+    if (user == null) {
+      await _localSession.clear();
+      _currentSessionSignal.value = null;
+      return;
     }
 
-    _currentSessionSignal.value = AuthSession(
-      account: account,
-      token: Token(value: token.value, expiresAt: token.expiresAt),
-    );
+    try {
+      final session = await _buildSession(user);
+      await _persistSession(session);
+    } catch (_) {
+      // Firebase remains the session authority. If Firestore is temporarily
+      // unavailable, keep a least-privilege student account for this launch.
+      final tokenResult = await user.getIdTokenResult();
+      _currentSessionSignal.value = AuthSession(
+        account: Account.initial(
+          uid: user.uid,
+          email: user.email ?? '',
+          displayName: user.displayName ?? '',
+        ),
+        token: Token(
+          value: tokenResult.token ?? '',
+          expiresAt: tokenResult.expirationTime ??
+              DateTime.now().add(const Duration(minutes: 50)),
+        ),
+      );
+    }
   }
 
   @override
@@ -143,26 +201,24 @@ class FirebaseAuthService implements IAuthService {
         password: password,
       );
       final user = credential.user;
-      if (user == null) return Error(DefaultFailure('Usuário não encontrado'));
+      if (user == null) return Error(NotFoundFailure('authUserNotFound'));
 
       final session = await _buildSession(user);
       await _persistSession(session);
       return Success(session);
-    } catch (e) {
-      return Error(DefaultFailure(e.toString()));
+    } catch (error) {
+      return Error(_mapAuthFailure(error));
     }
   }
 
   @override
   Future<AuthSessionResult> signInWithGoogle() async {
     try {
-      final googleSignIn = GoogleSignIn.instance;
-      await googleSignIn.initialize();
-      final googleUser = await googleSignIn.authenticate();
+      await _initializeGoogleSignIn();
+      final googleUser = await _googleSignIn.authenticate();
       final googleAuth = googleUser.authentication;
 
       final credential = fb.GoogleAuthProvider.credential(
-        accessToken: googleAuth.idToken,
         idToken: googleAuth.idToken,
       );
 
@@ -170,14 +226,14 @@ class FirebaseAuthService implements IAuthService {
           await _firebaseAuth.signInWithCredential(credential);
       final user = userCredential.user;
       if (user == null) {
-        return Error(DefaultFailure('Falha ao autenticar com o Google.'));
+        return Error(DefaultFailure('authUnexpectedError'));
       }
 
       final session = await _buildSession(user);
       await _persistSession(session, provider: AuthProvider.google);
       return Success(session);
-    } catch (e) {
-      return Error(DefaultFailure(e.toString()));
+    } catch (error) {
+      return Error(_mapAuthFailure(error));
     }
   }
 
@@ -193,7 +249,7 @@ class FirebaseAuthService implements IAuthService {
         password: password,
       );
       final user = credential.user;
-      if (user == null) return Error(DefaultFailure('Falha ao criar usuário'));
+      if (user == null) return Error(DefaultFailure('authUnexpectedError'));
 
       if (name != null && name.isNotEmpty) {
         await user.updateDisplayName(name);
@@ -203,16 +259,29 @@ class FirebaseAuthService implements IAuthService {
       final session = await _buildSession(_firebaseAuth.currentUser ?? user);
       await _persistSession(session);
       return Success(session);
-    } catch (e) {
-      return Error(DefaultFailure(e.toString()));
+    } catch (error) {
+      return Error(_mapAuthFailure(error));
     }
   }
 
   @override
   Future<VoidResult> signOut() async {
-    await _localSession.clear();
-    await _firebaseAuth.signOut();
-    _currentSessionSignal.value = null;
-    return Success(null);
+    try {
+      await _localSession.clear();
+      await _firebaseAuth.signOut();
+      try {
+        final initialization = _googleInitialization;
+        if (initialization != null) {
+          await initialization;
+          await _googleSignIn.signOut();
+        }
+      } catch (_) {
+        // Firebase is already signed out; Google cleanup is best-effort.
+      }
+      _currentSessionSignal.value = null;
+      return const Success(null);
+    } catch (error) {
+      return Error(_mapAuthFailure(error));
+    }
   }
 }

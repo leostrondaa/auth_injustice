@@ -7,8 +7,9 @@ import 'package:autth_injustice_app/core/di/dependency_injection.dart';
 import 'package:autth_injustice_app/core/constants/app_assets.dart';
 import 'package:autth_injustice_app/core/extensions/responsive_extensions.dart';
 import 'package:autth_injustice_app/core/l10n/l10n_extensions.dart';
-import 'package:autth_injustice_app/core/routes/route_args/check_email_args.dart';
+import 'package:autth_injustice_app/authentication/presentation/navigation/check_email_args.dart';
 import 'package:autth_injustice_app/core/theme/app_theme.dart';
+import 'package:autth_injustice_app/map/presentation/navigation/map_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
@@ -99,6 +100,7 @@ class _CheckEmailPageState extends State<CheckEmailPage>
     return switch (widget.args.flow) {
       CheckEmailFlow.register => context.l10n.emailConfirmedTitle,
       CheckEmailFlow.forgotPassword => context.l10n.emailConfirmedTitle,
+      CheckEmailFlow.changeEmail => context.l10n.accountEmailChangedTitle,
     };
   }
 
@@ -106,26 +108,29 @@ class _CheckEmailPageState extends State<CheckEmailPage>
     return switch (widget.args.flow) {
       CheckEmailFlow.register => context.l10n.accountConfirmedSubtitle,
       CheckEmailFlow.forgotPassword => context.l10n.emailConfirmedSubtitle,
+      CheckEmailFlow.changeEmail => context.l10n.accountEmailChangedSubtitle,
     };
   }
 
   void _handleConfirmedRedirect() {
     switch (widget.args.flow) {
       case CheckEmailFlow.register:
-        // Depois decidimos: login, initial ou home.
-        // context.go(AuthPaths.login);
+        context.goNamed(MapRouteNames.map);
         break;
 
       case CheckEmailFlow.forgotPassword:
-        // Depois criaremos:
         // context.pushReplacement(AuthPaths.resetPassword);
+        break;
+
+      case CheckEmailFlow.changeEmail:
+        context.pop(true);
         break;
     }
   }
 
   Future<void> _handlePop() async {
     await _contentController.reverse();
-    if (mounted) context.pop();
+    if (mounted) context.pop(false);
   }
 
   Widget _buildWaitingEmailContent(BuildContext context) {

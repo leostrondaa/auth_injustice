@@ -1,6 +1,6 @@
 import 'package:signals_flutter/signals_flutter.dart';
 
-import 'package:autth_injustice_app/domain/models/auth_entities.dart';
+import 'package:autth_injustice_app/authentication/domain/models/auth_session.dart';
 
 enum AuthStatus {
   unauthenticated,

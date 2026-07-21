@@ -1,17 +1,17 @@
 import 'package:autth_injustice_app/authentication/presentation/viewmodels/login/login_viewmodel.dart';
-import 'package:autth_injustice_app/authentication/presentation/widgets/buttons/primary_button.dart';
 import 'package:autth_injustice_app/authentication/presentation/widgets/backgrounds/clouds.dart';
 import 'package:autth_injustice_app/authentication/presentation/widgets/buttons/google_button.dart';
+import 'package:autth_injustice_app/core/widgets/app_action_button.dart';
+import 'package:autth_injustice_app/map/presentation/navigation/map_routes.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 import 'package:autth_injustice_app/authentication/presentation/widgets/feedback/auth_error_banner.dart';
 import 'package:autth_injustice_app/authentication/presentation/widgets/buttons/auth_text_button.dart';
 import 'package:autth_injustice_app/authentication/presentation/widgets/forms/auth_text_field.dart';
-import 'package:autth_injustice_app/authentication/presentation/widgets/buttons/translate_button.dart';
 import 'package:autth_injustice_app/core/di/dependency_injection.dart';
 import 'package:autth_injustice_app/core/extensions/responsive_extensions.dart';
 import 'package:autth_injustice_app/core/l10n/l10n_extensions.dart';
-import 'package:autth_injustice_app/core/routes/auth_routes.dart';
-import 'package:autth_injustice_app/core/routes/route_args/check_email_args.dart';
+import 'package:autth_injustice_app/authentication/presentation/navigation/auth_routes.dart';
+import 'package:autth_injustice_app/authentication/presentation/navigation/check_email_args.dart';
 import 'package:autth_injustice_app/core/utils/hide_keyboard.dart';
 import 'package:autth_injustice_app/core/validators/email_validator.dart';
 import 'package:autth_injustice_app/core/validators/password_validator.dart';
@@ -124,15 +124,29 @@ class _LoginPageState extends State<LoginPage>
       return;
     }
 
-    await _viewModel.commands.signIn(
+    final didSignIn = await _viewModel.commands.signIn(
       email: email,
       password: password,
     );
 
+    if (!didSignIn) return;
+
     await _animController.reverse();
 
     if (!mounted) return;
-    context.pop();
+    context.go(MapPaths.map);
+  }
+
+  Future<void> _handleGoogleLogin() async {
+    if (_viewModel.state.loading.value) return;
+
+    hideKeyboard();
+    final didSignIn = await _viewModel.commands.signInWithGoogle();
+    if (!didSignIn) return;
+
+    await _animController.reverse();
+    if (!mounted) return;
+    context.go(MapPaths.map);
   }
 
   @override
@@ -214,7 +228,8 @@ class _LoginPageState extends State<LoginPage>
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: context.colors.onSecondary.withOpacity(0.18),
+                            color: context.colors.onSecondary
+                                .withValues(alpha: 0.18),
                             blurRadius: 50,
                             offset: const Offset(0, -5),
                           )
@@ -295,11 +310,14 @@ class _LoginPageState extends State<LoginPage>
                                     Watch((context) {
                                       final isLoading =
                                           _viewModel.state.loading.value;
-
-                                      return PrimaryButton(
+                                      return AppActionButton(
                                         text: context.l10n.loginButton,
+                                        color: context.onTertiary
+                                            .withValues(alpha: 0.08),
+                                        foregroundColor: context.onTertiary,
                                         isLoading: isLoading,
-                                        onTap: isLoading ? null : _handleLogin,
+                                        onPressed:
+                                            isLoading ? null : _handleLogin,
                                       );
                                     }),
                                     SizedBox(height: gapSmall),
@@ -352,10 +370,7 @@ class _LoginPageState extends State<LoginPage>
                                     ),
                                     SizedBox(height: gapBottom),
                                     GoogleSignInButton(
-                                      onTap: () {
-                                        print('Disparou o login do Google');
-                                      },
-                                    ),
+                                        onTap: _handleGoogleLogin),
                                     SizedBox(height: isVerySmall ? 16 : 24),
                                   ],
                                 ),
@@ -372,7 +387,6 @@ class _LoginPageState extends State<LoginPage>
           ),
         ),
       ),
-      floatingActionButton: const TranslateButton(),
     );
   }
 }

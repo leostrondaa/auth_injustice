@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:autth_injustice_app/domain/models/auth_entities.dart';
+import 'package:autth_injustice_app/authentication/domain/models/auth_session.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'i_local_session_store.dart';

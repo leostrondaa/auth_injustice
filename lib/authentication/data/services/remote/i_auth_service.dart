@@ -1,21 +1,21 @@
 import 'package:autth_injustice_app/core/typedefs/types_defs.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
-import '../../../../domain/models/auth_entities.dart';
+import 'package:autth_injustice_app/authentication/domain/models/auth_session.dart';
 
 abstract interface class IAuthService {
   /// Retorna a sessão atual, ou null se não houver usuário logado
   /// um Signal para reatividade
   Signal<AuthSession?> get currentSessionSignal;
 
-  AuthSession? get currentSession => null;
-  
+  AuthSession? get currentSession;
+
   /// Inicializa a sessão carregando token local
   Future<void> initSession();
-  
+
   /// Login com email e senha
   Future<AuthSessionResult> signIn(String email, String password);
-  
+
   /// Login com Google
   Future<AuthSessionResult> signInWithGoogle();
 
@@ -28,5 +28,4 @@ abstract interface class IAuthService {
 
   /// Logout do usuário atual
   Future<VoidResult> signOut();
-  
 }

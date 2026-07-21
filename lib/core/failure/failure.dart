@@ -18,3 +18,15 @@ class ValidationError extends Failure {
 class InvalidInputFailure extends Failure {
   InvalidInputFailure([String? msg]) : super(msg ?? 'fieldsRequired');
 }
+
+class NotFoundFailure extends Failure {
+  NotFoundFailure([String? msg]) : super(msg ?? 'notFound');
+}
+
+class UnauthenticatedFailure extends Failure {
+  UnauthenticatedFailure([String? msg]) : super(msg ?? 'unauthenticated');
+}
+
+class RemoteFailure extends Failure {
+  RemoteFailure([String? msg]) : super(msg ?? 'remoteError');
+}

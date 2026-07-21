@@ -1,7 +1,7 @@
 import 'package:autth_injustice_app/core/typedefs/types_defs.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
-import '../../../../domain/models/auth_entities.dart';
+import 'package:autth_injustice_app/authentication/domain/models/auth_session.dart';
 import '../services/remote/i_auth_service.dart';
 import 'i_auth_repository.dart';
 

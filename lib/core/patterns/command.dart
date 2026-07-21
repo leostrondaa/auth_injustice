@@ -3,21 +3,20 @@ import 'package:signals_flutter/signals_flutter.dart';
 import 'result.dart';
 
 // Interface base para comandos
-abstract interface class ICommand<Success, Error> {
-  Future<Result<Success, Error>> execute();
+abstract interface class ICommand<TOk, TError> {
+  Future<Result<TOk, TError>> execute();
 }
 
 // Comando abstrato com estado reativo
-abstract base class Command<Success, Error>
-    implements ICommand<Success, Error> {
+abstract base class Command<TOk, TError> implements ICommand<TOk, TError> {
   final _running = signal(false);
-  final _result = signal<Result<Success, Error>?>(null);
+  final _result = signal<Result<TOk, TError>?>(null);
 
   //final _error = signal<TError?>(null);
 
   // Getters para os sinais reativos
   ReadonlySignal<bool> get isExecuting => _running.readonly();
-  ReadonlySignal<Result<Success, Error>?> get result => _result.readonly();
+  ReadonlySignal<Result<TOk, TError>?> get result => _result.readonly();
   //ReadonlySignal<TError?> get error => _error.readonly();
 
   // Computed signals
@@ -27,10 +26,8 @@ abstract base class Command<Success, Error>
   // late final data = computed(() => _result.value?.successValueOrNull);
 
   // Método para executar o comando com tratamento
-  Future<Result<Success, Error>> call() async {
-    
+  Future<Result<TOk, TError>> call() async {
     if (_running.value) {
-      
       while (_running.value) {
         await Future.delayed(Duration.zero);
       }
@@ -59,20 +56,19 @@ abstract base class Command<Success, Error>
 }
 
 // Comando parametrizado
-abstract base class ParameterizedCommand<Success, Error, P>
-    extends Command<Success, Error> {
+abstract base class ParameterizedCommand<TOk, TError, P>
+    extends Command<TOk, TError> {
   P? _parameter;
 
-  set parameter(P? value) => _parameter = value;
   P? get parameter => _parameter;
 
-  Future<Result<Success, Error>> executeWith(P parameter) {
+  Future<Result<TOk, TError>> executeWith(P parameter) {
     _parameter = parameter;
     return call();
   }
 
   @override
-  Future<Result<Success, Error>> execute();
+  Future<Result<TOk, TError>> execute();
 }
 
 // Comando composto que executa múltiplos comandos e acumula resultados

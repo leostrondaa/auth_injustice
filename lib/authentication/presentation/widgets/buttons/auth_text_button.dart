@@ -51,8 +51,9 @@ class _AuthTextButtonState extends State<AuthTextButton> {
           child: Text(
             widget.text,
             style: baseStyle.copyWith(
-              color:
-                  _isPressed ? effectiveColor.withOpacity(0.5) : effectiveColor,
+              color: _isPressed
+                  ? effectiveColor.withValues(alpha: 0.5)
+                  : effectiveColor,
               fontSize: widget.fontSize ?? baseStyle.fontSize,
               fontWeight: widget.fontWeight ?? baseStyle.fontWeight,
               letterSpacing: baseStyle.letterSpacing ?? 0.1,
@@ -145,8 +146,9 @@ class _AuthTextButtonRichState extends State<AuthTextButtonRich> {
                 text: widget.actionText,
                 recognizer: _gestureRecognizer,
                 style: baseStyle.copyWith(
-                  color:
-                      _isPressed ? actionColor.withOpacity(0.5) : actionColor,
+                  color: _isPressed
+                      ? actionColor.withValues(alpha: 0.5)
+                      : actionColor,
                   fontSize: effectiveFontSize,
                   fontWeight: widget.style?.fontWeight ?? FontWeight.w700,
                 ),
