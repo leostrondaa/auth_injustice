@@ -1,3 +1,4 @@
+import 'package:autth_injustice_app/app_startup/domain/repositories/i_app_entry_repository.dart';
 import 'package:autth_injustice_app/authentication/presentation/viewmodels/login/login_viewmodel.dart';
 import 'package:autth_injustice_app/authentication/presentation/widgets/backgrounds/clouds.dart';
 import 'package:autth_injustice_app/authentication/presentation/widgets/buttons/google_button.dart';
@@ -13,14 +14,19 @@ import 'package:autth_injustice_app/core/l10n/l10n_extensions.dart';
 import 'package:autth_injustice_app/authentication/presentation/navigation/auth_routes.dart';
 import 'package:autth_injustice_app/authentication/presentation/navigation/check_email_args.dart';
 import 'package:autth_injustice_app/core/utils/hide_keyboard.dart';
-import 'package:autth_injustice_app/core/validators/email_validator.dart';
-import 'package:autth_injustice_app/core/validators/password_validator.dart';
+import 'package:autth_injustice_app/core/validation/email_validator.dart';
+import 'package:autth_injustice_app/core/validation/password_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:autth_injustice_app/core/theme/app_theme.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  final String? returnTo;
+
+  const LoginPage({
+    super.key,
+    this.returnTo,
+  });
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -131,10 +137,7 @@ class _LoginPageState extends State<LoginPage>
 
     if (!didSignIn) return;
 
-    await _animController.reverse();
-
-    if (!mounted) return;
-    context.go(MapPaths.map);
+    await _finishLogin();
   }
 
   Future<void> _handleGoogleLogin() async {
@@ -144,14 +147,32 @@ class _LoginPageState extends State<LoginPage>
     final didSignIn = await _viewModel.commands.signInWithGoogle();
     if (!didSignIn) return;
 
+    await _finishLogin();
+  }
+
+  Future<void> _finishLogin() async {
+    try {
+      await injector.get<IAppEntryRepository>().markInitialPageCompleted();
+    } catch (_) {
+      // Authentication remains valid even if this local preference fails.
+    }
+
     await _animController.reverse();
     if (!mounted) return;
-    context.go(MapPaths.map);
+
+    final returnTo = widget.returnTo;
+    final destination = returnTo != null &&
+            returnTo.startsWith('/') &&
+            returnTo != AuthPaths.initial
+        ? returnTo
+        : MapPaths.map;
+    context.go(destination);
   }
 
   @override
   Widget build(BuildContext context) {
     final keyboardHeight = MediaQuery.viewInsetsOf(context).bottom;
+    final responsive = context.responsive;
 
     // Variáveis auxiliares para compressão em telas pequenas
     final isVerySmall = context.isVerySmallScreen;
@@ -159,10 +180,22 @@ class _LoginPageState extends State<LoginPage>
     // Se a tela for muito pequena, subimos o bottom sheet um pouco mais
     // e reduzimos os espaçamentos internos para o botão do Google caber sem scroll.
     final double sheetTopRatio = isVerySmall ? 0.22 : context.authSheetTopRatio;
-    final double gapFormTop = isVerySmall ? 16.0 : context.formTopSpacing;
-    final double gapFields = isVerySmall ? 12.0 : 16.0;
-    final double gapSmall = isVerySmall ? 8.0 : 12.0;
-    final double gapBottom = isVerySmall ? 16.0 : context.formBottomSpacing;
+    final double gapFormTop = responsive.scaled(
+      isVerySmall ? 14 : context.formTopSpacing,
+      min: 12,
+      max: 40,
+    );
+    final double gapFields =
+        responsive.scaled(isVerySmall ? 10 : 16, min: 9, max: 16);
+    final double gapSmall =
+        responsive.scaled(isVerySmall ? 7 : 12, min: 6, max: 12);
+    final double gapBottom = responsive.scaled(
+      isVerySmall ? 13 : context.formBottomSpacing,
+      min: 12,
+      max: 44,
+    );
+    final shellBottomClearance =
+        keyboardHeight > 0 ? 0.0 : responsive.scaled(94, min: 82, max: 106);
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -199,7 +232,11 @@ class _LoginPageState extends State<LoginPage>
                               textAlign: TextAlign.start,
                               style: context.text.headlineLarge?.copyWith(
                                 color: context.colors.onPrimary,
-                                fontSize: isVerySmall ? 28 : null,
+                                fontSize: responsive.scaled(
+                                  36,
+                                  min: 27,
+                                  max: 36,
+                                ),
                               ),
                             ),
                           ),
@@ -245,6 +282,7 @@ class _LoginPageState extends State<LoginPage>
                                 : null, // Margem menor no topo do sheet se necessário
                             bottom: context.extraPagePadding.bottom +
                                 keyboardHeight +
+                                shellBottomClearance +
                                 (isVerySmall ? 12 : 20),
                           ),
                           child: SlideTransition(
@@ -300,7 +338,7 @@ class _LoginPageState extends State<LoginPage>
                                               AuthPaths.checkEmail,
                                               extra: CheckEmailArgs(
                                                 email: email,
-                                                flow: CheckEmailFlow
+                                                flow: EmailVerificationFlow
                                                     .forgotPassword,
                                               ),
                                             );

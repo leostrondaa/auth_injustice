@@ -1,5 +1,6 @@
 import 'package:autth_injustice_app/core/theme/app_theme.dart';
 import 'package:autth_injustice_app/events/domain/models/event_preview.dart';
+import 'package:autth_injustice_app/events/presentation/widgets/common/event_card_visual_style.dart';
 import 'package:autth_injustice_app/events/presentation/widgets/events_catalog/event_banner.dart';
 import 'package:flutter/material.dart';
 
@@ -32,6 +33,7 @@ class EventBannerRail extends StatelessWidget {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
+        clipBehavior: Clip.none,
         padding: EdgeInsets.only(
           left: horizontalPadding,
           right: horizontalPadding,
@@ -46,6 +48,7 @@ class EventBannerRail extends StatelessWidget {
             child: EventBanner(
               event: event,
               large: large,
+              accentColor: EventCardVisualStyle.accentAt(index),
               onTap: () => onEventTap(event),
             ),
           );

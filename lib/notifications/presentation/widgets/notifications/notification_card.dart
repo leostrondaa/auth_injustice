@@ -10,6 +10,7 @@ class NotificationCard extends StatelessWidget {
   final bool isExpanded;
   final int index;
   final VoidCallback onTap;
+  final VoidCallback? onExternalLinkTap;
 
   const NotificationCard({
     super.key,
@@ -19,6 +20,7 @@ class NotificationCard extends StatelessWidget {
     required this.isExpanded,
     required this.index,
     required this.onTap,
+    this.onExternalLinkTap,
   });
 
   @override
@@ -40,167 +42,198 @@ class NotificationCard extends StatelessWidget {
           child: child,
         ),
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
           borderRadius: radius,
-          splashColor: style.color.withValues(alpha: 0.12),
-          child: Ink(
-            decoration: BoxDecoration(
-              color: notification.isRead
-                  ? Colors.transparent
-                  : style.color.withValues(alpha: 0.15),
-              borderRadius: radius,
+          border: Border.all(
+            color: style.color.withValues(
+              alpha: context.isDarkMode ?  (notification.isRead ? 0 : 0.18) : (notification.isRead ? 0 : 0.15),
             ),
-            child: Stack(
-              children: [
-                Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    22 * scale,
-                    20 * scale,
-                    20 * scale,
-                    20 * scale,
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _NotificationIcon(style: style, scale: scale),
-                      SizedBox(width: 16 * scale),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    style.label.toUpperCase(),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: context.text.labelSmall?.copyWith(
-                                      color: style.color,
-                                      fontSize:
-                                          (context.text.labelSmall?.fontSize ??
-                                                  11) *
-                                              textScale,
+            width: 1,
+          ),
+          boxShadow: [
+          
+            BoxShadow(
+              color: style.color.withValues(
+                alpha: context.isDarkMode ? 0.08 : 0.09,
+              ),
+              blurRadius: 50 * scale,
+              offset: Offset(0, 6 * scale),
+            ),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: radius,
+            splashColor: style.color.withValues(alpha: 0.12),
+            child: Ink(
+              decoration: BoxDecoration(
+                color: notification.isRead
+                    ? Colors.transparent
+                    : style.color.withValues(alpha: 0.15),
+                borderRadius: radius,
+              ),
+              child: Stack(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      22 * scale,
+                      20 * scale,
+                      20 * scale,
+                      20 * scale,
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _NotificationIcon(style: style, scale: scale),
+                        SizedBox(width: 16 * scale),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      style.label.toUpperCase(),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: context.text.labelSmall?.copyWith(
+                                        color: style.color,
+                                        fontSize: (context.text.labelSmall
+                                                    ?.fontSize ??
+                                                11) *
+                                            textScale,
+                                      ),
                                     ),
+                                  ),
+                                  if (!notification.isRead) ...[
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      width: 8,
+                                      height: 8,
+                                      decoration: BoxDecoration(
+                                        color: style.color,
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: style.color.withValues(
+                                              alpha: 0.5,
+                                            ),
+                                            blurRadius: 8,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                              SizedBox(height: 7 * scale),
+                              AnimatedSize(
+                                duration: const Duration(milliseconds: 280),
+                                curve: Curves.easeOutCubic,
+                                alignment: Alignment.topLeft,
+                                child: Text(
+                                  notification.title,
+                                  maxLines: isExpanded ? null : 2,
+                                  overflow: isExpanded
+                                      ? TextOverflow.visible
+                                      : TextOverflow.ellipsis,
+                                  style: context.text.titleLarge?.copyWith(
+                                    fontSize: 18 * textScale,
+                                    color: context.onTertiary,
                                   ),
                                 ),
-                                if (!notification.isRead) ...[
-                                  const SizedBox(width: 8),
-                                  Container(
-                                    width: 8,
-                                    height: 8,
-                                    decoration: BoxDecoration(
-                                      color: style.color,
-                                      shape: BoxShape.circle,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: style.color.withValues(
-                                            alpha: 0.5,
-                                          ),
-                                          blurRadius: 8,
+                              ),
+                              AnimatedSize(
+                                duration: const Duration(milliseconds: 320),
+                                curve: Curves.easeOutCubic,
+                                alignment: Alignment.topCenter,
+                                child: AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 260),
+                                  reverseDuration:
+                                      const Duration(milliseconds: 180),
+                                  transitionBuilder: (child, animation) {
+                                    final slide = Tween<Offset>(
+                                      begin: const Offset(0, -0.16),
+                                      end: Offset.zero,
+                                    ).animate(
+                                      CurvedAnimation(
+                                        parent: animation,
+                                        curve: Curves.easeOutCubic,
+                                        reverseCurve: Curves.easeInCubic,
+                                      ),
+                                    );
+
+                                    return ClipRect(
+                                      child: FadeTransition(
+                                        opacity: animation,
+                                        child: SlideTransition(
+                                          position: slide,
+                                          child: child,
                                         ),
-                                      ],
+                                      ),
+                                    );
+                                  },
+                                  child: isExpanded
+                                      ? _NotificationDescription(
+                                          key: const ValueKey('description'),
+                                          message: notification.message,
+                                          externalUrl: notification.externalUrl,
+                                          onExternalLinkTap: onExternalLinkTap,
+                                          scale: scale,
+                                          textScale: textScale,
+                                        )
+                                      : const SizedBox(
+                                          key:
+                                              ValueKey('collapsed-description'),
+                                        ),
+                                ),
+                              ),
+                              SizedBox(height: 14 * scale),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      _relativeTime(
+                                        context,
+                                        notification.createdAt,
+                                      ),
+                                      style: context.text.labelSmall?.copyWith(
+                                        color: context.onTertiary.withValues(
+                                          alpha: 0.46,
+                                        ),
+                                        fontSize: (context.text.labelSmall
+                                                    ?.fontSize ??
+                                                11) *
+                                            textScale,
+                                      ),
                                     ),
                                   ),
-                                ],
-                              ],
-                            ),
-                            SizedBox(height: 7 * scale),
-                            Text(
-                              notification.title,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: context.text.titleLarge?.copyWith(
-                                fontSize: 18 * textScale,
-                                color: context.onTertiary,
-                              ),
-                            ),
-                            AnimatedSize(
-                              duration: const Duration(milliseconds: 320),
-                              curve: Curves.easeOutCubic,
-                              alignment: Alignment.topCenter,
-                              child: AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 260),
-                                reverseDuration:
-                                    const Duration(milliseconds: 180),
-                                transitionBuilder: (child, animation) {
-                                  final slide = Tween<Offset>(
-                                    begin: const Offset(0, -0.16),
-                                    end: Offset.zero,
-                                  ).animate(
-                                    CurvedAnimation(
-                                      parent: animation,
-                                      curve: Curves.easeOutCubic,
-                                      reverseCurve: Curves.easeInCubic,
-                                    ),
-                                  );
-
-                                  return ClipRect(
-                                    child: FadeTransition(
-                                      opacity: animation,
-                                      child: SlideTransition(
-                                        position: slide,
-                                        child: child,
-                                      ),
-                                    ),
-                                  );
-                                },
-                                child: isExpanded
-                                    ? _NotificationDescription(
-                                        key: const ValueKey('description'),
-                                        message: notification.message,
-                                        scale: scale,
-                                        textScale: textScale,
-                                      )
-                                    : const SizedBox(
-                                        key: ValueKey('collapsed-description'),
-                                      ),
-                              ),
-                            ),
-                            SizedBox(height: 14 * scale),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    _relativeTime(
-                                      context,
-                                      notification.createdAt,
-                                    ),
-                                    style: context.text.labelSmall?.copyWith(
+                                  AnimatedRotation(
+                                    turns: isExpanded ? 0.5 : 0,
+                                    duration: const Duration(milliseconds: 240),
+                                    curve: Curves.easeOutCubic,
+                                    child: Icon(
+                                      Icons.keyboard_arrow_down_rounded,
+                                      size: 21 * scale,
                                       color: context.onTertiary.withValues(
                                         alpha: 0.46,
                                       ),
-                                      fontSize:
-                                          (context.text.labelSmall?.fontSize ??
-                                                  11) *
-                                              textScale,
                                     ),
                                   ),
-                                ),
-                                AnimatedRotation(
-                                  turns: isExpanded ? 0.5 : 0,
-                                  duration: const Duration(milliseconds: 240),
-                                  curve: Curves.easeOutCubic,
-                                  child: Icon(
-                                    Icons.keyboard_arrow_down_rounded,
-                                    size: 21 * scale,
-                                    color: context.onTertiary.withValues(
-                                      alpha: 0.46,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -227,12 +260,16 @@ class NotificationCard extends StatelessWidget {
 
 class _NotificationDescription extends StatelessWidget {
   final String message;
+  final String? externalUrl;
+  final VoidCallback? onExternalLinkTap;
   final double scale;
   final double textScale;
 
   const _NotificationDescription({
     super.key,
     required this.message,
+    required this.externalUrl,
+    required this.onExternalLinkTap,
     required this.scale,
     required this.textScale,
   });
@@ -256,6 +293,22 @@ class _NotificationDescription extends StatelessWidget {
               fontSize: (context.bodySmall?.fontSize ?? 12) * textScale,
             ),
           ),
+          if (externalUrl != null && onExternalLinkTap != null) ...[
+            SizedBox(height: 12 * scale),
+            TextButton.icon(
+              onPressed: onExternalLinkTap,
+              icon: const Icon(Icons.open_in_new_rounded, size: 17),
+              label: Text(context.l10n.notificationOpenLink),
+              style: TextButton.styleFrom(
+                foregroundColor: context.primary,
+                padding: EdgeInsets.symmetric(
+                  horizontal: 0,
+                  vertical: 7 * scale,
+                ),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+            ),
+          ],
         ],
       ),
     );

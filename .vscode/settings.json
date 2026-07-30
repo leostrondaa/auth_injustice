@@ -1,4 +1,10 @@
 {
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.formatOnSave": false
+  "[dart]": {
+    "editor.defaultFormatter": "Dart-Code.dart-code",
+    "editor.formatOnSave": true
+  },
+  "dart.analysisIncludedFolders": [
+    "lib",
+    "test"
+  ]
 }

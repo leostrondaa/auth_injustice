@@ -1,16 +1,18 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:autth_injustice_app/authorization/domain/services/authorization_service.dart';
 import 'package:autth_injustice_app/complementary_hours/presentation/viewmodels/summary/complementary_hours_viewmodel.dart';
 import 'package:autth_injustice_app/complementary_hours/presentation/widgets/records/complementary_hours_records_drawer.dart';
 import 'package:autth_injustice_app/complementary_hours/presentation/widgets/summary/complementary_hours_header.dart';
 import 'package:autth_injustice_app/complementary_hours/presentation/widgets/summary/complementary_hours_progress_gauge.dart';
-import 'package:autth_injustice_app/complementary_hours/presentation/widgets/summary/complementary_hours_status.dart';
 import 'package:autth_injustice_app/core/di/dependency_injection.dart';
 import 'package:autth_injustice_app/core/extensions/responsive_extensions.dart';
 import 'package:autth_injustice_app/core/l10n/l10n_extensions.dart';
 import 'package:autth_injustice_app/core/theme/app_theme.dart';
+import 'package:autth_injustice_app/core/widgets/app_status_view.dart';
 import 'package:autth_injustice_app/settings/presentation/navigation/settings_routes.dart';
+import 'package:autth_injustice_app/user_management/presentation/navigation/user_management_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:signals_flutter/signals_flutter.dart';
@@ -29,11 +31,15 @@ class _ComplementaryHoursPageState extends State<ComplementaryHoursPage> {
   void initState() {
     super.initState();
     _viewModel = injector.get<ComplementaryHoursViewModel>();
-    unawaited(_viewModel.commands.loadSummary(forceRefresh: true));
+    unawaited(_viewModel.commands.loadSummary());
   }
 
   void _openSettings() {
     context.pushNamed(SettingsRouteNames.settings);
+  }
+
+  void _openUsers() {
+    context.pushNamed(UserManagementRouteNames.users);
   }
 
   void _refreshSummary() {
@@ -48,6 +54,8 @@ class _ComplementaryHoursPageState extends State<ComplementaryHoursPage> {
     );
     final scale = responsive.layoutScale;
     final pagePadding = context.extraPagePadding;
+    final canManageAccounts =
+        injector.get<AuthorizationService>().canManageAccounts;
 
     return Scaffold(
       backgroundColor: context.tertiary,
@@ -57,25 +65,17 @@ class _ComplementaryHoursPageState extends State<ComplementaryHoursPage> {
           (_) {
             final state = _viewModel.state;
             final summary = state.summary.value;
-            final errorMessage = state.errorMessage.value;
 
-            if (state.loading.value && summary == null) {
-              return const ComplementaryHoursStatus.loading();
-            }
-
-            if (errorMessage != null && summary == null) {
-              return ComplementaryHoursStatus.error(
-                message: context.l10n.complementaryHoursLoadError,
-                onRetry: () => unawaited(
-                  _viewModel.commands.loadSummary(forceRefresh: true),
-                ),
-              );
+            if (state.isInitialLoading) {
+              return const AppStatusView.loading();
             }
 
             if (summary == null) {
-              return ComplementaryHoursStatus.error(
-                message: context.l10n.complementaryHoursLoadError,
-                onRetry: () => unawaited(
+              return AppStatusView(
+                icon: Icons.hourglass_disabled_rounded,
+                title: context.l10n.complementaryHoursLoadError,
+                actionLabel: context.l10n.commonRetry,
+                onAction: () => unawaited(
                   _viewModel.commands.loadSummary(forceRefresh: true),
                 ),
               );
@@ -130,6 +130,7 @@ class _ComplementaryHoursPageState extends State<ComplementaryHoursPage> {
                         child: ComplementaryHoursHeader(
                           scale: scale,
                           onSettingsPressed: _openSettings,
+                          onUsersPressed: canManageAccounts ? _openUsers : null,
                         ),
                       ),
                       Positioned(

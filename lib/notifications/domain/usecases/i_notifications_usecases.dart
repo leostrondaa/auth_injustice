@@ -9,3 +9,6 @@ abstract interface class IMarkNotificationAsReadUseCase
 
 abstract interface class IMarkAllNotificationsAsReadUseCase
     implements IUseCase<NotificationActionResult, NotificationsNoParams> {}
+
+abstract interface class IPublishAnnouncementUseCase
+    implements IUseCase<NotificationPublishResult, PublishAnnouncementParams> {}

@@ -2,6 +2,7 @@ import 'package:autth_injustice_app/account/domain/services/i_current_account_pr
 import 'package:autth_injustice_app/core/failure/failure.dart';
 import 'package:autth_injustice_app/core/patterns/result.dart';
 import 'package:autth_injustice_app/notifications/data/services/i_notifications_service.dart';
+import 'package:autth_injustice_app/notifications/domain/models/notification_announcement_input.dart';
 import 'package:autth_injustice_app/notifications/domain/notifications_types.dart';
 
 import 'i_notifications_repository.dart';
@@ -40,5 +41,18 @@ class NotificationsRepositoryImpl implements INotificationsRepository {
     if (uid == null) return Future.value(Error(UnauthenticatedFailure()));
 
     return _notificationsService.markAllAsRead(uid);
+  }
+
+  @override
+  Future<NotificationPublishResult> publishAnnouncement(
+    NotificationAnnouncementInput input,
+  ) {
+    final uid = _currentUid;
+    if (uid == null) return Future.value(Error(UnauthenticatedFailure()));
+
+    return _notificationsService.publishAnnouncement(
+      actorUid: uid,
+      input: input,
+    );
   }
 }

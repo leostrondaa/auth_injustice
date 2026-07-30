@@ -14,8 +14,8 @@ class DemoComplementaryHoursService implements IComplementaryHoursService {
   Future<ComplementaryHoursSummaryResult> getSummary(String uid) async {
     try {
       return Success(_store.complementaryHoursSummary(uid));
-    } on StateError catch (error) {
-      return Error(DefaultFailure(error.message.toString()));
+    } on StateError {
+      return Error(DefaultFailure('complementaryHoursLoadError'));
     }
   }
 
@@ -23,8 +23,8 @@ class DemoComplementaryHoursService implements IComplementaryHoursService {
   Future<ComplementaryHoursRecordsResult> getRecords(String uid) async {
     try {
       return Success(_store.complementaryHoursRecords(uid));
-    } on StateError catch (error) {
-      return Error(DefaultFailure(error.message.toString()));
+    } on StateError {
+      return Error(DefaultFailure('complementaryHoursRecordsLoadError'));
     }
   }
 
@@ -35,11 +35,11 @@ class DemoComplementaryHoursService implements IComplementaryHoursService {
   ) async {
     try {
       if (!_store.deleteComplementaryHoursRecord(uid, recordId)) {
-        return Error(DefaultFailure('Registro não encontrado.'));
+        return Error(DefaultFailure('complementaryHoursDeleteError'));
       }
       return const Success(null);
-    } on StateError catch (error) {
-      return Error(DefaultFailure(error.message.toString()));
+    } on StateError {
+      return Error(DefaultFailure('complementaryHoursDeleteError'));
     }
   }
 }

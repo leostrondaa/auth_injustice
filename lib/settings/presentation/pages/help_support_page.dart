@@ -1,7 +1,9 @@
 import 'package:autth_injustice_app/core/extensions/responsive_extensions.dart';
 import 'package:autth_injustice_app/core/l10n/l10n_extensions.dart';
 import 'package:autth_injustice_app/core/theme/app_theme.dart';
+import 'package:autth_injustice_app/core/widgets/app_back_button.dart';
 import 'package:autth_injustice_app/core/widgets/app_entrance_transition.dart';
+import 'package:autth_injustice_app/institution/presentation/institution_scope.dart';
 import 'package:autth_injustice_app/settings/presentation/widgets/help/help_topic_tile.dart';
 import 'package:autth_injustice_app/settings/presentation/widgets/help/support_contact.dart';
 import 'package:autth_injustice_app/settings/presentation/widgets/settings/settings_panel.dart';
@@ -10,12 +12,11 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 class HelpSupportPage extends StatelessWidget {
-  static const _supportEmail = 'mateus@ifpr.edu.br';
-
   const HelpSupportPage({super.key});
 
   Future<void> _copySupportEmail(BuildContext context) async {
-    await Clipboard.setData(const ClipboardData(text: _supportEmail));
+    final supportEmail = context.institution.branding.supportEmail;
+    await Clipboard.setData(ClipboardData(text: supportEmail));
     if (!context.mounted) return;
 
     ScaffoldMessenger.of(context)
@@ -27,6 +28,7 @@ class HelpSupportPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final branding = context.institution.branding;
     final responsive = context.responsive;
     final scale = responsive.layoutScale;
     final textScale = responsive.textScale;
@@ -37,12 +39,16 @@ class HelpSupportPage extends StatelessWidget {
       (
         icon: Icons.verified_outlined,
         title: context.l10n.helpPersonalHistoryTitle,
-        explanation: context.l10n.helpPersonalHistoryDescription,
+        explanation: context.l10n.helpPersonalHistoryDescription(
+          branding.institutionAcronym,
+        ),
       ),
       (
         icon: Icons.schedule_outlined,
         title: context.l10n.helpHoursTitle,
-        explanation: context.l10n.helpHoursDescription,
+        explanation: context.l10n.helpHoursDescription(
+          branding.institutionAcronym,
+        ),
       ),
       (
         icon: Icons.swipe_outlined,
@@ -79,15 +85,10 @@ class HelpSupportPage extends StatelessWidget {
               AppEntranceTransition(
                 child: Align(
                   alignment: Alignment.centerLeft,
-                  child: IconButton(
-                    tooltip:
-                        MaterialLocalizations.of(context).backButtonTooltip,
+                  child: AppBackButton(
                     onPressed: context.pop,
-                    icon: Icon(
-                      Icons.arrow_back_rounded,
-                      size: 25 * scale,
-                      color: context.onTertiary,
-                    ),
+                    iconSize: 25 * scale,
+                    foregroundColor: context.onTertiary,
                   ),
                 ),
               ),
@@ -137,7 +138,9 @@ class HelpSupportPage extends StatelessWidget {
                             ),
                             SizedBox(height: 7 * scale),
                             Text(
-                              context.l10n.helpIntroDescription,
+                              context.l10n.helpIntroDescription(
+                                branding.appName,
+                              ),
                               style: context.bodySmall?.copyWith(
                                 color: context.onTertiary.withValues(
                                   alpha: 0.62,
@@ -183,7 +186,7 @@ class HelpSupportPage extends StatelessWidget {
                 child: SettingsPanel(
                   scale: scale,
                   child: SupportContact(
-                    email: _supportEmail,
+                    email: context.institution.branding.supportEmail,
                     scale: scale,
                     textScale: textScale,
                     onCopyEmail: () => _copySupportEmail(context),

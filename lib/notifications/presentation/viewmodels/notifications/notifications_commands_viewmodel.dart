@@ -22,7 +22,7 @@ class NotificationsCommands {
         _markAllNotificationsAsReadCommand = markAllNotificationsAsReadCommand;
 
   Future<void> loadNotifications({bool forceRefresh = false}) async {
-    if (state.loading.value || (!forceRefresh && state.hasNotifications)) {
+    if (state.loading.value || (!forceRefresh && state.hasLoaded)) {
       return;
     }
 

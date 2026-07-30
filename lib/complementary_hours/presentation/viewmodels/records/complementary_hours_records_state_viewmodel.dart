@@ -1,22 +1,16 @@
 import 'package:autth_injustice_app/complementary_hours/domain/models/complementary_hours_record.dart';
+import 'package:autth_injustice_app/core/patterns/async_load_state.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
-class ComplementaryHoursRecordsState {
-  final loading = signal(false);
-  final loaded = signal(false);
+class ComplementaryHoursRecordsState with AsyncLoadState {
   final records = signal<List<ComplementaryHoursRecord>>(const []);
   final deletingIds = signal<Set<String>>(const {});
-  final errorMessage = signal<String?>(null);
 
   bool get hasRecords => records.value.isNotEmpty;
 
-  void setLoading(bool value) {
-    loading.value = value;
-  }
-
   void setRecords(List<ComplementaryHoursRecord> value) {
     records.value = List.unmodifiable(value);
-    loaded.value = true;
+    markLoaded();
   }
 
   bool startDeleting(String recordId) {
@@ -38,13 +32,5 @@ class ComplementaryHoursRecordsState {
       for (final record in records.value)
         if (record.id != recordId) record,
     ];
-  }
-
-  void showError(String message) {
-    errorMessage.value = message;
-  }
-
-  void clearError() {
-    errorMessage.value = null;
   }
 }

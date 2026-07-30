@@ -1,6 +1,5 @@
+import 'package:autth_injustice_app/core/patterns/i_usecases.dart';
 import 'package:autth_injustice_app/core/typedefs/types_defs.dart';
-
-import '../../../core/patterns/i_usecases.dart';
 
 abstract interface class ISignInUseCase
     implements IUseCase<AuthSessionResult, SignInParams> {}

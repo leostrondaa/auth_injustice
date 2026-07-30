@@ -11,6 +11,9 @@ class AppNotification {
   final String message;
   final DateTime createdAt;
   final bool isRead;
+  final String? eventId;
+  final String? authorUid;
+  final String? externalUrl;
 
   const AppNotification({
     required this.id,
@@ -19,6 +22,9 @@ class AppNotification {
     required this.message,
     required this.createdAt,
     required this.isRead,
+    this.eventId,
+    this.authorUid,
+    this.externalUrl,
   });
 
   AppNotification copyWith({bool? isRead}) {
@@ -29,6 +35,9 @@ class AppNotification {
       message: message,
       createdAt: createdAt,
       isRead: isRead ?? this.isRead,
+      eventId: eventId,
+      authorUid: authorUid,
+      externalUrl: externalUrl,
     );
   }
 }

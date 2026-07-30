@@ -1,8 +1,10 @@
 import 'package:autth_injustice_app/authentication/presentation/navigation/check_email_args.dart';
+import 'package:autth_injustice_app/authentication/presentation/navigation/password_reset_args.dart';
 import 'package:autth_injustice_app/authentication/presentation/pages/check_email_page.dart';
 import 'package:autth_injustice_app/authentication/presentation/pages/initial_page.dart';
 import 'package:autth_injustice_app/authentication/presentation/pages/login_page.dart';
 import 'package:autth_injustice_app/authentication/presentation/pages/register_page.dart';
+import 'package:autth_injustice_app/authentication/presentation/pages/reset_password_page.dart';
 import 'package:autth_injustice_app/authentication/presentation/pages/splash_page.dart';
 import 'package:autth_injustice_app/core/navigation/app_transitions.dart';
 import 'package:go_router/go_router.dart';
@@ -13,6 +15,7 @@ class AuthRouteNames {
   static const login = 'login';
   static const register = 'register';
   static const checkEmail = 'check-email';
+  static const resetPassword = 'reset-password';
 }
 
 class AuthPaths {
@@ -21,9 +24,17 @@ class AuthPaths {
   static const login = '/login';
   static const register = '/register';
   static const checkEmail = '/check-email';
+  static const resetPassword = '/reset-password';
+
+  static String loginFor(String returnTo) {
+    return Uri(
+      path: login,
+      queryParameters: {'returnTo': returnTo},
+    ).toString();
+  }
 }
 
-final List<RouteBase> authRoutes = [
+final List<RouteBase> rootAuthRoutes = [
   GoRoute(
     path: AuthPaths.splash,
     name: AuthRouteNames.splash,
@@ -37,11 +48,6 @@ final List<RouteBase> authRoutes = [
         const NoTransitionPage(child: InitialPage()),
   ),
   GoRoute(
-    path: AuthPaths.login,
-    name: AuthRouteNames.login,
-    pageBuilder: (context, state) => const NoTransitionPage(child: LoginPage()),
-  ),
-  GoRoute(
     path: AuthPaths.register,
     name: AuthRouteNames.register,
     pageBuilder: (context, state) => slidePage(
@@ -53,7 +59,7 @@ final List<RouteBase> authRoutes = [
     path: AuthPaths.checkEmail,
     name: AuthRouteNames.checkEmail,
     redirect: (context, state) {
-      return state.extra is CheckEmailArgs ? null : AuthPaths.initial;
+      return state.extra is CheckEmailArgs ? null : AuthPaths.login;
     },
     pageBuilder: (context, state) {
       final args = state.extra as CheckEmailArgs;
@@ -64,4 +70,30 @@ final List<RouteBase> authRoutes = [
       );
     },
   ),
+  GoRoute(
+    path: AuthPaths.resetPassword,
+    name: AuthRouteNames.resetPassword,
+    redirect: (context, state) {
+      return state.extra is PasswordResetArgs ? null : AuthPaths.login;
+    },
+    pageBuilder: (context, state) {
+      final args = state.extra as PasswordResetArgs;
+
+      return slidePage(
+        key: state.pageKey,
+        child: ResetPasswordPage(args: args),
+      );
+    },
+  ),
 ];
+
+final loginRoute = GoRoute(
+  path: AuthPaths.login,
+  name: AuthRouteNames.login,
+  pageBuilder: (context, state) => NoTransitionPage(
+    key: state.pageKey,
+    child: LoginPage(
+      returnTo: state.uri.queryParameters['returnTo'],
+    ),
+  ),
+);

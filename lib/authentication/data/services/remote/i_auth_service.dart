@@ -1,31 +1,26 @@
+import 'package:autth_injustice_app/account/domain/models/account_name.dart';
+import 'package:autth_injustice_app/authentication/domain/models/auth_session.dart';
 import 'package:autth_injustice_app/core/typedefs/types_defs.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
-import 'package:autth_injustice_app/authentication/domain/models/auth_session.dart';
-
 abstract interface class IAuthService {
-  /// Retorna a sessão atual, ou null se não houver usuário logado
-  /// um Signal para reatividade
+  /// Reactive authenticated session, or null after sign-out.
   Signal<AuthSession?> get currentSessionSignal;
 
   AuthSession? get currentSession;
 
-  /// Inicializa a sessão carregando token local
+  /// Restores the session already maintained by Firebase Auth.
   Future<void> initSession();
 
-  /// Login com email e senha
   Future<AuthSessionResult> signIn(String email, String password);
 
-  /// Login com Google
   Future<AuthSessionResult> signInWithGoogle();
 
-  /// Registro com email e senha. Name é opcional.
   Future<AuthSessionResult> signUp({
-    String? name,
+    required AccountName name,
     required String email,
     required String password,
   });
 
-  /// Logout do usuário atual
   Future<VoidResult> signOut();
 }

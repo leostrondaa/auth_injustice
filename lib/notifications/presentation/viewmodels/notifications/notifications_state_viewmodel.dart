@@ -1,13 +1,12 @@
+import 'package:autth_injustice_app/core/patterns/async_load_state.dart';
 import 'package:autth_injustice_app/notifications/domain/models/app_notification.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
-class NotificationsState {
-  final loading = signal(false);
+class NotificationsState with AsyncLoadState {
   final notifications = signal<List<AppNotification>>(const []);
   final selectedType = signal<AppNotificationType?>(null);
   final expandedNotificationId = signal<String?>(null);
   final markingAsReadIds = signal<Set<String>>(const {});
-  final errorMessage = signal<String?>(null);
 
   bool get hasNotifications => notifications.value.isNotEmpty;
 
@@ -21,12 +20,9 @@ class NotificationsState {
   int get unreadCount =>
       notifications.value.where((item) => !item.isRead).length;
 
-  void setLoading(bool value) {
-    loading.value = value;
-  }
-
   void setNotifications(List<AppNotification> value) {
     notifications.value = List.unmodifiable(value);
+    markLoaded();
   }
 
   void selectType(AppNotificationType? type) {
@@ -71,13 +67,5 @@ class NotificationsState {
     notifications.value = [
       for (final item in notifications.value) item.copyWith(isRead: true),
     ];
-  }
-
-  void showError(String message) {
-    errorMessage.value = message;
-  }
-
-  void clearError() {
-    errorMessage.value = null;
   }
 }

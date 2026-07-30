@@ -15,7 +15,7 @@ class ComplementaryHoursRecordsCommands {
         _deleteRecordCommand = deleteRecordCommand;
 
   Future<void> loadRecords({bool forceRefresh = false}) async {
-    if (state.loading.value || (!forceRefresh && state.loaded.value)) return;
+    if (state.loading.value || (!forceRefresh && state.hasLoaded)) return;
 
     state.setLoading(true);
     state.clearError();

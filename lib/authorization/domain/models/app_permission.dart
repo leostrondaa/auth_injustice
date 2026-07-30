@@ -3,8 +3,10 @@ import 'account_role.dart';
 enum AppPermission {
   createEvent,
   editEvent,
+  endEvent,
   publishEvent,
   archiveEvent,
+  publishAnnouncement,
   manageAccounts,
   assignRoles,
 }
@@ -15,6 +17,7 @@ extension AccountRolePermissions on AccountRole {
         AccountRole.eventManager => const {
             AppPermission.createEvent,
             AppPermission.editEvent,
+            AppPermission.endEvent,
             AppPermission.publishEvent,
             AppPermission.archiveEvent,
           },

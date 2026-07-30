@@ -1,4 +1,5 @@
-import 'package:autth_injustice_app/authentication/presentation/viewmodels/auth/auth_session_viewmodel.dart';
+import 'package:autth_injustice_app/app_startup/domain/repositories/i_app_entry_repository.dart';
+import 'package:autth_injustice_app/authentication/domain/facades/i_auth_use_case_facade.dart';
 import 'package:autth_injustice_app/core/l10n/locale_controller.dart';
 import 'package:autth_injustice_app/core/theme/theme_controller.dart';
 
@@ -8,23 +9,26 @@ class SettingsCommands {
   final SettingsState state;
   final ThemeController _themeController;
   final LocaleController _localeController;
-  final AuthSessionViewModel _authSession;
+  final IAuthUseCaseFacade _authFacade;
+  final IAppEntryRepository _appEntryRepository;
 
   SettingsCommands({
     required this.state,
     required ThemeController themeController,
     required LocaleController localeController,
-    required AuthSessionViewModel authSession,
+    required IAuthUseCaseFacade authFacade,
+    required IAppEntryRepository appEntryRepository,
   })  : _themeController = themeController,
         _localeController = localeController,
-        _authSession = authSession;
+        _authFacade = authFacade,
+        _appEntryRepository = appEntryRepository;
 
   void setDarkMode(bool enabled) {
     _themeController.setDarkMode(enabled);
   }
 
   void setNotificationsEnabled(bool enabled) {
-    // Futuro: persistir esta preferência no perfil do usuário.
+    // O adaptador de push persistira a preferencia e pedira permissao nativa.
     state.setNotificationsEnabled(enabled);
   }
 
@@ -40,20 +44,18 @@ class SettingsCommands {
       ..setError(null);
 
     try {
-      await _authSession.commands.signOut();
-      final result = _authSession.commands.signOutCommand.result.value;
-
-      if (result == null) {
-        return false;
-      }
-
-      return result.fold(
+      final result = await _authFacade.signOutUseCase(());
+      final signedOut = result.fold(
         onSuccess: (_) => true,
         onFailure: (failure) {
           state.setError(failure.msg);
           return false;
         },
       );
+      if (!signedOut) return false;
+
+      await _appEntryRepository.resetInitialPage();
+      return true;
     } finally {
       state.setLoading(false);
     }

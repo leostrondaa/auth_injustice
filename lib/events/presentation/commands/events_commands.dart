@@ -16,11 +16,29 @@ final class LoadEventsCatalogCommand
   Future<EventsCatalogResult> execute() {
     if (parameter == null) {
       return Future.value(
-        Error(InvalidInputFailure('Parâmetro do catálogo não informado.')),
+        Error(InvalidInputFailure('eventsLoadError')),
       );
     }
 
     return _eventsFacade.getCatalog(parameter!);
+  }
+}
+
+final class LoadManagementEventsCatalogCommand
+    extends ParameterizedCommand<EventsCatalog, Failure, EventsNoParams> {
+  final IEventsUseCaseFacade _eventsFacade;
+
+  LoadManagementEventsCatalogCommand(this._eventsFacade);
+
+  @override
+  Future<EventsCatalogResult> execute() {
+    if (parameter == null) {
+      return Future.value(
+        Error(InvalidInputFailure('eventManagementLoadError')),
+      );
+    }
+
+    return _eventsFacade.getManagementCatalog(parameter!);
   }
 }
 
@@ -34,7 +52,7 @@ final class LoadEventDetailsCommand
   Future<EventDetailsResult> execute() {
     if (parameter == null || parameter!.eventId.trim().isEmpty) {
       return Future.value(
-        Error(InvalidInputFailure('Identificador do evento inválido.')),
+        Error(InvalidInputFailure('eventDetailsUnavailable')),
       );
     }
 
@@ -52,10 +70,100 @@ final class SetEventPersonalRecordCommand
   Future<EventPersonalRecordResult> execute() {
     if (parameter == null || parameter!.eventId.trim().isEmpty) {
       return Future.value(
-        Error(InvalidInputFailure('Identificador do evento inválido.')),
+        Error(InvalidInputFailure('eventDetailsUnavailable')),
       );
     }
 
     return _eventsFacade.setEventPersonalRecord(parameter!);
+  }
+}
+
+final class CreateEventCommand
+    extends ParameterizedCommand<EventDetails, Failure, CreateEventParams> {
+  final IEventsUseCaseFacade _eventsFacade;
+
+  CreateEventCommand(this._eventsFacade);
+
+  @override
+  Future<EventCreationResult> execute() {
+    if (parameter == null) {
+      return Future.value(
+        Error(InvalidInputFailure('eventEditorRequiredFields')),
+      );
+    }
+
+    return _eventsFacade.createEvent(parameter!);
+  }
+}
+
+final class UpdateEventCommand
+    extends ParameterizedCommand<EventDetails, Failure, UpdateEventParams> {
+  final IEventsUseCaseFacade _eventsFacade;
+
+  UpdateEventCommand(this._eventsFacade);
+
+  @override
+  Future<EventUpdateResult> execute() {
+    if (parameter == null || parameter!.eventId.trim().isEmpty) {
+      return Future.value(
+        Error(InvalidInputFailure('eventNotFound')),
+      );
+    }
+
+    return _eventsFacade.updateEvent(parameter!);
+  }
+}
+
+final class DeleteEventCommand
+    extends ParameterizedCommand<bool, Failure, DeleteEventParams> {
+  final IEventsUseCaseFacade _eventsFacade;
+
+  DeleteEventCommand(this._eventsFacade);
+
+  @override
+  Future<EventDeletionResult> execute() {
+    if (parameter == null || parameter!.eventId.trim().isEmpty) {
+      return Future.value(
+        Error(InvalidInputFailure('eventNotFound')),
+      );
+    }
+
+    return _eventsFacade.deleteEvent(parameter!);
+  }
+}
+
+final class CancelEventCommand
+    extends ParameterizedCommand<bool, Failure, CancelEventParams> {
+  final IEventsUseCaseFacade _eventsFacade;
+
+  CancelEventCommand(this._eventsFacade);
+
+  @override
+  Future<EventCancellationResult> execute() {
+    if (parameter == null || parameter!.eventId.trim().isEmpty) {
+      return Future.value(
+        Error(InvalidInputFailure('eventNotFound')),
+      );
+    }
+
+    return _eventsFacade.cancelEvent(parameter!);
+  }
+}
+
+final class EndEventCommand
+    extends ParameterizedCommand<bool, Failure, EndEventParams> {
+  final IEventsUseCaseFacade _eventsFacade;
+
+  EndEventCommand(this._eventsFacade);
+
+  @override
+  Future<EventEndResult> execute() {
+    if (parameter == null || parameter!.eventId.trim().isEmpty) {
+      return Future.value(
+        Error(InvalidInputFailure('eventNotFound')),
+      );
+    }
+
+    return _eventsFacade.endEvent(parameter!);
   }
 }

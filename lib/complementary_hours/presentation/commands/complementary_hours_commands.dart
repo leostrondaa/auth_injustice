@@ -16,7 +16,7 @@ final class LoadComplementaryHoursSummaryCommand extends ParameterizedCommand<
   Future<ComplementaryHoursSummaryResult> execute() {
     if (parameter == null) {
       return Future.value(
-        Error(InvalidInputFailure('Parâmetro do contador não informado.')),
+        Error(InvalidInputFailure('complementaryHoursLoadError')),
       );
     }
 
@@ -34,7 +34,7 @@ final class LoadComplementaryHoursRecordsCommand extends ParameterizedCommand<
   Future<ComplementaryHoursRecordsResult> execute() {
     if (parameter == null) {
       return Future.value(
-        Error(InvalidInputFailure('Parâmetro dos registros não informado.')),
+        Error(InvalidInputFailure('complementaryHoursRecordsLoadError')),
       );
     }
 
@@ -52,7 +52,7 @@ final class DeleteComplementaryHoursRecordCommand extends ParameterizedCommand<
   Future<ComplementaryHoursRecordActionResult> execute() {
     if (parameter == null) {
       return Future.value(
-        Error(InvalidInputFailure('Registro não informado.')),
+        Error(InvalidInputFailure('complementaryHoursDeleteError')),
       );
     }
 

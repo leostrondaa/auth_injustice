@@ -12,7 +12,7 @@ class EventsCatalogCommands {
   }) : _loadEventsCatalogCommand = loadEventsCatalogCommand;
 
   Future<void> loadCatalog({bool forceRefresh = false}) async {
-    if (state.loading.value || (!forceRefresh && state.hasEvents)) return;
+    if (state.loading.value || (!forceRefresh && state.hasLoaded)) return;
 
     state.setLoading(true);
     state.clearError();

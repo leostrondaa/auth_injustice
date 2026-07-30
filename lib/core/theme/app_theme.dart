@@ -1,3 +1,4 @@
+import 'package:autth_injustice_app/institution/domain/models/institution_theme_config.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -182,62 +183,64 @@ TextTheme _buildCustomTextTheme(TextTheme baseTheme) {
   );
 }
 
-/// TEMA CLARO: Roxo e Branco
-ThemeData get lightTheme {
+ThemeData buildLightTheme(InstitutionThemeConfig config) {
   final base = ThemeData.light(useMaterial3: true);
+  final palette = config.light;
   return base.copyWith(
     brightness: Brightness.light,
-    colorScheme: const ColorScheme.light(
-      primary: Color.fromARGB(255, 213, 62, 255),
-      onPrimary: Color(0xFFFFFFFF),
-      surface: Color(0xFFFFFFFF),
-      onSurface: Color(0xFF1C1B1F),
-      secondary: Color.fromARGB(255, 140, 52, 255),
-      onSecondary: Color.fromARGB(255, 255, 255, 255),
-      tertiary: Color.fromARGB(255, 255, 255, 255),
-      onTertiary: Color.fromARGB(255, 0, 0, 0),
+    colorScheme: ColorScheme.light(
+      primary: palette.primary,
+      onPrimary: palette.onPrimary,
+      surface: palette.surface,
+      onSurface: palette.onSurface,
+      secondary: palette.secondary,
+      onSecondary: palette.onSecondary,
+      tertiary: palette.tertiary,
+      onTertiary: palette.onTertiary,
     ),
-    scaffoldBackgroundColor: const Color(0xFFFFFFFF),
+    scaffoldBackgroundColor: palette.scaffoldBackground,
     textTheme: _buildCustomTextTheme(base.textTheme),
-    appBarTheme: const AppBarTheme(
+    appBarTheme: AppBarTheme(
       backgroundColor: Colors.transparent,
       elevation: 0,
-      foregroundColor: Color(0xFF1C1B1F),
+      foregroundColor: palette.onSurface,
     ),
     cardTheme: CardThemeData(
-      color: const Color(0xFFF5F5F5),
+      color: palette.card,
       shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppDesign.radiusMd)),
+        borderRadius: BorderRadius.circular(AppDesign.radiusMd),
+      ),
     ),
   );
 }
 
-/// TEMA ESCURO: Roxo e Preto
-ThemeData get darkTheme {
+ThemeData buildDarkTheme(InstitutionThemeConfig config) {
   final base = ThemeData.dark(useMaterial3: true);
+  final palette = config.dark;
   return base.copyWith(
     brightness: Brightness.dark,
-    colorScheme: const ColorScheme.dark(
-      primary: Color.fromARGB(255, 88, 0, 189),
-      onPrimary: Color.fromARGB(255, 255, 255, 255),
-      surface: Color(0xFF121212),
-      onSurface: Color(0xFFFFFFFF),
-      secondary: Color.fromARGB(255, 153, 29, 206),
-      onSecondary: Color.fromARGB(255, 255, 255, 255),
-      tertiary: Color.fromARGB(255, 0, 0, 0),
-      onTertiary: Color.fromARGB(255, 255, 255, 255),
+    colorScheme: ColorScheme.dark(
+      primary: palette.primary,
+      onPrimary: palette.onPrimary,
+      surface: palette.surface,
+      onSurface: palette.onSurface,
+      secondary: palette.secondary,
+      onSecondary: palette.onSecondary,
+      tertiary: palette.tertiary,
+      onTertiary: palette.onTertiary,
     ),
-    scaffoldBackgroundColor: const Color(0xFF000000),
+    scaffoldBackgroundColor: palette.scaffoldBackground,
     textTheme: _buildCustomTextTheme(base.textTheme),
-    appBarTheme: const AppBarTheme(
+    appBarTheme: AppBarTheme(
       backgroundColor: Colors.transparent,
       elevation: 0,
-      foregroundColor: Color(0xFFFFFFFF),
+      foregroundColor: palette.onSurface,
     ),
     cardTheme: CardThemeData(
-      color: const Color(0xFF1E1E1E),
+      color: palette.card,
       shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppDesign.radiusMd)),
+        borderRadius: BorderRadius.circular(AppDesign.radiusMd),
+      ),
     ),
   );
 }

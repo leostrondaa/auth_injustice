@@ -3,7 +3,9 @@ import 'package:autth_injustice_app/core/di/dependency_injection.dart';
 import 'package:autth_injustice_app/core/extensions/responsive_extensions.dart';
 import 'package:autth_injustice_app/core/l10n/l10n_extensions.dart';
 import 'package:autth_injustice_app/core/theme/app_theme.dart';
+import 'package:autth_injustice_app/core/widgets/app_back_button.dart';
 import 'package:autth_injustice_app/core/widgets/app_entrance_transition.dart';
+import 'package:autth_injustice_app/core/widgets/dialogs/app_confirmation_dialog.dart';
 import 'package:autth_injustice_app/core/widgets/loading_dots.dart';
 import 'package:autth_injustice_app/settings/presentation/viewmodels/settings/settings_viewmodel.dart';
 import 'package:autth_injustice_app/settings/presentation/navigation/settings_routes.dart';
@@ -30,27 +32,19 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> _confirmSignOut() async {
-    final confirmed = await showDialog<bool>(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text(context.l10n.settingsSignOutTitle),
-            content: Text(context.l10n.settingsSignOutMessage),
-            actions: [
-              TextButton(
-                onPressed: () => context.pop(false),
-                child: Text(context.l10n.settingsCancel),
-              ),
-              TextButton(
-                onPressed: () => context.pop(true),
-                style: TextButton.styleFrom(
-                  foregroundColor: context.colors.error,
-                ),
-                child: Text(context.l10n.settingsConfirmSignOut),
-              ),
-            ],
-          ),
-        ) ??
-        false;
+    final confirmed = await showAppConfirmationDialog(
+      context: context,
+      icon: Icons.logout_rounded,
+      iconColor: context.colors.error,
+      title: context.l10n.settingsSignOutTitle,
+      message: context.l10n.settingsSignOutMessage,
+      cancelLabel: context.l10n.settingsCancel,
+      cancelColor: context.onTertiary.withValues(alpha: 0.62),
+      confirmLabel: context.l10n.settingsConfirmSignOut,
+      confirmColor: context.colors.error,
+      confirmForegroundColor: context.colors.onError,
+      confirmIcon: Icons.logout_rounded,
+    );
 
     if (!confirmed || !mounted) return;
 
@@ -58,7 +52,7 @@ class _SettingsPageState extends State<SettingsPage> {
     if (!mounted) return;
 
     if (signedOut) {
-      context.go(AuthPaths.login);
+      context.go(AuthPaths.initial);
       return;
     }
 
@@ -105,15 +99,10 @@ class _SettingsPageState extends State<SettingsPage> {
                   AppEntranceTransition(
                     child: Align(
                       alignment: Alignment.centerLeft,
-                      child: IconButton(
-                        tooltip:
-                            MaterialLocalizations.of(context).backButtonTooltip,
+                      child: AppBackButton(
                         onPressed: context.pop,
-                        icon: Icon(
-                          Icons.arrow_back_rounded,
-                          size: 25 * scale,
-                          color: context.onTertiary,
-                        ),
+                        iconSize: 25 * scale,
+                        foregroundColor: context.onTertiary,
                       ),
                     ),
                   ),

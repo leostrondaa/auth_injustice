@@ -1,6 +1,7 @@
 import 'package:autth_injustice_app/core/extensions/responsive_extensions.dart';
 import 'package:autth_injustice_app/core/l10n/l10n_extensions.dart';
 import 'package:autth_injustice_app/core/theme/app_theme.dart';
+import 'package:autth_injustice_app/core/widgets/app_back_button.dart';
 import 'package:autth_injustice_app/core/widgets/app_entrance_transition.dart';
 import 'package:autth_injustice_app/settings/presentation/widgets/about/about_identity.dart';
 import 'package:autth_injustice_app/settings/presentation/widgets/about/about_team_member.dart';
@@ -46,15 +47,10 @@ class AboutPage extends StatelessWidget {
               AppEntranceTransition(
                 child: Align(
                   alignment: Alignment.centerLeft,
-                  child: IconButton(
-                    tooltip:
-                        MaterialLocalizations.of(context).backButtonTooltip,
+                  child: AppBackButton(
                     onPressed: context.pop,
-                    icon: Icon(
-                      Icons.arrow_back_rounded,
-                      size: 25 * scale,
-                      color: context.onTertiary,
-                    ),
+                    iconSize: 25 * scale,
+                    foregroundColor: context.onTertiary,
                   ),
                 ),
               ),

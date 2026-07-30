@@ -2,20 +2,23 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:autth_injustice_app/authentication/presentation/viewmodels/register/register_viewmodel.dart';
-import 'package:autth_injustice_app/authentication/presentation/widgets/buttons/auth_back_button.dart';
 import 'package:autth_injustice_app/authentication/presentation/widgets/feedback/auth_error_banner.dart';
 import 'package:autth_injustice_app/authentication/presentation/widgets/forms/password_strength_indicator.dart';
 import 'package:autth_injustice_app/authentication/presentation/widgets/forms/auth_text_field.dart';
-import 'package:autth_injustice_app/core/constants/app_assets.dart';
 import 'package:autth_injustice_app/core/di/dependency_injection.dart';
 import 'package:autth_injustice_app/core/extensions/responsive_extensions.dart';
 import 'package:autth_injustice_app/core/l10n/l10n_extensions.dart';
 import 'package:autth_injustice_app/authentication/presentation/navigation/auth_routes.dart';
 import 'package:autth_injustice_app/authentication/presentation/navigation/check_email_args.dart';
 import 'package:autth_injustice_app/core/theme/app_theme.dart';
-import 'package:autth_injustice_app/core/validators/email_validator.dart';
-import 'package:autth_injustice_app/core/validators/password_validator.dart';
+import 'package:autth_injustice_app/core/validation/account_name_validator.dart';
+import 'package:autth_injustice_app/core/validation/email_validator.dart';
+import 'package:autth_injustice_app/core/validation/password_validator.dart';
 import 'package:autth_injustice_app/core/widgets/app_action_button.dart';
+import 'package:autth_injustice_app/core/widgets/app_back_button.dart';
+import 'package:autth_injustice_app/core/widgets/animations/app_step_entrance_transition.dart';
+import 'package:autth_injustice_app/institution/presentation/institution_scope.dart';
+import 'package:autth_injustice_app/institution/presentation/widgets/institution_image.dart';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -33,10 +36,12 @@ class _RegisterPageState extends State<RegisterPage> {
 
   final _emailCtrl = TextEditingController();
   final _nameCtrl = TextEditingController();
+  final _surnameCtrl = TextEditingController();
   final _passCtrl = TextEditingController();
 
   final _emailFocus = FocusNode();
   final _nameFocus = FocusNode();
+  final _surnameFocus = FocusNode();
   final _passFocus = FocusNode();
 
   late final _stepFocusNodes = [_emailFocus, _nameFocus, _passFocus];
@@ -64,9 +69,11 @@ class _RegisterPageState extends State<RegisterPage> {
     _pageController.dispose();
     _emailCtrl.dispose();
     _nameCtrl.dispose();
+    _surnameCtrl.dispose();
     _passCtrl.dispose();
     _emailFocus.dispose();
     _nameFocus.dispose();
+    _surnameFocus.dispose();
     _passFocus.dispose();
     super.dispose();
   }
@@ -82,7 +89,12 @@ class _RegisterPageState extends State<RegisterPage> {
     final step = _currentPage;
     final error = switch (step) {
       0 => EmailValidator.validate(context, _emailCtrl.text),
-      1 => PasswordValidator.validate(context, _passCtrl.text),
+      1 => AccountNameValidator.validate(
+          context,
+          firstName: _nameCtrl.text,
+          lastName: _surnameCtrl.text,
+        ),
+      2 => PasswordValidator.validate(context, _passCtrl.text),
       _ => null,
     };
 
@@ -94,39 +106,36 @@ class _RegisterPageState extends State<RegisterPage> {
     _setProcessingNext(true);
 
     try {
-      if (step == 0) {
+      if (step < 2) {
         FocusScope.of(context).unfocus();
 
         await _pageController.nextPage(
-          duration: const Duration(milliseconds: 400),
-          curve: Curves.easeInOut,
+          duration: AppStepTransitionSpec.pageDuration,
+          curve: AppStepTransitionSpec.pageCurve,
         );
 
         return;
       }
 
-      if (step == 1) {
-        await _viewModel.commands.signUp(
+      if (step == 2) {
+        final registered = await _viewModel.commands.signUp(
           email: _emailCtrl.text.trim(),
           password: _passCtrl.text,
-          name: _nameCtrl.text.trim().isEmpty ? null : _nameCtrl.text.trim(),
+          firstName: _nameCtrl.text,
+          lastName: _surnameCtrl.text,
         );
 
-        if (!mounted) return;
+        if (!mounted || !registered) return;
 
-        if (_viewModel.state.success.value) {
-          _viewModel.state.setSuccess(false);
-
-          await context.pushNamed(
-            AuthRouteNames.checkEmail,
-            extra: CheckEmailArgs(
-              email: _emailCtrl.text.trim(),
-              flow: CheckEmailFlow.register,
-            ),
-          );
-
-          return;
-        }
+        _viewModel.state.setSuccess(false);
+        await context.pushNamed(
+          AuthRouteNames.checkEmail,
+          extra: CheckEmailArgs(
+            email: _emailCtrl.text.trim(),
+            flow: EmailVerificationFlow.register,
+          ),
+        );
+        return;
       }
     } finally {
       _setProcessingNext(false);
@@ -154,8 +163,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
     _viewModel.state.clearError();
     await _pageController.previousPage(
-      duration: const Duration(milliseconds: 400),
-      curve: Curves.easeInOut,
+      duration: AppStepTransitionSpec.pageDuration,
+      curve: AppStepTransitionSpec.pageCurve,
     );
   }
 
@@ -177,6 +186,9 @@ class _RegisterPageState extends State<RegisterPage> {
               _emailFocus.requestFocus();
               break;
             case 1:
+              _nameFocus.requestFocus();
+              break;
+            case 2:
               _passFocus.requestFocus();
               break;
           }
@@ -187,7 +199,6 @@ class _RegisterPageState extends State<RegisterPage> {
             viewModel: _viewModel,
             isProcessing: _isProcessingNext,
             active: _currentPage == 0,
-            validator: (value) => EmailValidator.validate(context, value),
             onBack: _previousStep,
             title: Text(
               '${context.l10n.whatYour}\n${context.l10n.email}',
@@ -209,7 +220,36 @@ class _RegisterPageState extends State<RegisterPage> {
             viewModel: _viewModel,
             isProcessing: _isProcessingNext,
             active: _currentPage == 1,
-            validator: (value) => PasswordValidator.validate(context, value),
+            onBack: _previousStep,
+            title: Text(
+              context.l10n.registerNameTitle,
+              textAlign: TextAlign.start,
+              style: context.text.headlineLarge?.copyWith(
+                color: context.colors.onTertiary,
+                fontSize: context.isVerySmallScreen ? 28 : null,
+              ),
+            ),
+            label: context.l10n.firstName,
+            controller: _nameCtrl,
+            focusNode: _nameFocus,
+            keyboardType: TextInputType.name,
+            textCapitalization: TextCapitalization.words,
+            autofillHints: const [AutofillHints.givenName],
+            secondaryLabel: context.l10n.lastName,
+            secondaryController: _surnameCtrl,
+            secondaryFocusNode: _surnameFocus,
+            secondaryKeyboardType: TextInputType.name,
+            secondaryTextCapitalization: TextCapitalization.words,
+            secondaryAutofillHints: const [AutofillHints.familyName],
+            buttonText: context.l10n.continueButton,
+            textInputAction: TextInputAction.next,
+            secondaryTextInputAction: TextInputAction.done,
+            onNext: _nextStep,
+          ),
+          SignupStepGeneric(
+            viewModel: _viewModel,
+            isProcessing: _isProcessingNext,
+            active: _currentPage == 2,
             onBack: _previousStep,
             title: Text(
               '${context.l10n.createPassword}\n${context.l10n.password}',
@@ -243,13 +283,21 @@ class SignupStepGeneric extends StatefulWidget {
   final FocusNode focusNode;
   final TextInputType keyboardType;
   final TextInputAction textInputAction;
+  final TextCapitalization textCapitalization;
+  final Iterable<String>? autofillHints;
+  final String? secondaryLabel;
+  final TextEditingController? secondaryController;
+  final FocusNode? secondaryFocusNode;
+  final TextInputType secondaryKeyboardType;
+  final TextInputAction secondaryTextInputAction;
+  final TextCapitalization secondaryTextCapitalization;
+  final Iterable<String>? secondaryAutofillHints;
   final bool obscureText;
   final String buttonText;
   final VoidCallback onNext;
   final VoidCallback onBack;
   final bool showPasswordStrength;
   final RegisterViewModel viewModel;
-  final String? Function(String?)? validator;
 
   const SignupStepGeneric({
     super.key,
@@ -261,10 +309,18 @@ class SignupStepGeneric extends StatefulWidget {
     required this.focusNode,
     required this.onNext,
     required this.onBack,
-    required this.validator,
     required this.viewModel,
     this.keyboardType = TextInputType.text,
     this.textInputAction = TextInputAction.next,
+    this.textCapitalization = TextCapitalization.none,
+    this.autofillHints,
+    this.secondaryLabel,
+    this.secondaryController,
+    this.secondaryFocusNode,
+    this.secondaryKeyboardType = TextInputType.text,
+    this.secondaryTextInputAction = TextInputAction.done,
+    this.secondaryTextCapitalization = TextCapitalization.none,
+    this.secondaryAutofillHints,
     this.obscureText = false,
     this.buttonText = 'Continue',
     this.showPasswordStrength = false,
@@ -274,85 +330,7 @@ class SignupStepGeneric extends StatefulWidget {
   State<SignupStepGeneric> createState() => _SignupStepGenericState();
 }
 
-class _SignupStepGenericState extends State<SignupStepGeneric>
-    with TickerProviderStateMixin {
-  late final AnimationController _irisController;
-  late final AnimationController _contentController;
-
-  late final Animation<Offset> _textSlide;
-  late final Animation<double> _textOpacity;
-  late final Animation<Offset> _buttonSlide;
-  late final Animation<double> _buttonOpacity;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _irisController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 250),
-    );
-    _contentController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 450),
-    );
-
-    _irisController.addStatusListener((status) {
-      if (status == AnimationStatus.completed) _contentController.forward();
-    });
-
-    _textSlide =
-        Tween<Offset>(begin: const Offset(0, -0.8), end: Offset.zero).animate(
-      CurvedAnimation(
-        parent: _contentController,
-        curve: const Interval(0.0, 0.7, curve: Curves.easeOutCubic),
-      ),
-    );
-
-    _textOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _contentController,
-        curve: const Interval(0.0, 0.9, curve: Curves.easeOut),
-      ),
-    );
-
-    _buttonSlide =
-        Tween<Offset>(begin: const Offset(0, 0.8), end: Offset.zero).animate(
-      CurvedAnimation(
-        parent: _contentController,
-        curve: const Interval(0.1, 1.0, curve: Curves.easeOutCubic),
-      ),
-    );
-
-    _buttonOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _contentController,
-        curve: const Interval(0.4, 1.0, curve: Curves.easeIn),
-      ),
-    );
-
-    if (widget.active) _playEntrance();
-  }
-
-  @override
-  void didUpdateWidget(covariant SignupStepGeneric oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.active && !oldWidget.active) _playEntrance();
-  }
-
-  void _playEntrance() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _irisController.forward(from: 0);
-    });
-  }
-
-  @override
-  void dispose() {
-    _irisController.dispose();
-    _contentController.dispose();
-    super.dispose();
-  }
-
+class _SignupStepGenericState extends State<SignupStepGeneric> {
   @override
   Widget build(BuildContext context) {
     final keyboardHeight = MediaQuery.viewInsetsOf(context).bottom;
@@ -367,10 +345,10 @@ class _SignupStepGenericState extends State<SignupStepGeneric>
             bottom: -150,
             child: Transform.rotate(
               angle: -0.8,
-              child: Image.asset(
-                context.isDarkMode
-                    ? AppAssets.ifLogoWhite
-                    : AppAssets.ifLogoBlack,
+              child: InstitutionImage(
+                resource: context.isDarkMode
+                    ? context.institution.branding.logoOnDarkBackground
+                    : context.institution.branding.logoOnLightBackground,
                 width: context.screenSize.width, // Usa 100% da tela natural
                 fit: BoxFit.contain,
               ),
@@ -386,7 +364,7 @@ class _SignupStepGenericState extends State<SignupStepGeneric>
                   padding: context.extraPagePadding.copyWith(bottom: 0, top: 0),
                   child: Align(
                     alignment: Alignment.centerLeft,
-                    child: AuthBackButton(onTap: widget.onBack),
+                    child: AppBackButton(onPressed: widget.onBack),
                   ),
                 ),
 
@@ -402,29 +380,51 @@ class _SignupStepGenericState extends State<SignupStepGeneric>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        SlideTransition(
-                          position: _textSlide,
-                          child: FadeTransition(
-                            opacity: _textOpacity,
-                            child: widget.title,
-                          ),
+                        AppStepEntranceTransition(
+                          active: widget.active,
+                          child: widget.title,
                         ),
                         SizedBox(height: context.formTopSpacing),
-                        SlideTransition(
-                          position: _textSlide,
-                          child: FadeTransition(
-                            opacity: _textOpacity,
+                        AppStepEntranceTransition(
+                          active: widget.active,
+                          child: AuthTextField(
+                            controller: widget.controller,
+                            focusNode: widget.focusNode,
+                            hintText: widget.label,
+                            keyboardType: widget.keyboardType,
+                            isPassword: widget.obscureText,
+                            textInputAction: widget.textInputAction,
+                            textCapitalization: widget.textCapitalization,
+                            autofillHints: widget.autofillHints,
+                            onFieldSubmitted: (_) {
+                              final secondaryFocus = widget.secondaryFocusNode;
+                              if (secondaryFocus != null) {
+                                secondaryFocus.requestFocus();
+                                return;
+                              }
+                              widget.onNext();
+                            },
+                          ),
+                        ),
+                        if (widget.secondaryController != null &&
+                            widget.secondaryFocusNode != null &&
+                            widget.secondaryLabel != null) ...[
+                          const SizedBox(height: 14),
+                          AppStepEntranceTransition(
+                            active: widget.active,
                             child: AuthTextField(
-                              controller: widget.controller,
-                              focusNode: widget.focusNode,
-                              hintText: widget.label,
-                              keyboardType: widget.keyboardType,
-                              isPassword: widget.obscureText,
-                              textInputAction: widget.textInputAction,
+                              controller: widget.secondaryController,
+                              focusNode: widget.secondaryFocusNode,
+                              hintText: widget.secondaryLabel!,
+                              keyboardType: widget.secondaryKeyboardType,
+                              textInputAction: widget.secondaryTextInputAction,
+                              textCapitalization:
+                                  widget.secondaryTextCapitalization,
+                              autofillHints: widget.secondaryAutofillHints,
                               onFieldSubmitted: (_) => widget.onNext(),
                             ),
                           ),
-                        ),
+                        ],
                         AuthErrorBanner(
                           error: widget.viewModel.state.errorMessage.readonly(),
                         ),
@@ -475,28 +475,26 @@ class _SignupStepGenericState extends State<SignupStepGeneric>
                   top: 16,
                   bottom: context.isVerySmallScreen ? 16 : 16,
                 ),
-                child: SlideTransition(
-                  position: _buttonSlide,
-                  child: FadeTransition(
-                    opacity: _buttonOpacity,
-                    child: Watch(
-                      (context) {
-                        final isLoading = widget.isProcessing ||
-                            widget.viewModel.state.loading.value;
+                child: AppStepEntranceTransition(
+                  active: widget.active,
+                  motion: AppStepEntranceMotion.action,
+                  child: Watch(
+                    (context) {
+                      final isLoading = widget.isProcessing ||
+                          widget.viewModel.state.loading.value;
 
-                        return SizedBox(
-                          width: double.infinity,
-                          height: 56,
-                          child: AppActionButton(
-                            text: widget.buttonText,
-                            color: context.tertiary.withValues(alpha: 0.95),
-                            foregroundColor: context.onTertiary,
-                            isLoading: isLoading,
-                            onPressed: isLoading ? null : widget.onNext,
-                          ),
-                        );
-                      },
-                    ),
+                      return SizedBox(
+                        width: double.infinity,
+                        height: 56,
+                        child: AppActionButton(
+                          text: widget.buttonText,
+                          color: context.tertiary.withValues(alpha: 0.95),
+                          foregroundColor: context.onTertiary,
+                          isLoading: isLoading,
+                          onPressed: isLoading ? null : widget.onNext,
+                        ),
+                      );
+                    },
                   ),
                 ),
               ),

@@ -6,8 +6,4 @@ abstract class AppAssets {
 
   static const String googleIcon = 'assets/icons/google.svg';
   static const String vectorIcon = 'assets/icons/vector.svg';
-
-  static const String ifLogoBlack = 'assets/images/if_black_logo.png';
-  static const String ifLogoWhite = 'assets/images/if_white_logo.png';
-  static const String ifprLogo = 'assets/images/ifpr_logo.png';
 }

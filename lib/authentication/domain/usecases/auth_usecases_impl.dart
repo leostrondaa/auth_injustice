@@ -1,7 +1,8 @@
+import 'package:autth_injustice_app/authentication/data/repositories/i_auth_repository.dart';
+import 'package:autth_injustice_app/authentication/domain/usecases/i_auth_usecases.dart';
+import 'package:autth_injustice_app/core/failure/failure.dart';
+import 'package:autth_injustice_app/core/patterns/result.dart';
 import 'package:autth_injustice_app/core/typedefs/types_defs.dart';
-
-import '../../data/repositories/i_auth_repository.dart';
-import 'i_auth_usecases.dart';
 
 final class SignInUseCase implements ISignInUseCase {
   final IAuthRepository _authRepository;
@@ -47,6 +48,12 @@ final class SignUpUseCase implements ISignUpUseCase {
 
   @override
   Future<AuthSessionResult> call(SignUpParams params) {
+    if (!params.name.isComplete) {
+      return Future.value(
+        Error(InvalidInputFailure('accountInvalidFullName')),
+      );
+    }
+
     return _authRepository.signUp(
       name: params.name,
       email: params.email,

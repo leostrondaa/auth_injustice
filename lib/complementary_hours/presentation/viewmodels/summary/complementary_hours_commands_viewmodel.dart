@@ -12,7 +12,7 @@ class ComplementaryHoursCommands {
   }) : _loadSummaryCommand = loadSummaryCommand;
 
   Future<void> loadSummary({bool forceRefresh = false}) async {
-    if (state.loading.value || (!forceRefresh && state.hasSummary)) return;
+    if (state.loading.value || (!forceRefresh && state.hasLoaded)) return;
 
     state.setLoading(true);
     state.clearError();

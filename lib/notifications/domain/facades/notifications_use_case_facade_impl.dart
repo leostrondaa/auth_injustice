@@ -7,15 +7,18 @@ class NotificationsUseCaseFacadeImpl implements INotificationsUseCaseFacade {
   final IGetNotificationsUseCase _getNotificationsUseCase;
   final IMarkNotificationAsReadUseCase _markNotificationAsReadUseCase;
   final IMarkAllNotificationsAsReadUseCase _markAllNotificationsAsReadUseCase;
+  final IPublishAnnouncementUseCase _publishAnnouncementUseCase;
 
   NotificationsUseCaseFacadeImpl({
     required IGetNotificationsUseCase getNotificationsUseCase,
     required IMarkNotificationAsReadUseCase markNotificationAsReadUseCase,
     required IMarkAllNotificationsAsReadUseCase
         markAllNotificationsAsReadUseCase,
+    required IPublishAnnouncementUseCase publishAnnouncementUseCase,
   })  : _getNotificationsUseCase = getNotificationsUseCase,
         _markNotificationAsReadUseCase = markNotificationAsReadUseCase,
-        _markAllNotificationsAsReadUseCase = markAllNotificationsAsReadUseCase;
+        _markAllNotificationsAsReadUseCase = markAllNotificationsAsReadUseCase,
+        _publishAnnouncementUseCase = publishAnnouncementUseCase;
 
   @override
   Future<NotificationsResult> getNotifications(NotificationsNoParams params) {
@@ -30,5 +33,12 @@ class NotificationsUseCaseFacadeImpl implements INotificationsUseCaseFacade {
   @override
   Future<NotificationActionResult> markAllAsRead(NotificationsNoParams params) {
     return _markAllNotificationsAsReadUseCase(params);
+  }
+
+  @override
+  Future<NotificationPublishResult> publishAnnouncement(
+    PublishAnnouncementParams params,
+  ) {
+    return _publishAnnouncementUseCase(params);
   }
 }

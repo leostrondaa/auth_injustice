@@ -1,4 +1,5 @@
-import 'package:autth_injustice_app/authentication/presentation/viewmodels/auth/auth_session_viewmodel.dart';
+import 'package:autth_injustice_app/app_startup/domain/repositories/i_app_entry_repository.dart';
+import 'package:autth_injustice_app/authentication/domain/facades/i_auth_use_case_facade.dart';
 import 'package:autth_injustice_app/core/l10n/locale_controller.dart';
 import 'package:autth_injustice_app/core/theme/theme_controller.dart';
 
@@ -15,14 +16,16 @@ class SettingsViewModel {
   SettingsViewModel(
     ThemeController themeController,
     LocaleController localeController,
-    AuthSessionViewModel authSession,
+    IAuthUseCaseFacade authFacade,
+    IAppEntryRepository appEntryRepository,
   ) {
     _state = SettingsState();
     _commands = SettingsCommands(
       state: _state,
       themeController: themeController,
       localeController: localeController,
-      authSession: authSession,
+      authFacade: authFacade,
+      appEntryRepository: appEntryRepository,
     );
   }
 }

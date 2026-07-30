@@ -60,6 +60,7 @@ class _AppActionButtonState extends State<AppActionButton> {
   @override
   Widget build(BuildContext context) {
     final disabled = widget.onPressed == null || widget.isLoading;
+    final unavailable = widget.onPressed == null && !widget.isLoading;
     final isOutlined = widget.style == AppActionButtonStyle.outlined;
     final isCompact =
         context.isVerySmallScreen || context.screenSize.width < 360;
@@ -75,20 +76,24 @@ class _AppActionButtonState extends State<AppActionButton> {
             : Colors.black;
 
     final foreground = widget.foregroundColor ?? defaultForeground;
+    final effectiveForeground =
+        unavailable ? context.onTertiary.withValues(alpha: 0.30) : foreground;
     final baseAlpha = widget.color.a;
 
-    final backgroundColor = isOutlined
-        ? widget.color.withValues(
-            alpha: baseAlpha * (_pressed ? 0.18 : 0.09),
-          )
-        : widget.color.withValues(
-            alpha: baseAlpha *
-                (disabled
-                    ? 0.34
-                    : _pressed
-                        ? 0.80
-                        : 1),
-          );
+    final backgroundColor = unavailable
+        ? context.onTertiary.withValues(alpha: 0.055)
+        : isOutlined
+            ? widget.color.withValues(
+                alpha: baseAlpha * (_pressed ? 0.18 : 0.09),
+              )
+            : widget.color.withValues(
+                alpha: baseAlpha *
+                    (widget.isLoading
+                        ? 0.72
+                        : _pressed
+                            ? 0.80
+                            : 1),
+              );
 
     return Semantics(
       button: true,
@@ -111,9 +116,13 @@ class _AppActionButtonState extends State<AppActionButton> {
               color: backgroundColor,
               borderRadius: BorderRadius.circular(radius),
               border: Border.all(
-                color: isOutlined
-                    ? widget.color.withValues(alpha: _pressed ? 0.75 : 0.40)
-                    : Colors.transparent,
+                color: unavailable
+                    ? context.onTertiary.withValues(alpha: 0.12)
+                    : isOutlined
+                        ? widget.color.withValues(
+                            alpha: _pressed ? 0.75 : 0.40,
+                          )
+                        : Colors.transparent,
               ),
             ),
             child: Material(
@@ -142,7 +151,7 @@ class _AppActionButtonState extends State<AppActionButton> {
                         child: widget.isLoading
                             ? LoadingDots(
                                 key: const ValueKey('loading-dots'),
-                                color: foreground,
+                                color: effectiveForeground,
                               )
                             : Row(
                                 key: const ValueKey('button-content'),
@@ -152,19 +161,21 @@ class _AppActionButtonState extends State<AppActionButton> {
                                     Icon(
                                       widget.icon,
                                       size: iconSize,
-                                      color: foreground,
+                                      color: effectiveForeground,
                                     ),
-                                    const SizedBox(width: 10),
+                                    SizedBox(width: isCompact ? 5 : 10),
                                   ],
-                                  Text(
-                                    widget.text,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: context.text.labelLarge?.copyWith(
-                                      fontSize: isCompact
-                                          ? context.text.labelMedium?.fontSize
-                                          : context.text.labelLarge?.fontSize,
-                                      color: foreground,
+                                  Flexible(
+                                    child: Text(
+                                      widget.text,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: context.text.labelLarge?.copyWith(
+                                        fontSize: isCompact
+                                            ? context.text.labelMedium?.fontSize
+                                            : context.text.labelLarge?.fontSize,
+                                        color: effectiveForeground,
+                                      ),
                                     ),
                                   ),
                                 ],

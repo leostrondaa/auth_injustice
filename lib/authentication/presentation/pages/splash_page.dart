@@ -1,7 +1,11 @@
 import 'dart:async';
 
-import 'package:autth_injustice_app/core/constants/app_assets.dart'; // ✅ Importe seu arquivo de assets
+import 'package:autth_injustice_app/app_startup/domain/repositories/i_app_entry_repository.dart';
+import 'package:autth_injustice_app/authentication/presentation/navigation/auth_routes.dart';
+import 'package:autth_injustice_app/authorization/domain/services/authorization_service.dart';
 import 'package:autth_injustice_app/core/di/dependency_injection.dart';
+import 'package:autth_injustice_app/institution/presentation/institution_scope.dart';
+import 'package:autth_injustice_app/institution/presentation/widgets/institution_image.dart';
 
 import 'package:autth_injustice_app/map/presentation/navigation/map_routes.dart';
 import 'package:autth_injustice_app/core/utils/hide_keyboard.dart';
@@ -9,7 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:autth_injustice_app/core/theme/app_theme.dart';
-import 'package:autth_injustice_app/authentication/presentation/viewmodels/auth/auth_session_viewmodel.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -52,12 +55,14 @@ class _SplashPageState extends State<SplashPage>
   }
 
   Future<void> _initializeApp() async {
-    final authSession = injector.get<AuthSessionViewModel>();
+    final authorizationService = injector.get<AuthorizationService>();
+    final appEntryRepository = injector.get<IAppEntryRepository>();
 
-    await Future.wait([
+    final initialization = await Future.wait([
       Future.delayed(const Duration(milliseconds: 800)),
-      // authSession.loadCurrentUser(),
+      appEntryRepository.hasCompletedInitialPage(),
     ]);
+    final hasCompletedInitialPage = initialization.last as bool;
 
     if (!mounted) return;
     _animController.duration = const Duration(milliseconds: 200);
@@ -65,13 +70,11 @@ class _SplashPageState extends State<SplashPage>
 
     if (!mounted) return;
 
-    final loggedIn = authSession.session.isAuthenticated;
-
-    if (loggedIn) {
-      context.goNamed(MapRouteNames.map);
-    } else {
-      context.goNamed(MapRouteNames.map);
-    }
+    final destination =
+        authorizationService.isAuthenticated || hasCompletedInitialPage
+            ? MapRouteNames.map
+            : AuthRouteNames.initial;
+    context.goNamed(destination);
   }
 
   @override
@@ -85,7 +88,6 @@ class _SplashPageState extends State<SplashPage>
     final backgroundColor = context.colors.tertiary;
 
     final screenWidth = MediaQuery.sizeOf(context).width;
-    final devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -102,13 +104,12 @@ class _SplashPageState extends State<SplashPage>
                   ),
                 );
               },
-              child: Image.asset(
-                context.isDarkMode
-                    ? AppAssets.ifLogoWhite
-                    : AppAssets.ifLogoBlack,
+              child: InstitutionImage(
+                resource: context.isDarkMode
+                    ? context.institution.branding.logoOnDarkBackground
+                    : context.institution.branding.logoOnLightBackground,
                 width: screenWidth * 0.55,
                 fit: BoxFit.contain,
-                cacheWidth: (screenWidth * 0.55 * devicePixelRatio).round(),
               )),
         ),
       ),

@@ -12,3 +12,6 @@ abstract interface class IDeleteAccountUseCase
 
 abstract interface class IUpdateAccountUseCase
     implements IUseCase<VoidResult, AccountParams> {}
+
+abstract interface class IUpdateAccountNameUseCase
+    implements IUseCase<VoidResult, UpdateAccountNameParams> {}

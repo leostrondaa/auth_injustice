@@ -10,8 +10,8 @@ class ComplementaryHoursRecordCard extends StatefulWidget {
   final int index;
   final Animation<double>? swipeHintAnimation;
   final VoidCallback? onSwipeStarted;
-  final Future<bool> Function() onConfirmDelete;
-  final VoidCallback onDismissed;
+  final Future<bool> Function()? onConfirmDelete;
+  final VoidCallback? onDismissed;
 
   const ComplementaryHoursRecordCard({
     super.key,
@@ -20,8 +20,8 @@ class ComplementaryHoursRecordCard extends StatefulWidget {
     required this.index,
     this.swipeHintAnimation,
     this.onSwipeStarted,
-    required this.onConfirmDelete,
-    required this.onDismissed,
+    this.onConfirmDelete,
+    this.onDismissed,
   });
 
   @override
@@ -34,7 +34,10 @@ class _ComplementaryHoursRecordCardState
   double _dismissProgress = 0;
 
   Future<bool> _confirmDismiss() async {
-    final confirmed = await widget.onConfirmDelete();
+    final onConfirmDelete = widget.onConfirmDelete;
+    if (onConfirmDelete == null) return false;
+
+    final confirmed = await onConfirmDelete();
     if (!confirmed && mounted) {
       setState(() => _dismissProgress = 0);
     }
@@ -44,6 +47,8 @@ class _ComplementaryHoursRecordCardState
   @override
   Widget build(BuildContext context) {
     final radius = BorderRadius.circular(20 * widget.scale);
+    final canDelete =
+        widget.onConfirmDelete != null && widget.onDismissed != null;
 
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
@@ -60,20 +65,23 @@ class _ComplementaryHoursRecordCardState
         borderRadius: radius,
         child: Stack(
           children: [
-            Positioned.fill(
-              child: _DeleteBackground(
-                scale: widget.scale,
-                radius: radius,
+            if (canDelete)
+              Positioned.fill(
+                child: _DeleteBackground(
+                  scale: widget.scale,
+                  radius: radius,
+                ),
               ),
-            ),
             Dismissible(
               key: ValueKey('record-${widget.record.id}'),
-              direction: DismissDirection.endToStart,
+              direction: canDelete
+                  ? DismissDirection.endToStart
+                  : DismissDirection.none,
               movementDuration: const Duration(milliseconds: 280),
               resizeDuration: const Duration(milliseconds: 260),
               dismissThresholds: const {DismissDirection.endToStart: 0.42},
               confirmDismiss: (_) => _confirmDismiss(),
-              onDismissed: (_) => widget.onDismissed(),
+              onDismissed: (_) => widget.onDismissed?.call(),
               onUpdate: (details) {
                 if (!mounted) return;
                 if (details.progress > 0) widget.onSwipeStarted?.call();

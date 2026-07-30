@@ -1,4 +1,5 @@
 import 'package:autth_injustice_app/core/constants/app_assets.dart';
+import 'package:autth_injustice_app/core/extensions/responsive_extensions.dart';
 import 'package:autth_injustice_app/core/l10n/l10n_extensions.dart';
 import 'package:autth_injustice_app/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +22,8 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
 
   @override
   Widget build(BuildContext context) {
+    final compact = context.responsive.isVeryCompact;
+
     return GestureDetector(
       onTapDown: (_) => setState(() => _isPressed = true),
       onTapCancel: () => setState(() => _isPressed = false),
@@ -47,27 +50,36 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
             ],
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            padding: EdgeInsets.symmetric(
+              horizontal: compact ? 14 : 24,
+              vertical: compact ? 13 : 16,
+            ),
             child: AnimatedOpacity(
               duration: const Duration(milliseconds: 80),
               opacity: _isPressed ? 0.4 : 1.0,
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   SvgPicture.asset(
                     AppAssets.googleIcon,
-                    width: 24,
-                    height: 24,
+                    width: compact ? 21 : 24,
+                    height: compact ? 21 : 24,
                   ),
-                  Text(
-                    context.l10n.googleButton,
-                    style: TextStyle(
-                      color: Color(0xFF616161),
-                      fontSize: context.text.bodyMedium?.fontSize,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.2,
+                  SizedBox(width: compact ? 8 : 12),
+                  Expanded(
+                    child: Text(
+                      context.l10n.googleButton,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: const Color(0xFF616161),
+                        fontSize: context.text.bodyMedium?.fontSize,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0,
+                      ),
                     ),
                   ),
+                  SizedBox(width: compact ? 8 : 12),
                   const Icon(
                     Icons.arrow_forward,
                     color: Color(0xFF9E9E9E),

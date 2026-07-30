@@ -6,4 +6,8 @@ abstract interface class INotificationsUseCaseFacade {
   Future<NotificationActionResult> markAsRead(NotificationIdParams params);
 
   Future<NotificationActionResult> markAllAsRead(NotificationsNoParams params);
+
+  Future<NotificationPublishResult> publishAnnouncement(
+    PublishAnnouncementParams params,
+  );
 }

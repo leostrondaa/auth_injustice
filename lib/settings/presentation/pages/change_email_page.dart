@@ -6,9 +6,9 @@ import 'package:autth_injustice_app/core/di/dependency_injection.dart';
 import 'package:autth_injustice_app/core/extensions/responsive_extensions.dart';
 import 'package:autth_injustice_app/core/l10n/l10n_extensions.dart';
 import 'package:autth_injustice_app/core/theme/app_theme.dart';
-import 'package:autth_injustice_app/core/validators/email_validator.dart';
+import 'package:autth_injustice_app/core/validation/email_validator.dart';
 import 'package:autth_injustice_app/settings/presentation/viewmodels/change_email/change_email_viewmodel.dart';
-import 'package:autth_injustice_app/settings/presentation/widgets/account/account_credential_step.dart';
+import 'package:autth_injustice_app/authentication/presentation/widgets/forms/auth_credential_step.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -89,7 +89,8 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
         AuthRouteNames.checkEmail,
         extra: CheckEmailArgs(
           email: newEmail,
-          flow: CheckEmailFlow.changeEmail,
+          flow: EmailVerificationFlow.changeEmail,
+          linkAlreadySent: true,
         ),
       );
 
@@ -159,7 +160,7 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
           }
         },
         children: [
-          AccountCredentialStep(
+          AuthCredentialStep(
             error: _viewModel.state.errorMessage.readonly(),
             loading: _viewModel.state.loading.readonly(),
             active: _currentPage == 0,
@@ -177,7 +178,7 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
             onBack: _previousStep,
             isPassword: true,
           ),
-          AccountCredentialStep(
+          AuthCredentialStep(
             error: _viewModel.state.errorMessage.readonly(),
             loading: _viewModel.state.loading.readonly(),
             active: _currentPage == 1,

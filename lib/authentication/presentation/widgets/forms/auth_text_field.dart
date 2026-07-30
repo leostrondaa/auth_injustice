@@ -12,6 +12,8 @@ class AuthTextField extends StatefulWidget {
   final TextInputAction? textInputAction;
   final ValueChanged<String>? onFieldSubmitted;
   final String? Function(String?)? validator;
+  final TextCapitalization textCapitalization;
+  final Iterable<String>? autofillHints;
 
   const AuthTextField({
     super.key,
@@ -23,6 +25,8 @@ class AuthTextField extends StatefulWidget {
     this.textInputAction,
     this.onFieldSubmitted,
     this.validator,
+    this.textCapitalization = TextCapitalization.none,
+    this.autofillHints,
   });
 
   @override
@@ -57,6 +61,8 @@ class _AuthTextFieldState extends State<AuthTextField> {
         validator: widget.validator,
         textInputAction: widget.textInputAction,
         onFieldSubmitted: widget.onFieldSubmitted,
+        textCapitalization: widget.textCapitalization,
+        autofillHints: widget.autofillHints,
         cursorColor: context.primary,
         enableSuggestions: !widget.isPassword,
         autocorrect: !widget.isPassword,

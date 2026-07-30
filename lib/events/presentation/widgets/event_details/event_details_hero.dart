@@ -2,7 +2,10 @@ import 'package:autth_injustice_app/core/formatters/hours_minutes_formatter.dart
 import 'package:autth_injustice_app/core/formatters/app_date_time_formatter.dart';
 import 'package:autth_injustice_app/core/extensions/responsive_extensions.dart';
 import 'package:autth_injustice_app/core/theme/app_theme.dart';
+import 'package:autth_injustice_app/core/widgets/app_back_button.dart';
 import 'package:autth_injustice_app/events/domain/models/event_preview.dart';
+import 'package:autth_injustice_app/events/presentation/l10n/event_category_l10n.dart';
+import 'package:autth_injustice_app/events/presentation/widgets/common/event_image.dart';
 import 'package:flutter/material.dart';
 
 class EventDetailsHero extends StatelessWidget {
@@ -27,10 +30,10 @@ class EventDetailsHero extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          Image.network(
-            event.imageUrl,
+          EventImage(
+            source: event.imageUrl,
             fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => ColoredBox(
+            error: ColoredBox(
               color: context.colors.surfaceContainerHighest,
               child: const Icon(Icons.image_not_supported_outlined),
             ),
@@ -58,21 +61,10 @@ class EventDetailsHero extends StatelessWidget {
               ),
               child: Align(
                 alignment: Alignment.topLeft,
-                child: Material(
-                  color: Colors.black.withValues(alpha: 0.30),
-                  shape: const CircleBorder(),
-                  child: InkWell(
-                    onTap: onBack,
-                    customBorder: const CircleBorder(),
-                    child: const SizedBox(
-                      width: 44,
-                      height: 44,
-                      child: Icon(
-                        Icons.arrow_back_rounded,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
+                child: AppBackButton(
+                  onPressed: onBack,
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.black.withValues(alpha: 0.30),
                 ),
               ),
             ),
@@ -149,17 +141,19 @@ class _HeroTextState extends State<_HeroText>
     final metaPills = <Widget>[
       _EventMetaPill(
         icon: Icons.calendar_today_outlined,
-        label: AppDateTimeFormatter.eventDateTime(
+        label: AppDateTimeFormatter.eventPeriod(
           context,
-          widget.event.startsAt,
+          startsAt: widget.event.startsAt,
+          endsAt: widget.event.endsAt,
         ),
         isCompact: isCompact,
       ),
-      _EventMetaPill(
-        icon: Icons.location_on_outlined,
-        label: widget.event.location,
-        isCompact: isCompact,
-      ),
+      if (widget.event.location.trim().isNotEmpty)
+        _EventMetaPill(
+          icon: Icons.location_on_outlined,
+          label: widget.event.location,
+          isCompact: isCompact,
+        ),
       if (widget.complementaryHours case final hours?)
         _EventMetaPill(
           icon: Icons.schedule_outlined,
@@ -176,7 +170,7 @@ class _HeroTextState extends State<_HeroText>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              widget.event.category.toUpperCase(),
+              widget.event.category.localizedLabel(context).toUpperCase(),
               style: context.text.labelLarge?.copyWith(
                 fontSize: isCompact
                     ? context.text.labelSmall?.fontSize

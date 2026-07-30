@@ -5,11 +5,12 @@ import 'package:autth_injustice_app/core/extensions/responsive_extensions.dart';
 import 'package:autth_injustice_app/core/l10n/l10n_extensions.dart';
 import 'package:autth_injustice_app/core/theme/app_theme.dart';
 import 'package:autth_injustice_app/core/widgets/app_entrance_transition.dart';
+import 'package:autth_injustice_app/core/widgets/app_status_view.dart';
 import 'package:autth_injustice_app/events/domain/models/event_preview.dart';
+import 'package:autth_injustice_app/events/presentation/controllers/event_lifecycle_refresh_scheduler.dart';
 import 'package:autth_injustice_app/events/presentation/navigation/events_routes.dart';
 import 'package:autth_injustice_app/events/presentation/viewmodels/events_catalog/events_catalog_viewmodel.dart';
 import 'package:autth_injustice_app/events/presentation/widgets/events_catalog/event_banner_rail.dart';
-import 'package:autth_injustice_app/events/presentation/widgets/events_catalog/events_catalog_status.dart';
 import 'package:autth_injustice_app/events/presentation/widgets/events_catalog/events_section_title.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -24,18 +25,71 @@ class EventsCatalogPage extends StatefulWidget {
 
 class _EventsCatalogPageState extends State<EventsCatalogPage> {
   late final EventsCatalogViewModel _viewModel;
+  final _lifecycleRefresh = EventLifecycleRefreshScheduler();
 
   @override
   void initState() {
     super.initState();
     _viewModel = injector.get<EventsCatalogViewModel>();
-    unawaited(_viewModel.commands.loadCatalog(forceRefresh: true));
+    unawaited(_viewModel.commands.loadCatalog());
   }
 
   void _openEvent(BuildContext context, EventPreview event) {
     context.pushNamed(
       EventsRouteNames.details,
       pathParameters: {'eventId': event.id},
+    );
+  }
+
+  @override
+  void dispose() {
+    _lifecycleRefresh.dispose();
+    super.dispose();
+  }
+
+  Widget _buildRail(
+    BuildContext context, {
+    required List<EventPreview> events,
+    required bool isCompact,
+    required bool large,
+    required double height,
+    required bool isLoading,
+    required String? errorMessage,
+    required String emptyTitle,
+  }) {
+    if (events.isNotEmpty) {
+      return EventBannerRail(
+        events: events,
+        isCompact: isCompact,
+        large: large,
+        height: height,
+        onEventTap: (event) => _openEvent(context, event),
+      );
+    }
+
+    return SizedBox(
+      height: height,
+      child: isLoading
+          ? const AppStatusView.loading()
+          : AppStatusView(
+              compact: true,
+              icon: errorMessage != null
+                  ? Icons.cloud_off_outlined
+                  : Icons.event_busy_outlined,
+              title: errorMessage != null
+                  ? context.l10n.eventsLoadError
+                  : emptyTitle,
+              actionLabel:
+                  errorMessage != null ? context.l10n.commonRetry : null,
+              onAction: errorMessage != null
+                  ? () => unawaited(
+                        _viewModel.commands.loadCatalog(forceRefresh: true),
+                      )
+                  : null,
+              padding: EdgeInsets.symmetric(
+                horizontal: context.extraPagePadding.left,
+              ),
+            ),
     );
   }
 
@@ -53,20 +107,15 @@ class _EventsCatalogPageState extends State<EventsCatalogPage> {
             final state = _viewModel.state;
             final featuredEvents = state.featuredEvents.value;
             final futureEvents = state.futureEvents.value;
-            final errorMessage = state.errorMessage.value;
-
-            if (state.loading.value && !state.hasEvents) {
-              return const EventsCatalogStatus.loading();
-            }
-
-            if (errorMessage != null && !state.hasEvents) {
-              return EventsCatalogStatus.error(
-                message: errorMessage,
-                onRetry: () => unawaited(
-                  _viewModel.commands.loadCatalog(forceRefresh: true),
-                ),
-              );
-            }
+            final isInitialLoading = state.isInitialLoading;
+            final initialErrorMessage =
+                state.hasInitialError ? state.errorMessage.value : null;
+            _lifecycleRefresh.schedule(
+              events: [...featuredEvents, ...futureEvents],
+              onRefresh: () => unawaited(
+                _viewModel.commands.loadCatalog(forceRefresh: true),
+              ),
+            );
 
             return LayoutBuilder(builder: (context, constraints) {
               final headerSpace = isCompact ? 130.0 : 161.0;
@@ -111,12 +160,15 @@ class _EventsCatalogPageState extends State<EventsCatalogPage> {
                   ),
                   AppEntranceTransition(
                     delay: const Duration(milliseconds: 50),
-                    child: EventBannerRail(
+                    child: _buildRail(
+                      context,
                       events: featuredEvents,
                       isCompact: isCompact,
                       large: true,
                       height: featuredHeight,
-                      onEventTap: (event) => _openEvent(context, event),
+                      isLoading: isInitialLoading,
+                      errorMessage: initialErrorMessage,
+                      emptyTitle: context.l10n.eventsEmpty,
                     ),
                   ),
                   AppEntranceTransition(
@@ -133,12 +185,15 @@ class _EventsCatalogPageState extends State<EventsCatalogPage> {
                   ),
                   AppEntranceTransition(
                     delay: const Duration(milliseconds: 160),
-                    child: EventBannerRail(
+                    child: _buildRail(
+                      context,
                       events: futureEvents,
                       isCompact: isCompact,
                       large: false,
                       height: futureHeight,
-                      onEventTap: (event) => _openEvent(context, event),
+                      isLoading: isInitialLoading,
+                      errorMessage: initialErrorMessage,
+                      emptyTitle: context.l10n.eventsEmpty,
                     ),
                   ),
                   SizedBox(height: navigationClearance),

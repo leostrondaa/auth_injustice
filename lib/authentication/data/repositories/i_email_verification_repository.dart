@@ -1,0 +1,11 @@
+import 'package:autth_injustice_app/authentication/domain/email_verification_types.dart';
+
+abstract interface class IEmailVerificationRepository {
+  Future<EmailVerificationStatusResult> getStatus(
+    EmailVerificationParams params,
+  );
+
+  Future<EmailVerificationActionResult> resend(
+    EmailVerificationParams params,
+  );
+}

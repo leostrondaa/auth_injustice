@@ -1,6 +1,7 @@
 import 'package:autth_injustice_app/core/extensions/responsive_extensions.dart';
 import 'package:autth_injustice_app/core/l10n/l10n_extensions.dart';
 import 'package:autth_injustice_app/core/theme/app_theme.dart';
+import 'package:autth_injustice_app/core/widgets/app_back_button.dart';
 import 'package:autth_injustice_app/core/widgets/app_entrance_transition.dart';
 import 'package:autth_injustice_app/settings/presentation/widgets/settings/settings_option_tile.dart';
 import 'package:autth_injustice_app/settings/presentation/widgets/settings/settings_panel.dart';
@@ -45,15 +46,10 @@ class AccountPage extends StatelessWidget {
               AppEntranceTransition(
                 child: Align(
                   alignment: Alignment.centerLeft,
-                  child: IconButton(
-                    tooltip:
-                        MaterialLocalizations.of(context).backButtonTooltip,
+                  child: AppBackButton(
                     onPressed: context.pop,
-                    icon: Icon(
-                      Icons.arrow_back_rounded,
-                      size: 25 * scale,
-                      color: context.onTertiary,
-                    ),
+                    iconSize: 25 * scale,
+                    foregroundColor: context.onTertiary,
                   ),
                 ),
               ),
@@ -83,6 +79,22 @@ class AccountPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      SettingsSectionTitle(
+                        title: context.l10n.accountProfileSection,
+                        textScale: textScale,
+                      ),
+                      SizedBox(height: 12 * scale),
+                      SettingsOptionTile(
+                        icon: Icons.person_outline_rounded,
+                        label: context.l10n.accountChangeName,
+                        scale: scale,
+                        textScale: textScale,
+                        showChevron: true,
+                        onTap: () => context.pushNamed(
+                          SettingsRouteNames.changeName,
+                        ),
+                      ),
+                      SizedBox(height: 18 * scale),
                       SettingsSectionTitle(
                         title: context.l10n.accountSecuritySection,
                         textScale: textScale,

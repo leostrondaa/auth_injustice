@@ -27,6 +27,10 @@ class UnauthenticatedFailure extends Failure {
   UnauthenticatedFailure([String? msg]) : super(msg ?? 'unauthenticated');
 }
 
+class ForbiddenFailure extends Failure {
+  ForbiddenFailure([String? msg]) : super(msg ?? 'forbidden');
+}
+
 class RemoteFailure extends Failure {
   RemoteFailure([String? msg]) : super(msg ?? 'remoteError');
 }

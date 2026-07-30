@@ -15,7 +15,8 @@ final class LoadNotificationsCommand extends ParameterizedCommand<
   Future<NotificationsResult> execute() {
     if (parameter == null) {
       return Future.value(
-          Error(InvalidInputFailure('Parâmetro não informado.')));
+        Error(InvalidInputFailure('notificationsLoadErrorMessage')),
+      );
     }
 
     return _notificationsFacade.getNotifications(parameter!);
@@ -32,7 +33,7 @@ final class MarkNotificationAsReadCommand
   Future<NotificationActionResult> execute() {
     if (parameter == null || parameter!.notificationId.trim().isEmpty) {
       return Future.value(
-        Error(InvalidInputFailure('Identificador da notificação inválido.')),
+        Error(InvalidInputFailure('notificationsLoadErrorMessage')),
       );
     }
 
@@ -50,9 +51,28 @@ final class MarkAllNotificationsAsReadCommand
   Future<NotificationActionResult> execute() {
     if (parameter == null) {
       return Future.value(
-          Error(InvalidInputFailure('Parâmetro não informado.')));
+        Error(InvalidInputFailure('notificationsLoadErrorMessage')),
+      );
     }
 
     return _notificationsFacade.markAllAsRead(parameter!);
+  }
+}
+
+final class PublishAnnouncementCommand extends ParameterizedCommand<
+    AppNotification, Failure, PublishAnnouncementParams> {
+  final INotificationsUseCaseFacade _notificationsFacade;
+
+  PublishAnnouncementCommand(this._notificationsFacade);
+
+  @override
+  Future<NotificationPublishResult> execute() {
+    if (parameter == null) {
+      return Future.value(
+        Error(InvalidInputFailure('notificationEditorRequiredFields')),
+      );
+    }
+
+    return _notificationsFacade.publishAnnouncement(parameter!);
   }
 }

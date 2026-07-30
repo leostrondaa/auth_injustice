@@ -1,9 +1,9 @@
+import 'package:autth_injustice_app/account/domain/models/account_name.dart';
+import 'package:autth_injustice_app/authentication/data/repositories/i_auth_repository.dart';
+import 'package:autth_injustice_app/authentication/data/services/remote/i_auth_service.dart';
+import 'package:autth_injustice_app/authentication/domain/models/auth_session.dart';
 import 'package:autth_injustice_app/core/typedefs/types_defs.dart';
 import 'package:signals_flutter/signals_flutter.dart';
-
-import 'package:autth_injustice_app/authentication/domain/models/auth_session.dart';
-import '../services/remote/i_auth_service.dart';
-import 'i_auth_repository.dart';
 
 /// Implementação concreta do repositório de autenticação.
 /// Delega tudo ao [IAuthService] e expõe o Signal reativo de sessão.
@@ -28,7 +28,7 @@ class AuthRepositoryImpl implements IAuthRepository {
 
   @override
   Future<AuthSessionResult> signUp({
-    String? name,
+    required AccountName name,
     required String email,
     required String password,
   }) =>

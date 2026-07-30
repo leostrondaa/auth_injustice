@@ -5,7 +5,9 @@ import 'package:autth_injustice_app/core/l10n/locale_controller.dart';
 import 'package:autth_injustice_app/core/navigation/app_router.dart';
 import 'package:autth_injustice_app/core/theme/app_theme.dart' as app_theme;
 import 'package:autth_injustice_app/core/theme/theme_controller.dart';
-import 'package:autth_injustice_app/firebase_options.dart';
+import 'package:autth_injustice_app/institution/application/institution_package_registry.dart';
+import 'package:autth_injustice_app/institution/data/firebase/institution_firebase_options_registry.dart';
+import 'package:autth_injustice_app/institution/presentation/institution_scope.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,9 +22,14 @@ Future<void> main() async {
     DeviceOrientation.portraitUp,
   ]);
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  final institutionPackage = InstitutionPackageRegistry.resolve();
+  final firebaseOptions = InstitutionFirebaseOptionsRegistry.resolve(
+    institutionPackage.backend,
+  );
 
-  setupDependencies();
+  await Firebase.initializeApp(options: firebaseOptions);
+
+  setupDependencies(institutionPackage: institutionPackage);
 
   final authService = injector.get<IAuthService>();
   await authService.initSession();
@@ -34,24 +41,28 @@ Future<void> main() async {
     Watch(
       (_) => MaterialApp.router(
         debugShowCheckedModeBanner: false,
-        title: 'Injustice App With Login',
-        theme: app_theme.lightTheme,
-        darkTheme: app_theme.darkTheme,
+        title: institutionPackage.branding.appName,
+        theme: app_theme.buildLightTheme(institutionPackage.theme),
+        darkTheme: app_theme.buildDarkTheme(institutionPackage.theme),
         themeMode: themeController.themeMode.value,
         routerConfig: AppRouter.router,
         builder: (context, child) {
           final media = MediaQuery.of(context);
 
-          return MediaQuery(
-            data: media.copyWith(
-              textScaler: TextScaler.noScaling,
+          return InstitutionScope(
+            package: institutionPackage,
+            child: MediaQuery(
+              data: media.copyWith(
+                textScaler: TextScaler.noScaling,
+              ),
+              child: child!,
             ),
-            child: child!,
           );
         },
         locale: localeController.locale.value,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
+        supportedLocales: institutionPackage.localization
+            .resolveSupportedLocales(AppLocalizations.supportedLocales),
       ),
     ),
   );

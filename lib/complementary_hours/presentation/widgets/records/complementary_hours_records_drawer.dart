@@ -5,10 +5,10 @@ import 'package:autth_injustice_app/complementary_hours/presentation/viewmodels/
 import 'package:autth_injustice_app/complementary_hours/presentation/widgets/records/complementary_hours_delete_record_dialog.dart';
 import 'package:autth_injustice_app/complementary_hours/presentation/widgets/records/complementary_hours_record_card.dart';
 import 'package:autth_injustice_app/complementary_hours/presentation/widgets/records/complementary_hours_records_drawer_handle.dart';
-import 'package:autth_injustice_app/complementary_hours/presentation/widgets/records/complementary_hours_records_status.dart';
 import 'package:autth_injustice_app/core/di/dependency_injection.dart';
 import 'package:autth_injustice_app/core/l10n/l10n_extensions.dart';
 import 'package:autth_injustice_app/core/theme/app_theme.dart';
+import 'package:autth_injustice_app/core/widgets/app_status_view.dart';
 import 'package:flutter/material.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
@@ -67,7 +67,7 @@ class _ComplementaryHoursRecordsDrawerState
         weight: 30,
       ),
     ]).animate(_swipeHintController);
-    unawaited(_viewModel.commands.loadRecords(forceRefresh: true));
+    unawaited(_viewModel.commands.loadRecords());
   }
 
   void _updateDrawerProgress() {
@@ -283,6 +283,8 @@ class _ComplementaryHoursRecordsDrawerState
                       (_) {
                         final state = _viewModel.state;
                         final records = state.records.value;
+                        final hasInitialError = state.hasInitialError;
+                        final isInitialLoading = state.isInitialLoading;
 
                         if (records.isNotEmpty) {
                           WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -301,16 +303,29 @@ class _ComplementaryHoursRecordsDrawerState
                                 if (records.isEmpty)
                                   SliverFillRemaining(
                                     hasScrollBody: false,
-                                    child: ComplementaryHoursRecordsStatus(
-                                      loading: state.loading.value,
-                                      errorMessage: state.errorMessage.value,
-                                      scale: widget.scale,
-                                      onRetry: () => unawaited(
-                                        _viewModel.commands.loadRecords(
-                                          forceRefresh: true,
-                                        ),
-                                      ),
-                                    ),
+                                    child: isInitialLoading
+                                        ? const AppStatusView.loading()
+                                        : AppStatusView(
+                                            icon: hasInitialError
+                                                ? Icons.cloud_off_rounded
+                                                : Icons.event_note_outlined,
+                                            title: hasInitialError
+                                                ? context.l10n
+                                                    .complementaryHoursRecordsLoadError
+                                                : context.l10n
+                                                    .complementaryHoursRecordsEmpty,
+                                            actionLabel: hasInitialError
+                                                ? context.l10n.commonRetry
+                                                : null,
+                                            onAction: hasInitialError
+                                                ? () => unawaited(
+                                                      _viewModel.commands
+                                                          .loadRecords(
+                                                        forceRefresh: true,
+                                                      ),
+                                                    )
+                                                : null,
+                                          ),
                                   )
                                 else
                                   SliverPadding(

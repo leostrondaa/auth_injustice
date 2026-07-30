@@ -33,6 +33,10 @@ migrate_working_dir/
 /build/
 /coverage/
 
+# Local tooling and device captures
+/.tool_state/
+/flutter_*.png
+
 # Symbolication related
 app.*.symbols
 

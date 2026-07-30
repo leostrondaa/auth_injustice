@@ -1,5 +1,5 @@
-import 'package:autth_injustice_app/authentication/presentation/widgets/feedback/animated_error_message.dart';
 import 'package:autth_injustice_app/core/extensions/app_localizations.dart';
+import 'package:autth_injustice_app/core/widgets/feedback/animated_error_message.dart';
 import 'package:flutter/material.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 

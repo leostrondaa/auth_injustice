@@ -4,9 +4,9 @@ import 'package:autth_injustice_app/core/di/dependency_injection.dart';
 import 'package:autth_injustice_app/core/extensions/responsive_extensions.dart';
 import 'package:autth_injustice_app/core/l10n/l10n_extensions.dart';
 import 'package:autth_injustice_app/core/theme/app_theme.dart';
-import 'package:autth_injustice_app/core/validators/password_validator.dart';
+import 'package:autth_injustice_app/core/validation/password_validator.dart';
+import 'package:autth_injustice_app/authentication/presentation/widgets/forms/auth_credential_step.dart';
 import 'package:autth_injustice_app/settings/presentation/viewmodels/change_password/change_password_viewmodel.dart';
-import 'package:autth_injustice_app/settings/presentation/widgets/account/account_credential_step.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -159,7 +159,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           }
         },
         children: [
-          AccountCredentialStep(
+          AuthCredentialStep(
             error: _viewModel.state.errorMessage.readonly(),
             loading: _viewModel.state.loading.readonly(),
             active: _currentPage == 0,
@@ -178,7 +178,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             isPassword: true,
             showPasswordStrength: false,
           ),
-          AccountCredentialStep(
+          AuthCredentialStep(
             error: _viewModel.state.errorMessage.readonly(),
             loading: _viewModel.state.loading.readonly(),
             active: _currentPage == 1,

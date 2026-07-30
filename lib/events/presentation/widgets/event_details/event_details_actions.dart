@@ -6,19 +6,33 @@ import 'package:flutter/material.dart';
 class EventDetailsActions extends StatelessWidget {
   final bool addedToPersonalHistory;
   final bool personalRecordUpdating;
+  final bool authenticated;
   final VoidCallback? onPersonalRecordTap;
   final VoidCallback onMapTap;
+  final VoidCallback? onExternalLinkTap;
 
   const EventDetailsActions({
     super.key,
     required this.addedToPersonalHistory,
     required this.personalRecordUpdating,
+    required this.authenticated,
     required this.onPersonalRecordTap,
     required this.onMapTap,
+    this.onExternalLinkTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    if (!authenticated) {
+      return AppActionButton(
+        text: context.l10n.viewOnMap,
+        color: context.onTertiary,
+        style: AppActionButtonStyle.outlined,
+        icon: Icons.map_outlined,
+        onPressed: onMapTap,
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -56,13 +70,38 @@ class EventDetailsActions extends StatelessWidget {
           onPressed: personalRecordUpdating ? null : onPersonalRecordTap,
         ),
         const SizedBox(height: 9),
-        AppActionButton(
-          text: context.l10n.viewOnMap,
-          color: context.onTertiary,
-          style: AppActionButtonStyle.outlined,
-          icon: Icons.map_outlined,
-          onPressed: onMapTap,
-        ),
+        if (onExternalLinkTap case final openLink?) ...[
+          Row(
+            children: [
+              Expanded(
+                child: AppActionButton(
+                  text: context.l10n.accessLink,
+                  color: context.onTertiary,
+                  style: AppActionButtonStyle.outlined,
+                  icon: Icons.open_in_new_rounded,
+                  onPressed: openLink,
+                ),
+              ),
+              const SizedBox(width: 9),
+              Expanded(
+                child: AppActionButton(
+                  text: context.l10n.viewOnMap,
+                  color: context.onTertiary,
+                  style: AppActionButtonStyle.outlined,
+                  icon: Icons.map_outlined,
+                  onPressed: onMapTap,
+                ),
+              ),
+            ],
+          ),
+        ] else
+          AppActionButton(
+            text: context.l10n.viewOnMap,
+            color: context.onTertiary,
+            style: AppActionButtonStyle.outlined,
+            icon: Icons.map_outlined,
+            onPressed: onMapTap,
+          ),
       ],
     );
   }

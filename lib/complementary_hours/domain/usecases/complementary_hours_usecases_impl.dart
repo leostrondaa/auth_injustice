@@ -1,5 +1,5 @@
 import 'package:autth_injustice_app/complementary_hours/domain/complementary_hours_types.dart';
-import 'package:autth_injustice_app/complementary_hours/domain/repositories/i_complementary_hours_repository.dart';
+import 'package:autth_injustice_app/complementary_hours/data/repositories/i_complementary_hours_repository.dart';
 import 'package:autth_injustice_app/core/failure/failure.dart';
 import 'package:autth_injustice_app/core/patterns/result.dart';
 
@@ -51,7 +51,7 @@ final class DeleteComplementaryHoursRecordUseCase
   ) {
     if (params.recordId.trim().isEmpty) {
       return Future.value(
-        Error(InvalidInputFailure('Registro inválido.')),
+        Error(InvalidInputFailure('complementaryHoursDeleteError')),
       );
     }
 

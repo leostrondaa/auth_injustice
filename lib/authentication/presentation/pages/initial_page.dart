@@ -1,9 +1,11 @@
+import 'package:autth_injustice_app/app_startup/domain/repositories/i_app_entry_repository.dart';
 import 'package:autth_injustice_app/authentication/presentation/widgets/backgrounds/clouds.dart';
+import 'package:autth_injustice_app/core/di/dependency_injection.dart';
 import 'package:autth_injustice_app/core/extensions/responsive_extensions.dart';
 import 'package:autth_injustice_app/core/l10n/l10n_extensions.dart';
-import 'package:autth_injustice_app/authentication/presentation/navigation/auth_routes.dart';
 import 'package:autth_injustice_app/core/theme/app_theme.dart';
 import 'package:autth_injustice_app/core/widgets/app_action_button.dart';
+import 'package:autth_injustice_app/map/presentation/navigation/map_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:go_router/go_router.dart';
@@ -23,6 +25,20 @@ class _InitialPageState extends State<InitialPage>
   late final Animation<double> _textOpacity;
   late final Animation<Offset> _buttonSlide;
   late final Animation<double> _buttonOpacity;
+  bool _continuing = false;
+
+  Future<void> _continueToMap() async {
+    if (_continuing) return;
+    setState(() => _continuing = true);
+
+    try {
+      await injector.get<IAppEntryRepository>().markInitialPageCompleted();
+    } catch (_) {
+      // The visitor can still use the app if local preferences are unavailable.
+    }
+
+    if (mounted) context.goNamed(MapRouteNames.map);
+  }
 
   @override
   void initState() {
@@ -142,7 +158,8 @@ class _InitialPageState extends State<InitialPage>
                                 text: context.l10n.continueButton,
                                 color: context.tertiary.withValues(alpha: 0.95),
                                 foregroundColor: context.onTertiary,
-                                onPressed: () => context.push(AuthPaths.login),
+                                isLoading: _continuing,
+                                onPressed: _continuing ? null : _continueToMap,
                               ),
                             ),
                           ),

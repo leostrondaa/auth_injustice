@@ -3,7 +3,11 @@ import 'package:autth_injustice_app/authorization/domain/models/account_role.dar
 import 'package:autth_injustice_app/dev/demo_backend/models/demo_event.dart';
 import 'package:autth_injustice_app/account/domain/models/account.dart';
 import 'package:autth_injustice_app/events/domain/models/event_preview.dart';
+import 'package:autth_injustice_app/events/domain/models/event_timing.dart';
+import 'package:autth_injustice_app/institution/packages/ifpr_pgua/ifpr_pgua_event_categories.dart';
+import 'package:autth_injustice_app/institution/packages/ifpr_pgua/ifpr_pgua_event_images.dart';
 import 'package:autth_injustice_app/notifications/domain/models/app_notification.dart';
+import 'package:autth_injustice_app/user_management/domain/models/user_directory_entry.dart';
 
 class DemoBackendSeed {
   DemoBackendSeed._();
@@ -32,28 +36,80 @@ class DemoBackendSeed {
     role: AccountRole.administrator,
   );
 
-  static final account = studentAccount;
-
-  static const targetComplementaryMinutes = 150 * Duration.minutesPerHour;
-  static const complementaryHoursMilestoneMinutes = [
-    0,
-    50 * Duration.minutesPerHour,
-    100 * Duration.minutesPerHour,
-    150 * Duration.minutesPerHour,
-  ];
+  static List<UserDirectoryEntry> buildManagedUsers() {
+    return [
+      UserDirectoryEntry(
+        account: studentAccount,
+        totalComplementaryMinutes: (50 * Duration.minutesPerHour) + 30,
+      ),
+      UserDirectoryEntry(
+        account: Account(
+          uid: 'demo-student-ana',
+          email: 'ana.silva@ifpr.edu.br',
+          displayName: 'Ana Silva',
+          createdAt: DateTime(2025, 3, 12),
+          updatedAt: DateTime(2026, 7, 20),
+          isProfileConfigured: true,
+          role: AccountRole.student,
+        ),
+        totalComplementaryMinutes: (32 * Duration.minutesPerHour) + 15,
+      ),
+      UserDirectoryEntry(
+        account: Account(
+          uid: 'demo-student-lucas',
+          email: 'lucas.santos@ifpr.edu.br',
+          displayName: 'Lucas Santos',
+          createdAt: DateTime(2024, 2, 19),
+          updatedAt: DateTime(2026, 7, 18),
+          isProfileConfigured: true,
+          role: AccountRole.student,
+        ),
+        totalComplementaryMinutes: 87 * Duration.minutesPerHour,
+      ),
+      UserDirectoryEntry(
+        account: Account(
+          uid: 'demo-student-mariana',
+          email: 'mariana.costa@ifpr.edu.br',
+          displayName: 'Mariana Costa',
+          createdAt: DateTime(2026, 2, 9),
+          updatedAt: DateTime(2026, 7, 22),
+          isProfileConfigured: true,
+          role: AccountRole.student,
+        ),
+        totalComplementaryMinutes: (18 * Duration.minutesPerHour) + 45,
+      ),
+      UserDirectoryEntry(
+        account: eventManagerAccount,
+        totalComplementaryMinutes: 0,
+      ),
+      UserDirectoryEntry(
+        account: Account(
+          uid: 'demo-event-manager-2',
+          email: 'cultura@ifpr.edu.br',
+          displayName: 'Gestão cultural',
+          createdAt: DateTime(2025, 8, 4),
+          updatedAt: DateTime(2026, 7, 24),
+          isProfileConfigured: true,
+          role: AccountRole.eventManager,
+        ),
+        totalComplementaryMinutes: 0,
+      ),
+    ];
+  }
 
   static final featuredEvents = [
     DemoEvent(
       preview: EventPreview(
         id: 'neon-district',
         title: 'Festival de música',
-        category: 'Música',
-        startsAt: DateTime(2026, 7, 19, 19),
+        category: IfprPguaEventCategories.artsAndCulture,
+        startsAt: DateTime(2026, 7, 28, 11),
+        endMode: EventEndMode.automatic,
+        endsAt: DateTime(2026, 8, 30, 12),
         location: 'Auditório',
         description:
-            'Uma noite de música, luz e artistas locais ocupando o IFPR.',
-        imageUrl:
-            'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=1200&q=85',
+            'Uma noite de música, luz e artistas locais ocupando o campus.',
+        imageUrl: IfprPguaEventImages.artsAndCulture.location,
       ),
       complementaryMinutes: 4 * Duration.minutesPerHour,
     ),
@@ -61,8 +117,10 @@ class DemoBackendSeed {
       preview: EventPreview(
         id: 'jazz-under-stars',
         title: 'Jazz Under Stars',
-        category: 'Ao vivo',
+        category: IfprPguaEventCategories.artsAndCulture,
         startsAt: DateTime(2026, 7, 24, 20, 30),
+        endMode: EventEndMode.automatic,
+        endsAt: DateTime(2026, 7, 24, 23, 30),
         location: 'Praça das Artes',
         description:
             'Jazz ao vivo em uma noite aberta, com convidados e espaço para encontrar amigos.',
@@ -77,11 +135,14 @@ class DemoBackendSeed {
       preview: EventPreview(
         id: 'art-after-dark',
         title: 'Exposição de artes visuais',
-        category: 'Exposição',
+        category: IfprPguaEventCategories.artsAndCulture,
         startsAt: DateTime(2026, 8, 12, 18),
+        endMode: EventEndMode.automatic,
+        endsAt: DateTime(2026, 8, 12, 21),
         location: 'Galeria Central',
         description:
             'Uma seleção de artistas visuais, instalações e conversas durante a noite.',
+        externalUrl: 'https://ifpr.edu.br',
         imageUrl:
             'https://images.unsplash.com/photo-1549490349-8643362247b5?auto=format&fit=crop&w=900&q=85',
       ),
@@ -91,12 +152,13 @@ class DemoBackendSeed {
       preview: EventPreview(
         id: 'city-run',
         title: 'IF Zen',
-        category: 'Práticas corporais',
+        category: IfprPguaEventCategories.healthAndWellness,
         startsAt: DateTime(2026, 8, 15, 14),
+        endMode: EventEndMode.automatic,
+        endsAt: DateTime(2026, 8, 15, 16),
         location: 'Sala de práticas',
         description: 'Atividades de relaxamento e bem-estar para a comunidade.',
-        imageUrl:
-            'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=900&q=85',
+        imageUrl: IfprPguaEventImages.healthAndWellness.location,
       ),
       complementaryMinutes: 2 * Duration.minutesPerHour,
     ),
@@ -104,8 +166,9 @@ class DemoBackendSeed {
       preview: EventPreview(
         id: 'open-air-cinema',
         title: 'Circo INFO23',
-        category: 'Teatro',
+        category: IfprPguaEventCategories.artsAndCulture,
         startsAt: DateTime(2026, 8, 25, 19),
+        endMode: EventEndMode.manual,
         location: 'Auditório',
         description: 'Apresentação teatral e musical da turma de INFO23.',
         imageUrl:

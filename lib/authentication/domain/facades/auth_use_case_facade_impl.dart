@@ -1,7 +1,6 @@
+import 'package:autth_injustice_app/authentication/domain/facades/i_auth_use_case_facade.dart';
+import 'package:autth_injustice_app/authentication/domain/usecases/i_auth_usecases.dart';
 import 'package:autth_injustice_app/core/typedefs/types_defs.dart';
-
-import '../usecases/i_auth_usecases.dart';
-import 'i_auth_use_case_facade.dart';
 
 class AuthUseCaseFacadeImpl implements IAuthUseCaseFacade {
   final ISignInUseCase _signInUseCase;

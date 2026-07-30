@@ -1,6 +1,7 @@
-import 'package:autth_injustice_app/core/constants/app_assets.dart';
 import 'package:autth_injustice_app/core/l10n/l10n_extensions.dart';
 import 'package:autth_injustice_app/core/theme/app_theme.dart';
+import 'package:autth_injustice_app/institution/presentation/institution_scope.dart';
+import 'package:autth_injustice_app/institution/presentation/widgets/institution_image.dart';
 import 'package:flutter/material.dart';
 
 class AboutIdentity extends StatelessWidget {
@@ -32,18 +33,20 @@ class AboutIdentity extends StatelessWidget {
               ),
             ],
           ),
-          child: Image.asset(
-            context.isDarkMode ? AppAssets.ifLogoBlack : AppAssets.ifLogoWhite,
+          child: InstitutionImage(
+            resource: context.isDarkMode
+                ? context.institution.branding.logoOnLightBackground
+                : context.institution.branding.logoOnDarkBackground,
             fit: BoxFit.contain,
             errorBuilder: (_, __, ___) => Image.asset(
-              AppAssets.ifLogoBlack,
+              context.institution.branding.logoOnLightBackground.location,
               fit: BoxFit.contain,
             ),
           ),
         ),
         SizedBox(height: 18 * scale),
         Text(
-          'WhereIF',
+          context.institution.branding.appName,
           textAlign: TextAlign.center,
           style: context.displaySmall?.copyWith(
             color: context.onTertiary,
@@ -114,7 +117,7 @@ class AboutIdentity extends StatelessWidget {
                   ),
                   SizedBox(height: 5 * scale),
                   Text(
-                    context.l10n.aboutInstitution,
+                    context.institution.branding.institutionWithCampus,
                     style: context.bodySmall?.copyWith(
                       color: context.onTertiary.withValues(alpha: 0.62),
                       fontSize: 11.5 * textScale,

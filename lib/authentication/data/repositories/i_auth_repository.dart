@@ -1,3 +1,4 @@
+import 'package:autth_injustice_app/account/domain/models/account_name.dart';
 import 'package:autth_injustice_app/core/typedefs/types_defs.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
@@ -11,7 +12,7 @@ abstract interface class IAuthRepository {
   Future<AuthSessionResult> signIn(String email, String password);
   Future<AuthSessionResult> signInWithGoogle();
   Future<AuthSessionResult> signUp({
-    String? name,
+    required AccountName name,
     required String email,
     required String password,
   });

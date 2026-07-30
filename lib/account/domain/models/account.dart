@@ -1,6 +1,8 @@
 import 'package:autth_injustice_app/authorization/domain/models/account_role.dart';
 import 'package:equatable/equatable.dart';
 
+import 'account_name.dart';
+
 class Account extends Equatable {
   final String uid;
   final String email;
@@ -32,12 +34,26 @@ class Account extends Equatable {
       displayName: displayName,
       createdAt: now,
       updatedAt: now,
-      isProfileConfigured: false,
+      isProfileConfigured: AccountName.fromDisplayName(displayName).isComplete,
       role: AccountRole.student,
     );
   }
 
   bool get isProfileIncomplete => !isProfileConfigured;
+
+  AccountName get name => AccountName.fromDisplayName(displayName);
+
+  String get firstName => name.firstName;
+
+  String get lastName => name.lastName;
+
+  Account copyWithName(AccountName value) {
+    return copyWith(
+      displayName: value.displayName,
+      updatedAt: DateTime.now(),
+      isProfileConfigured: true,
+    );
+  }
 
   Account copyWith({
     String? uid,

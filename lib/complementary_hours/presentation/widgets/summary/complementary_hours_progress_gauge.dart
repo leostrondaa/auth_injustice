@@ -4,6 +4,7 @@ import 'package:autth_injustice_app/complementary_hours/domain/models/complement
 import 'package:autth_injustice_app/core/formatters/hours_minutes_formatter.dart';
 import 'package:autth_injustice_app/core/l10n/l10n_extensions.dart';
 import 'package:autth_injustice_app/core/theme/app_theme.dart';
+import 'package:autth_injustice_app/institution/presentation/institution_scope.dart';
 import 'package:flutter/material.dart';
 
 class ComplementaryHoursProgressGauge extends StatelessWidget {
@@ -134,7 +135,9 @@ class ComplementaryHoursProgressGauge extends StatelessWidget {
                       ),
                       SizedBox(height: 7 * scale),
                       Text(
-                        context.l10n.complementaryHoursInformalNotice,
+                        context.l10n.complementaryHoursInformalNotice(
+                          context.institution.branding.institutionAcronym,
+                        ),
                         style: context.bodySmall?.copyWith(
                           color: context.onTertiary.withValues(alpha: 0.52),
                           fontSize: 11 * scale,

@@ -3,11 +3,11 @@ import 'package:autth_injustice_app/core/patterns/result.dart';
 import 'package:autth_injustice_app/core/typedefs/types_defs.dart';
 import 'package:autth_injustice_app/account/data/services/i_account_remote_storage.dart';
 import 'package:autth_injustice_app/account/domain/models/account.dart';
+import 'package:autth_injustice_app/account/domain/models/account_name.dart';
 import 'package:autth_injustice_app/authentication/domain/models/auth_session.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
-import 'package:autth_injustice_app/authentication/data/services/local/auth_local_session_manager.dart';
 
 import 'i_auth_service.dart';
 
@@ -17,11 +17,10 @@ import 'i_auth_service.dart';
 /// - Autenticar o usuário via email/senha ou Google.
 /// - Ao logar/registrar, garantir que o documento Account exista no Firestore.
 /// - Manter o [AuthSession] reativo via Signal.
-/// - Persistir o token localmente para restaurar sessão após restart.
+/// - Restaurar a sessão mantida pelo Firebase Auth.
 class FirebaseAuthService implements IAuthService {
   final fb.FirebaseAuth _firebaseAuth;
   final GoogleSignIn _googleSignIn;
-  final AuthLocalSessionManager _localSession;
   final IAccountRemoteStorage _accountStorage;
   Future<void>? _googleInitialization;
 
@@ -30,11 +29,9 @@ class FirebaseAuthService implements IAuthService {
   FirebaseAuthService({
     fb.FirebaseAuth? firebaseAuth,
     GoogleSignIn? googleSignIn,
-    required AuthLocalSessionManager localSession,
     required IAccountRemoteStorage accountStorage,
   })  : _firebaseAuth = firebaseAuth ?? fb.FirebaseAuth.instance,
         _googleSignIn = googleSignIn ?? GoogleSignIn.instance,
-        _localSession = localSession,
         _accountStorage = accountStorage {
     // Escuta mudanças de estado do Firebase Auth (ex: token revogado externamente)
     _firebaseAuth.authStateChanges().listen(_onAuthStateChanged);
@@ -73,29 +70,15 @@ class FirebaseAuthService implements IAuthService {
   Future<AuthSession> _buildSession(fb.User fbUser) async {
     final account = await _loadOrCreateAccount(fbUser);
     final tokenResult = await fbUser.getIdTokenResult();
-    final tokenStr = tokenResult.token ?? '';
     final tokenExp = tokenResult.expirationTime ??
         DateTime.now().add(const Duration(minutes: 50));
     return AuthSession(
       account: account,
-      token: Token(value: tokenStr, expiresAt: tokenExp),
+      token: Token(expiresAt: tokenExp),
     );
   }
 
-  Future<void> _persistSession(
-    AuthSession session, {
-    AuthProvider provider = AuthProvider.firebase,
-  }) async {
-    final sessionToken = SessionToken(
-      uid: session.account.uid,
-      displayName: session.account.displayName,
-      email: session.account.email,
-      value: session.token.value,
-      expiresAt: session.token.expiresAt,
-      refreshToken: null,
-      provider: provider,
-    );
-    await _localSession.setToken(sessionToken);
+  void _setSession(AuthSession session) {
     _currentSessionSignal.value = session;
   }
 
@@ -113,7 +96,8 @@ class FirebaseAuthService implements IAuthService {
 
     try {
       final session = await _buildSession(user);
-      await _persistSession(session);
+      if (_firebaseAuth.currentUser?.uid != user.uid) return;
+      _setSession(session);
     } catch (_) {
       _currentSessionSignal.value = null;
     }
@@ -152,6 +136,30 @@ class FirebaseAuthService implements IAuthService {
     return _googleInitialization ??= _googleSignIn.initialize();
   }
 
+  Future<void> _rollbackCreatedUser(fb.User user) async {
+    try {
+      await user.delete();
+    } catch (_) {
+      try {
+        await _firebaseAuth.signOut();
+      } catch (_) {
+        // Best effort: the next auth-state event remains the authority.
+      }
+    } finally {
+      _currentSessionSignal.value = null;
+    }
+  }
+
+  Future<void> _clearFailedAuthentication() async {
+    try {
+      await _firebaseAuth.signOut();
+    } catch (_) {
+      // The operation already failed; session cleanup is best-effort.
+    } finally {
+      _currentSessionSignal.value = null;
+    }
+  }
+
   // ──────────────────────────────────────────────
   // Interface pública
   // ──────────────────────────────────────────────
@@ -166,30 +174,15 @@ class FirebaseAuthService implements IAuthService {
   Future<void> initSession() async {
     final user = _firebaseAuth.currentUser;
     if (user == null) {
-      await _localSession.clear();
       _currentSessionSignal.value = null;
       return;
     }
 
     try {
       final session = await _buildSession(user);
-      await _persistSession(session);
+      _setSession(session);
     } catch (_) {
-      // Firebase remains the session authority. If Firestore is temporarily
-      // unavailable, keep a least-privilege student account for this launch.
-      final tokenResult = await user.getIdTokenResult();
-      _currentSessionSignal.value = AuthSession(
-        account: Account.initial(
-          uid: user.uid,
-          email: user.email ?? '',
-          displayName: user.displayName ?? '',
-        ),
-        token: Token(
-          value: tokenResult.token ?? '',
-          expiresAt: tokenResult.expirationTime ??
-              DateTime.now().add(const Duration(minutes: 50)),
-        ),
-      );
+      _currentSessionSignal.value = null;
     }
   }
 
@@ -204,9 +197,10 @@ class FirebaseAuthService implements IAuthService {
       if (user == null) return Error(NotFoundFailure('authUserNotFound'));
 
       final session = await _buildSession(user);
-      await _persistSession(session);
+      _setSession(session);
       return Success(session);
     } catch (error) {
+      await _clearFailedAuthentication();
       return Error(_mapAuthFailure(error));
     }
   }
@@ -230,19 +224,22 @@ class FirebaseAuthService implements IAuthService {
       }
 
       final session = await _buildSession(user);
-      await _persistSession(session, provider: AuthProvider.google);
+      _setSession(session);
       return Success(session);
     } catch (error) {
+      await _clearFailedAuthentication();
       return Error(_mapAuthFailure(error));
     }
   }
 
   @override
   Future<AuthSessionResult> signUp({
-    String? name,
+    required AccountName name,
     required String email,
     required String password,
   }) async {
+    fb.User? createdUser;
+
     try {
       final credential = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
@@ -250,16 +247,20 @@ class FirebaseAuthService implements IAuthService {
       );
       final user = credential.user;
       if (user == null) return Error(DefaultFailure('authUnexpectedError'));
+      createdUser = user;
 
-      if (name != null && name.isNotEmpty) {
-        await user.updateDisplayName(name);
-        await user.reload();
-      }
+      await user.updateDisplayName(name.displayName);
+      await user.reload();
 
-      final session = await _buildSession(_firebaseAuth.currentUser ?? user);
-      await _persistSession(session);
+      final session = await _buildSession(
+        _firebaseAuth.currentUser ?? user,
+      );
+      _setSession(session);
       return Success(session);
     } catch (error) {
+      if (createdUser != null) {
+        await _rollbackCreatedUser(createdUser);
+      }
       return Error(_mapAuthFailure(error));
     }
   }
@@ -267,7 +268,6 @@ class FirebaseAuthService implements IAuthService {
   @override
   Future<VoidResult> signOut() async {
     try {
-      await _localSession.clear();
       await _firebaseAuth.signOut();
       try {
         final initialization = _googleInitialization;

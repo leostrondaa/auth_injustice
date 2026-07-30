@@ -1,9 +1,12 @@
 import 'dart:ui';
 
 import 'package:autth_injustice_app/complementary_hours/presentation/navigation/complementary_hours_routes.dart';
+import 'package:autth_injustice_app/core/di/dependency_injection.dart';
 import 'package:autth_injustice_app/core/extensions/responsive_extensions.dart';
 import 'package:autth_injustice_app/core/l10n/l10n_extensions.dart';
 import 'package:autth_injustice_app/core/theme/app_theme.dart';
+import 'package:autth_injustice_app/authorization/domain/services/authorization_service.dart';
+import 'package:autth_injustice_app/events/presentation/navigation/event_management_routes.dart';
 import 'package:autth_injustice_app/events/presentation/navigation/events_routes.dart';
 import 'package:autth_injustice_app/map/presentation/navigation/map_routes.dart';
 import 'package:autth_injustice_app/notifications/presentation/navigation/notifications_routes.dart';
@@ -25,9 +28,11 @@ class AppShellPage extends StatelessWidget {
   });
 
   void _goToTab(BuildContext context, int index) {
+    final canManageEvents =
+        injector.get<AuthorizationService>().canManageEvents;
     final rootPath = switch (index) {
       0 => MapPaths.map,
-      1 => EventsPaths.catalog,
+      1 => canManageEvents ? EventManagementPaths.catalog : EventsPaths.catalog,
       2 => NotificationsPaths.notifications,
       3 => ComplementaryHoursPaths.summary,
       _ => MapPaths.map,
@@ -39,15 +44,20 @@ class AppShellPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final canManageEvents =
+        injector.get<AuthorizationService>().canManageEvents;
+    final keyboardOpen = MediaQuery.viewInsetsOf(context).bottom > 0;
+
     return Scaffold(
       extendBody: true,
       resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           Positioned.fill(child: child),
-          if (showNavigationBar)
+          if (showNavigationBar && !keyboardOpen)
             _GlassNavigationBar(
               currentIndex: currentIndex,
+              canManageEvents: canManageEvents,
               onSelected: (index) => _goToTab(context, index),
             ),
         ],
@@ -58,10 +68,12 @@ class AppShellPage extends StatelessWidget {
 
 class _GlassNavigationBar extends StatelessWidget {
   final int currentIndex;
+  final bool canManageEvents;
   final ValueChanged<int> onSelected;
 
   const _GlassNavigationBar({
     required this.currentIndex,
+    required this.canManageEvents,
     required this.onSelected,
   });
 
@@ -127,8 +139,12 @@ class _GlassNavigationBar extends StatelessWidget {
                         ),
                         Expanded(
                           child: _NavItem(
-                            icon: Icons.calendar_month_outlined,
-                            selectedIcon: Icons.calendar_month,
+                            icon: canManageEvents
+                                ? Icons.dashboard_customize_outlined
+                                : Icons.calendar_month_outlined,
+                            selectedIcon: canManageEvents
+                                ? Icons.dashboard_customize_rounded
+                                : Icons.calendar_month,
                             label: context.l10n.navigationEvents,
                             selected: currentIndex == 1,
                             onTap: () => onSelected(1),
@@ -214,7 +230,7 @@ class _NavItem extends StatelessWidget {
                     shadows: selected
                         ? [
                             Shadow(
-                              color: colors.primary.withValues(alpha: 0.4),
+                              color: colors.primary.withValues(alpha: 0.2),
                               blurRadius: 14,
                             ),
                           ]

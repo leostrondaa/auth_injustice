@@ -1,6 +1,6 @@
 import 'package:autth_injustice_app/core/l10n/l10n_extensions.dart';
 import 'package:autth_injustice_app/core/theme/app_theme.dart';
-import 'package:autth_injustice_app/core/validators/password_validator.dart'
+import 'package:autth_injustice_app/core/validation/password_validator.dart'
     as password_validator;
 import 'package:flutter/material.dart';
 

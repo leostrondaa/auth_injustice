@@ -1,3 +1,4 @@
+import 'package:autth_injustice_app/account/domain/models/account_name.dart';
 import 'package:autth_injustice_app/authentication/presentation/commands/auth_commands.dart';
 import 'package:autth_injustice_app/authentication/presentation/viewmodels/register/register_state_viewmodel.dart';
 
@@ -14,7 +15,8 @@ class RegisterCommands {
   Future<bool> signUp({
     required String email,
     required String password,
-    String? name,
+    required String firstName,
+    required String lastName,
   }) async {
     state.setLoading(true);
     state.clearError();
@@ -24,7 +26,10 @@ class RegisterCommands {
       final result = await _signUpCommand.executeWith((
         email: email,
         password: password,
-        name: name,
+        name: AccountName(
+          firstName: firstName,
+          lastName: lastName,
+        ),
       ));
 
       return result.fold(

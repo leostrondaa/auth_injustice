@@ -8,16 +8,19 @@ final class AccountFacadeImpl implements IAccountFacade {
   final IGetAccountUseCase _getAccountUseCase;
   final ISaveAccountUseCase _saveAccountUseCase;
   final IUpdateAccountUseCase _updateAccountUseCase;
+  final IUpdateAccountNameUseCase _updateAccountNameUseCase;
   final IDeleteAccountUseCase _deleteAccountUseCase;
 
   AccountFacadeImpl({
     required IGetAccountUseCase getAccountUseCase,
     required ISaveAccountUseCase saveAccountUseCase,
     required IUpdateAccountUseCase updateAccountUseCase,
+    required IUpdateAccountNameUseCase updateAccountNameUseCase,
     required IDeleteAccountUseCase deleteAccountUseCase,
   })  : _getAccountUseCase = getAccountUseCase,
         _saveAccountUseCase = saveAccountUseCase,
         _updateAccountUseCase = updateAccountUseCase,
+        _updateAccountNameUseCase = updateAccountNameUseCase,
         _deleteAccountUseCase = deleteAccountUseCase;
 
   @override
@@ -38,5 +41,10 @@ final class AccountFacadeImpl implements IAccountFacade {
   @override
   Future<VoidResult> updateAccount(AccountParams params) {
     return _updateAccountUseCase(params);
+  }
+
+  @override
+  Future<VoidResult> updateAccountName(UpdateAccountNameParams params) {
+    return _updateAccountNameUseCase(params);
   }
 }

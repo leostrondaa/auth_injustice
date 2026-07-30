@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../../../core/failure/failure.dart';
-import '../../../core/patterns/result.dart';
-import '../../../core/typedefs/types_defs.dart';
 import 'package:autth_injustice_app/account/data/mappers/account_firestore_mapper.dart';
 import 'package:autth_injustice_app/account/data/services/i_account_remote_storage.dart';
 import 'package:autth_injustice_app/account/domain/models/account.dart';
+import 'package:autth_injustice_app/core/failure/failure.dart';
+import 'package:autth_injustice_app/core/patterns/result.dart';
+import 'package:autth_injustice_app/core/typedefs/types_defs.dart';
 
 /// Implementação de [IAccountRemoteStorage] usando Cloud Firestore.
 ///
@@ -31,8 +31,8 @@ final class AccountFirestoreService implements IAccountRemoteStorage {
       }
 
       return Success(AccountFirestoreMapper.fromSnapshot(snapshot));
-    } on FirebaseException catch (error) {
-      return Error(RemoteFailure(error.message ?? 'accountLoadError'));
+    } on FirebaseException {
+      return Error(RemoteFailure('accountLoadError'));
     } catch (_) {
       return Error(RemoteFailure('accountLoadError'));
     }
@@ -43,8 +43,8 @@ final class AccountFirestoreService implements IAccountRemoteStorage {
     try {
       await _accountDoc(account.uid).set(AccountFirestoreMapper.toMap(account));
       return const Success(null);
-    } on FirebaseException catch (error) {
-      return Error(RemoteFailure(error.message ?? 'accountSaveError'));
+    } on FirebaseException {
+      return Error(RemoteFailure('accountSaveError'));
     } catch (_) {
       return Error(RemoteFailure('accountSaveError'));
     }
@@ -57,8 +57,8 @@ final class AccountFirestoreService implements IAccountRemoteStorage {
         AccountFirestoreMapper.toProfileUpdateMap(account),
       );
       return const Success(null);
-    } on FirebaseException catch (error) {
-      return Error(RemoteFailure(error.message ?? 'accountUpdateError'));
+    } on FirebaseException {
+      return Error(RemoteFailure('accountUpdateError'));
     } catch (_) {
       return Error(RemoteFailure('accountUpdateError'));
     }
@@ -69,8 +69,8 @@ final class AccountFirestoreService implements IAccountRemoteStorage {
     try {
       await _accountDoc(uid).delete();
       return const Success(null);
-    } on FirebaseException catch (error) {
-      return Error(RemoteFailure(error.message ?? 'accountDeleteError'));
+    } on FirebaseException {
+      return Error(RemoteFailure('accountDeleteError'));
     } catch (_) {
       return Error(RemoteFailure('accountDeleteError'));
     }

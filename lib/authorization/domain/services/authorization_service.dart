@@ -12,8 +12,13 @@ class AuthorizationService {
   AccountRole get currentRole =>
       _currentAccountProvider.currentAccount?.role ?? AccountRole.student;
 
+  bool get isAuthenticated => _currentAccountProvider.currentAccount != null;
+
+  bool get isGuest => !isAuthenticated;
+
   bool can(AppPermission permission) => currentRole.can(permission);
 
   bool get canManageEvents => can(AppPermission.createEvent);
+  bool get canPublishAnnouncements => can(AppPermission.publishAnnouncement);
   bool get canManageAccounts => can(AppPermission.manageAccounts);
 }

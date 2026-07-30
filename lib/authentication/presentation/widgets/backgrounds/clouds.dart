@@ -1,4 +1,5 @@
-import 'package:autth_injustice_app/core/constants/app_assets.dart';
+import 'package:autth_injustice_app/institution/presentation/institution_scope.dart';
+import 'package:autth_injustice_app/institution/presentation/widgets/institution_image.dart';
 import 'package:flutter/material.dart';
 
 class CloudBackground extends StatelessWidget {
@@ -37,11 +38,10 @@ class CloudBackground extends StatelessWidget {
               angle: 0.55,
               child: Opacity(
                 opacity: 1,
-                child: Image.asset(
-                  AppAssets.ifLogoWhite,
+                child: InstitutionImage(
+                  resource: context.institution.branding.logoOnDarkBackground,
                   width: logoWidth,
                   fit: BoxFit.contain,
-                  cacheWidth: (logoWidth * mediaQuery.devicePixelRatio).round(),
                 ),
               ),
             ),

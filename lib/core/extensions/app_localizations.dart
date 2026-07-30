@@ -24,6 +24,8 @@ extension AppLocalizationsErrorExt on BuildContext {
         return l10n.authAccountDisabled;
       case 'authUnexpectedError':
         return l10n.authUnexpectedError;
+      case 'authBackendUnavailable':
+        return l10n.authBackendUnavailable;
       case 'authUserNotFound':
         return l10n.authUserNotFound;
       case 'authGoogleCanceled':
@@ -34,6 +36,23 @@ extension AppLocalizationsErrorExt on BuildContext {
         return l10n.emailRequired;
       case 'invalidEmail':
         return l10n.invalidEmail;
+
+      case 'accountInvalidFullName':
+        return l10n.accountInvalidFullName;
+
+      // Verificação de e-mail
+      case 'emailVerificationExpired':
+        return l10n.emailVerificationExpired;
+      case 'emailVerificationUnexpectedError':
+        return l10n.emailVerificationUnexpectedError;
+      case 'emailVerificationResendFailed':
+        return l10n.emailVerificationResendFailed;
+      case 'passwordResetMismatch':
+        return l10n.passwordResetMismatch;
+      case 'passwordResetInvalidLink':
+        return l10n.passwordResetInvalidLink;
+      case 'passwordResetFailed':
+        return l10n.passwordResetFailed;
 
       // Validação de senha
       case 'passwordRequired':

@@ -1,5 +1,7 @@
 import 'package:autth_injustice_app/account/data/repositories/i_account_repository.dart';
 import 'package:autth_injustice_app/account/domain/usecases/i_account_usecases.dart';
+import 'package:autth_injustice_app/core/failure/failure.dart';
+import 'package:autth_injustice_app/core/patterns/result.dart';
 import 'package:autth_injustice_app/core/typedefs/types_defs.dart';
 
 /// implementacao de todos os usecases relacionados a Account
@@ -52,5 +54,30 @@ final class UpdateAccountUseCaseImpl implements IUpdateAccountUseCase {
   @override
   Future<VoidResult> call(AccountParams params) {
     return _repository.updateAccount(params.account);
+  }
+}
+
+final class UpdateAccountNameUseCaseImpl implements IUpdateAccountNameUseCase {
+  final IAccountRepository _repository;
+
+  UpdateAccountNameUseCaseImpl({
+    required IAccountRepository repository,
+  }) : _repository = repository;
+
+  @override
+  Future<VoidResult> call(UpdateAccountNameParams params) async {
+    if (!params.name.isComplete) {
+      return Error(InvalidInputFailure('accountInvalidFullName'));
+    }
+
+    final currentResult = await _repository.getAccount();
+    final current = currentResult.successValueOrNull;
+    if (current == null) {
+      return Error(
+        currentResult.failureValueOrNull ?? NotFoundFailure('accountNotFound'),
+      );
+    }
+
+    return _repository.updateAccount(current.copyWithName(params.name));
   }
 }

@@ -1,14 +1,18 @@
 import 'dart:async';
 
 import 'package:autth_injustice_app/authentication/presentation/viewmodels/check_email/check_email_viewmodel.dart';
-import 'package:autth_injustice_app/authentication/presentation/widgets/buttons/auth_back_button.dart';
 import 'package:autth_injustice_app/authentication/presentation/widgets/feedback/email_confirmation_feedback.dart';
+import 'package:autth_injustice_app/authentication/presentation/widgets/feedback/auth_error_banner.dart';
 import 'package:autth_injustice_app/core/di/dependency_injection.dart';
 import 'package:autth_injustice_app/core/constants/app_assets.dart';
 import 'package:autth_injustice_app/core/extensions/responsive_extensions.dart';
 import 'package:autth_injustice_app/core/l10n/l10n_extensions.dart';
 import 'package:autth_injustice_app/authentication/presentation/navigation/check_email_args.dart';
+import 'package:autth_injustice_app/authentication/presentation/navigation/auth_routes.dart';
+import 'package:autth_injustice_app/authentication/presentation/navigation/password_reset_args.dart';
 import 'package:autth_injustice_app/core/theme/app_theme.dart';
+import 'package:autth_injustice_app/core/widgets/app_back_button.dart';
+import 'package:autth_injustice_app/core/widgets/loading_dots.dart';
 import 'package:autth_injustice_app/map/presentation/navigation/map_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -38,12 +42,14 @@ class _CheckEmailPageState extends State<CheckEmailPage>
   late final Animation<double> _textOpacity;
 
   Timer? _redirectTimer;
+  late bool _initialLinkPrepared;
 
   @override
   void initState() {
     super.initState();
     _viewModel = injector.get<CheckEmailViewModel>();
     _viewModel.state.reset();
+    _initialLinkPrepared = widget.args.linkAlreadySent;
 
     _contentController = AnimationController(
       vsync: this,
@@ -80,49 +86,98 @@ class _CheckEmailPageState extends State<CheckEmailPage>
   }
 
   Future<void> _startEmailConfirmation() async {
-    await _viewModel.commands.waitForConfirmation(email: widget.args.email);
+    if (!_initialLinkPrepared) {
+      final sent = await _viewModel.commands.resend(
+        email: widget.args.email,
+        flow: widget.args.flow,
+      );
+      if (!mounted || !sent) return;
+      _initialLinkPrepared = true;
+    }
+
+    await _viewModel.commands.waitForConfirmation(
+      email: widget.args.email,
+      flow: widget.args.flow,
+    );
     if (!mounted || !_viewModel.state.confirmed.value) return;
 
+    _redirectTimer?.cancel();
     _redirectTimer = Timer(_successFeedbackDuration, () {
       if (!mounted) return;
       _handleConfirmedRedirect();
     });
   }
 
+  Future<void> _resendLink() async {
+    final resent = await _viewModel.commands.resend(
+      email: widget.args.email,
+      flow: widget.args.flow,
+    );
+    if (!mounted || !resent) return;
+    _initialLinkPrepared = true;
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(content: Text(context.l10n.checkEmailLinkResent)),
+      );
+
+    if (!_viewModel.state.loading.value) {
+      unawaited(_startEmailConfirmation());
+    }
+  }
+
   @override
   void dispose() {
     _redirectTimer?.cancel();
+    _viewModel.commands.cancelMonitoring();
     _contentController.dispose();
     super.dispose();
   }
 
   String _confirmedTitle(BuildContext context) {
     return switch (widget.args.flow) {
-      CheckEmailFlow.register => context.l10n.emailConfirmedTitle,
-      CheckEmailFlow.forgotPassword => context.l10n.emailConfirmedTitle,
-      CheckEmailFlow.changeEmail => context.l10n.accountEmailChangedTitle,
+      EmailVerificationFlow.register => context.l10n.emailConfirmedTitle,
+      EmailVerificationFlow.forgotPassword => context.l10n.emailConfirmedTitle,
+      EmailVerificationFlow.changeEmail =>
+        context.l10n.accountEmailChangedTitle,
     };
   }
 
   String _confirmedSubtitle(BuildContext context) {
     return switch (widget.args.flow) {
-      CheckEmailFlow.register => context.l10n.accountConfirmedSubtitle,
-      CheckEmailFlow.forgotPassword => context.l10n.emailConfirmedSubtitle,
-      CheckEmailFlow.changeEmail => context.l10n.accountEmailChangedSubtitle,
+      EmailVerificationFlow.register => context.l10n.accountConfirmedSubtitle,
+      EmailVerificationFlow.forgotPassword =>
+        context.l10n.emailConfirmedSubtitle,
+      EmailVerificationFlow.changeEmail =>
+        context.l10n.accountEmailChangedSubtitle,
     };
   }
 
   void _handleConfirmedRedirect() {
     switch (widget.args.flow) {
-      case CheckEmailFlow.register:
+      case EmailVerificationFlow.register:
         context.goNamed(MapRouteNames.map);
         break;
 
-      case CheckEmailFlow.forgotPassword:
-        // context.pushReplacement(AuthPaths.resetPassword);
+      case EmailVerificationFlow.forgotPassword:
+        final actionCode = _viewModel.state.actionCode.value;
+        if (actionCode == null || actionCode.isEmpty) {
+          _viewModel.state
+            ..setConfirmation(value: false)
+            ..showError('passwordResetInvalidLink');
+          break;
+        }
+        context.pushReplacementNamed(
+          AuthRouteNames.resetPassword,
+          extra: PasswordResetArgs(
+            email: widget.args.email,
+            actionCode: actionCode,
+          ),
+        );
         break;
 
-      case CheckEmailFlow.changeEmail:
+      case EmailVerificationFlow.changeEmail:
         context.pop(true);
         break;
     }
@@ -215,6 +270,49 @@ class _CheckEmailPageState extends State<CheckEmailPage>
                     ),
                   ),
                 ),
+                const SizedBox(height: 18),
+                AuthErrorBanner(
+                  error: _viewModel.state.errorMessage.readonly(),
+                ),
+                Watch((_) {
+                  final hasError = _viewModel.state.errorMessage.value != null;
+                  final isChecking = _viewModel.state.loading.value;
+                  final isResending = _viewModel.state.resending.value;
+
+                  return Wrap(
+                    alignment: WrapAlignment.center,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 8,
+                    runSpacing: 4,
+                    children: [
+                      if (hasError)
+                        TextButton.icon(
+                          onPressed:
+                              isChecking ? null : _startEmailConfirmation,
+                          icon: const Icon(Icons.refresh_rounded),
+                          label: Text(context.l10n.commonRetry),
+                        ),
+                      TextButton(
+                        onPressed: isResending ? null : _resendLink,
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 180),
+                          child: isResending
+                              ? LoadingDots(
+                                  key: const ValueKey('resending-email'),
+                                  color: context.colors.secondary,
+                                  size: 5,
+                                  spacing: 2,
+                                  rise: 3,
+                                )
+                              : Text(
+                                  context.l10n.checkEmailResend,
+                                  key: const ValueKey('resend-email-label'),
+                                ),
+                        ),
+                      ),
+                    ],
+                  );
+                }),
               ],
             ),
           ),
@@ -245,10 +343,7 @@ class _CheckEmailPageState extends State<CheckEmailPage>
                     children: [
                       Align(
                         alignment: Alignment.centerLeft,
-                        child: GestureDetector(
-                          onTap: _handlePop,
-                          child: const AuthBackButton(),
-                        ),
+                        child: AppBackButton(onPressed: _handlePop),
                       ),
                       Expanded(
                         child: Watch(

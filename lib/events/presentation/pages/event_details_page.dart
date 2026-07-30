@@ -1,16 +1,20 @@
 import 'dart:async';
 
-import 'package:autth_injustice_app/authentication/presentation/navigation/auth_routes.dart';
+import 'package:autth_injustice_app/authorization/domain/services/authorization_service.dart';
 import 'package:autth_injustice_app/core/di/dependency_injection.dart';
 import 'package:autth_injustice_app/core/extensions/responsive_extensions.dart';
+import 'package:autth_injustice_app/core/l10n/l10n_extensions.dart';
 import 'package:autth_injustice_app/core/theme/app_theme.dart';
+import 'package:autth_injustice_app/core/widgets/app_back_button.dart';
+import 'package:autth_injustice_app/core/widgets/app_status_view.dart';
 import 'package:autth_injustice_app/events/presentation/viewmodels/event_details/event_details_viewmodel.dart';
 import 'package:autth_injustice_app/events/presentation/widgets/event_details/event_details_actions.dart';
 import 'package:autth_injustice_app/events/presentation/widgets/event_details/event_details_hero.dart';
-import 'package:autth_injustice_app/events/presentation/widgets/event_details/event_details_status.dart';
+import 'package:autth_injustice_app/map/presentation/navigation/map_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:signals_flutter/signals_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class EventDetailsPage extends StatefulWidget {
   final String eventId;
@@ -35,8 +39,26 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
   }
 
   void _openMap() {
-    context.goNamed(AuthRouteNames.initial);
-    //context.goNamed(MapRouteNames.map);
+    context.goNamed(MapRouteNames.map);
+  }
+
+  Future<void> _openExternalLink(String value) async {
+    final uri = Uri.tryParse(value);
+    var opened = false;
+    try {
+      opened = uri != null &&
+          await launchUrl(
+            uri,
+            mode: LaunchMode.externalApplication,
+          );
+    } catch (_) {
+      opened = false;
+    }
+    if (!mounted || opened) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(context.l10n.eventExternalLinkOpenError)),
+    );
   }
 
   @override
@@ -53,15 +75,34 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
           final errorMessage = state.errorMessage.value;
 
           if (state.loading.value && event == null) {
-            return const EventDetailsStatus.loading();
+            return const AppStatusView.loading();
           }
 
           if (event == null) {
-            return EventDetailsStatus.error(
-              message: errorMessage ?? 'Evento não encontrado.',
-              onBack: context.pop,
-              onRetry: () => unawaited(
-                _viewModel.commands.loadEvent(widget.eventId),
+            return SafeArea(
+              child: Stack(
+                children: [
+                  Positioned(
+                    left: context.extraPagePadding.left,
+                    top: 8,
+                    child: AppBackButton(
+                      onPressed: context.pop,
+                    ),
+                  ),
+                  Positioned.fill(
+                    child: AppStatusView(
+                      icon: Icons.event_busy_outlined,
+                      title: context.l10n.eventDetailsUnavailable,
+                      message: errorMessage == null
+                          ? null
+                          : context.l10n.eventsLoadError,
+                      actionLabel: context.l10n.commonRetry,
+                      onAction: () => unawaited(
+                        _viewModel.commands.loadEvent(widget.eventId),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             );
           }
@@ -82,11 +123,18 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                 child: Padding(
                   padding: context.extraPagePadding.copyWith(top: 12),
                   child: EventDetailsActions(
+                    authenticated:
+                        injector.get<AuthorizationService>().isAuthenticated,
                     addedToPersonalHistory: state.addedToPersonalHistory.value,
                     personalRecordUpdating: state.updatingPersonalRecord.value,
                     onPersonalRecordTap:
                         _viewModel.commands.togglePersonalRecord,
                     onMapTap: _openMap,
+                    onExternalLinkTap: event.externalUrl == null
+                        ? null
+                        : () => unawaited(
+                              _openExternalLink(event.externalUrl!),
+                            ),
                   ),
                 ),
               ),
